@@ -23,9 +23,9 @@ return new class extends Migration
             $table->foreignId('developer_id')->constrained();
             $table->string('location_district');
             $table->string('location_city');
-            $table->string('bedrooms');
-            $table->string('land_size');
-            $table->string('building_size');
+            $table->integer('bedrooms');
+            $table->integer('land_size');
+            $table->integer('building_size');
             $table->boolean('has_shm')->default(false);
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
