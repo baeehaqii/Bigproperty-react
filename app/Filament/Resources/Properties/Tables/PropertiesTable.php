@@ -33,8 +33,7 @@ class PropertiesTable
                 TextColumn::make('developer.name')
                     ->label('Developer')
                     ->searchable()
-                    ->sortable()
-                    ,
+                    ->sortable(),
                 
                 TextColumn::make('city')
                     ->label('City')
@@ -69,8 +68,7 @@ class PropertiesTable
                     ->label('Units Left')
                     ->badge()
                     ->color(fn ($state) => $state && $state < 5 ? 'danger' : 'warning')
-                    ->formatStateUsing(fn ($state) => $state ? "{$state} units" : 'N/A')
-                    ,
+                    ->formatStateUsing(fn ($state) => $state ? "{$state} units" : 'N/A'),
                 
                 IconColumn::make('is_popular')
                     ->label('Popular')
@@ -78,8 +76,7 @@ class PropertiesTable
                     ->trueIcon('heroicon-o-star')
                     ->falseIcon('heroicon-o-star')
                     ->trueColor('warning')
-                    ->falseColor('gray')
-                    ,
+                    ->falseColor('gray'),
                 
                 IconColumn::make('is_available')
                     ->label('Available')
@@ -91,19 +88,16 @@ class PropertiesTable
                 
                 TextColumn::make('type')
                     ->badge()
-                    ->color('primary')
-                    ,
+                    ->color('primary'),
                 
                 TextColumn::make('last_updated')
                     ->label('Last Updated')
                     ->dateTime('d M Y, H:i')
-                    ->sortable()
-                    ,
+                    ->sortable(),
                 
                 TextColumn::make('created_at')
                     ->dateTime()
-                    ->sortable()
-                    ,
+                    ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('City')
