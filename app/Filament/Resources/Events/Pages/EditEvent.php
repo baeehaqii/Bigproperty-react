@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Filament\Resources\Properties\Pages;
+namespace App\Filament\Resources\Events\Pages;
 
-use App\Filament\Resources\Properties\PropertyResource;
+use App\Filament\Resources\Events\EventResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
-class EditProperty extends EditRecord
+class EditEvent extends EditRecord
 {
-    protected static string $resource = PropertyResource::class;
+    protected static string $resource = EventResource::class;
 
     protected function getHeaderActions(): array
     {

@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\PropertyCategoryController;
+use App\Models\PropertyCategory;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\WorkOS\Http\Middleware\ValidateSessionWithWorkOS;
@@ -17,6 +19,8 @@ Route::middleware([
         return Inertia::render('dashboard');
     })->name('dashboard');
 });
+
+Route::get('/property-categories', [PropertyCategoryController::class, 'index']);
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Properties\Schemas;
 
+use App\Models\PropertyCategory;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -32,25 +33,8 @@ class PropertyForm
                             ->placeholder('e.g., Nuansa Bukit Bitung')
                             ->columnSpanFull(),
                         
-                        Select::make('developer_id')
-                            ->label('Developer')
-                            ->relationship('developer', 'name')
-                            ->searchable()
-                            ->preload()
-                            ->required()
-                            ->createOptionForm([
-                                TextInput::make('name')
-                                    ->required()
-                                    ->maxLength(255),
-                                FileUpload::make('logo')
-                                    ->image()
-                                    ->directory('developers/logos'),
-                                Textarea::make('description')
-                                    ->rows(3),
-                            ]),
-                        
                         // Province selector
-                        Select::make('province_code')
+                        Select::make('provinsi')
                             ->label('Province')
                             ->options(function () {
                                 try {
@@ -65,18 +49,16 @@ class PropertyForm
                                 }
                                 
                                 return [];
-                            })
+                            }) 
                             ->searchable()
                             ->required()
-                            ->live()
-                            ->afterStateUpdated(fn (callable $set) => $set('city', null))
                             ->placeholder('Select province first'),
                         
                         // City/Regency selector (depends on province)
                         Select::make('city')
                             ->label('City / Regency')
                             ->options(function (callable $get) {
-                                $provinceCode = $get('province_code');
+                                $provinceCode = $get('provinsi');
                                 
                                 if (!$provinceCode) {
                                     return [];
@@ -97,7 +79,8 @@ class PropertyForm
                             })
                             ->searchable()
                             ->required()
-                            ->disabled(fn (callable $get) => !$get('province_code'))
+                            // ->disabled(fn (callable $get) => !$get('provinsi'))
+                            ->dehydrated(true)
                             ->placeholder('Select province first')
                             ->helperText('Please select a province first'),
                         
@@ -106,22 +89,37 @@ class PropertyForm
                             ->placeholder('e.g., Ciawi, Kab. Bogor')
                             ->maxLength(255),
                         
-                        Select::make('type')
-                            ->options([
-                                'Rumah Baru' => 'Rumah Baru',
-                                'Rumah Second' => 'Rumah Second',
-                                'Apartemen' => 'Apartemen',
-                                'Ruko' => 'Ruko',
-                                'Tanah' => 'Tanah',
-                            ])
-                            ->default('Rumah Baru')
-                            ->required(),
-                        
                         TextInput::make('units_remaining')
                             ->label('Units Remaining')
                             ->numeric()
                             ->placeholder('e.g., 16')
                             ->suffix('units'),
+                        
+                        Select::make('event_id')
+                            ->label('Associated Event')
+                            ->relationship('event', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->placeholder('Select event'),
+                        
+                        // Category selector - multiple selection with name as value
+                        Select::make('kategori')
+                            ->label('Property Categories')
+                            ->multiple()
+                            ->options(function () {
+                                return PropertyCategory::where('is_active', true)
+                                    ->orderBy('section')
+                                    ->orderBy('order')
+                                    ->get()
+                                    ->mapWithKeys(function ($category) {
+                                        return [$category->name => $category->name . ' (' . $category->section_label . ')'];
+                                    })
+                                    ->toArray();
+                            })
+                            ->searchable()
+                            ->placeholder('Select property categories')
+                            ->helperText('Select one or more categories for this property')
+                            ->columnSpanFull(),
                     ]),
 
                 // Price & Financing Section
@@ -151,6 +149,7 @@ class PropertyForm
                             ->numeric()
                             ->prefix('Rp')
                             ->suffix('/month')
+                            ->columnSpanFull()
                             ->placeholder('5000000')
                             ->helperText('Monthly payment amount'),
                     ]),
@@ -159,7 +158,6 @@ class PropertyForm
                 Section::make('Property Specifications')
                     ->description('Detailed property specifications')
                     ->icon('heroicon-o-home')
-                    ->columns(2)
                     ->schema([
                         TextInput::make('bedrooms')
                             ->label('Bedrooms')

@@ -11,10 +11,9 @@ class Property extends Model
     use HasFactory;
 
     protected $fillable = [
-        'developer_id',
         'city',
+        "provinsi",
         'name',
-        'type',
         'units_remaining',
         'price_min',
         'price_max',
@@ -34,10 +33,13 @@ class Property extends Model
         'is_available',
         'is_popular',
         'last_updated',
+        "event_id",
+        "kategori"
     ];
 
     protected $casts = [
         'features' => 'array',
+        'kategori' => 'array',
         'images' => 'array',
         'price_min' => 'decimal:2',
         'price_max' => 'decimal:2',
@@ -52,11 +54,10 @@ class Property extends Model
         'last_updated' => 'datetime',
     ];
 
-    public function developer(): BelongsTo
+    public function event(): BelongsTo
     {
-        return $this->belongsTo(Developer::class);
+        return $this->belongsTo(Event::class);
     }
-
     // Accessor untuk format harga
     public function getPriceRangeAttribute(): string
     {

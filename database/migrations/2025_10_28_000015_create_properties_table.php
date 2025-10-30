@@ -13,19 +13,18 @@ return new class extends Migration
     {
         Schema::create('properties', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('developer_id')->constrained('developers')->cascadeOnDelete();
-            
+            $table->foreignId('event_id')->nullable()->constrained('events')->nullOnDelete();
             // Basic Info
             $table->string('city');
+            $table->string('provinsi');
+
             $table->string('name');
-            $table->string('type')->default('Rumah Baru');
             $table->integer('units_remaining')->nullable();
-            
             // Price Info
             $table->decimal('price_min', 15, 2);
             $table->decimal('price_max', 15, 2)->nullable();
             $table->decimal('installment_start', 15, 2);
-            
+        
             // Location
             $table->string('location');
             
@@ -50,9 +49,10 @@ return new class extends Migration
             $table->boolean('is_available')->default(true);
             $table->boolean('is_popular')->default(false);
             
+
             $table->timestamp('last_updated')->nullable();
             $table->timestamps();
-            
+            $table->json('kategori')->nullable();
             // Indexes
             $table->index(['is_popular']);
             $table->index('is_available');

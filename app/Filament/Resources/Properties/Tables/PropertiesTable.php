@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Properties\Tables;
 
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
@@ -29,11 +30,6 @@ class PropertiesTable
                     ->sortable()
                     ->weight('bold')
                     ->wrap(),
-                
-                TextColumn::make('developer.name')
-                    ->label('Developer')
-                    ->searchable()
-                    ->sortable(),
                 
                 TextColumn::make('city')
                     ->label('City')
@@ -105,12 +101,6 @@ class PropertiesTable
                     ->multiple()
                     ->preload(),
                 
-                SelectFilter::make('developer_id')
-                    ->label('Developer')
-                    ->relationship('developer', 'name')
-                    ->multiple()
-                    ->preload(),
-                
                 SelectFilter::make('type')
                     ->options([
                         'Rumah Baru' => 'Rumah Baru',
@@ -135,6 +125,7 @@ class PropertiesTable
             ])
             ->recordActions([
                 EditAction::make(),
+                DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
