@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Events\Schemas;
 
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Placeholder;
@@ -42,6 +43,16 @@ class EventForm
                                 'underline',
                                 'bulletList',
                                 'orderedList',
+                            ])
+                            ->columnSpanFull(),
+                            FileUpload::make('banner')
+                            ->label('Gambar Banner')
+                            ->image()
+                            ->directory('event/banner')
+                            ->imageEditor()
+                            ->imageEditorAspectRatios([
+                                '16:9',
+                                '4:3',
                             ])
                             ->columnSpanFull(),
                     ])

@@ -7,6 +7,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -21,6 +22,11 @@ class EventsTable
     {
         return $table
             ->columns([
+                ImageColumn::make('banner')
+                    ->label('Gambar Banner')
+                    ->circular()
+                    ->defaultImageUrl(url('/images/placeholder.jpg'))
+                    ->size(60),
                 TextColumn::make('name')
                     ->label('Nama Event')
                     ->searchable()

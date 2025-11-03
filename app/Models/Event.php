@@ -12,6 +12,7 @@ class Event extends Model
         'start_date',
         'end_date',
         "is_active",
+        "banner"
     ];
     public function properties()
     {
