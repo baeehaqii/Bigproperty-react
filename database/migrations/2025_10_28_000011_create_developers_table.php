@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('alamat');
             $table->json('list_property')->nullable();
             $table->string('logo')->nullable();
+            $table->boolean('is_verified')->default(false);
+            $table->string('kontak')->nullable();
             $table->timestamps();
         });
     }

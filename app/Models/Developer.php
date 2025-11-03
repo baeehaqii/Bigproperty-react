@@ -14,6 +14,8 @@ class Developer extends Model
         'alamat',
         'logo', 
         'list_property',
+        "is_verified",
+        "kontak"
     ];
     
     protected $casts = [

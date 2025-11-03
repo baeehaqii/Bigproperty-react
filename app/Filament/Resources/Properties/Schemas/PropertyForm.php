@@ -283,9 +283,13 @@ class PropertyForm
                             ->helperText('Show in "Popular Properties" section'),
                         
                         DateTimePicker::make('last_updated')
+                            ->disabled()
+                            ->dehydrated(true)
                             ->label('Last Updated')
-                            ->default(now())
-                            ->helperText('When was this property last updated?'),
+                            ->afterStateHydrated(function ($set) {
+                                $set('last_updated', now()->format('Y-m-d H:i:s'));
+                            })
+                            ->helperText('When was this property last updated?')
                     ]),
             ]);
     }

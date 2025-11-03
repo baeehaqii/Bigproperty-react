@@ -8,17 +8,20 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('cities', function (Blueprint $table) {
+        Schema::create('testimonis', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('slug')->unique();
-            $table->enum('type', ['Kota', 'Kabupaten'])->default('Kota');
+            $table->string('role');
+            $table->text('content');
+            $table->string('image');
+            $table->tinyInteger('rating')->default(5);
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('cities');
+        Schema::dropIfExists('testimonis');
     }
 };

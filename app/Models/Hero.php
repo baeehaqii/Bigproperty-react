@@ -6,32 +6,31 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class hero extends Model
+class Hero extends Model
 {
-use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes;
+
+    protected $table = 'heroes';
 
     protected $fillable = [
         'title',
         'subtitle',
-        'description',
-        'primary_cta_text',
-        'primary_cta_link',
-        'secondary_cta_text',
-        'secondary_cta_link',
-        'background_image',
-        'background_video',
-        'overlay_opacity',
-        'text_alignment', // left, center, right
+        "deskripsi",
+        'image',
         'is_active',
-        'display_order',
-        'start_date',
-        'end_date',
+        'link_url',
+        'link_text',
+        "main_color"
     ];
 
     protected $casts = [
+        'image'=> 'array',
         'is_active' => 'boolean',
-        'overlay_opacity' => 'integer',
-        'start_date' => 'datetime',
-        'end_date' => 'datetime',
     ];
+
+    // Scope untuk ambil hero yang aktif aja
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
 }

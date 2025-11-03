@@ -2,11 +2,13 @@
 
 namespace App\Filament\Resources\Properties\Tables;
 
+use App\Models\Event;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -59,6 +61,10 @@ class PropertiesTable
                     ->label('Bedrooms')
                     ->badge()
                     ->color('success'),
+
+                TextColumn::make('event.name')
+                    ->label('Event')
+                    ->badge(),
                 
                 TextColumn::make('units_remaining')
                     ->label('Units Left')
@@ -136,12 +142,39 @@ class PropertiesTable
                         ->color('warning')
                         ->action(fn ($records) => $records->each->update(['is_popular' => true]))
                         ->deselectRecordsAfterCompletion(),
-                    
-                   BulkAction::make('mark_available')
-                        ->label('Mark as Available')
-                        ->icon('heroicon-o-check-circle')
-                        ->color('success')
-                        ->action(fn ($records) => $records->each->update(['is_available' => true]))
+                        
+                     BulkAction::make('assign_to_active_event')
+                        ->label('Assign to Active Event')
+                        ->icon('heroicon-o-calendar')
+                        ->color('primary')
+                        ->requiresConfirmation()
+                        ->modalHeading('Assign Properties to Active Event')
+                        ->modalDescription('This will assign all selected properties to the currently active event.')
+                        ->modalSubmitActionLabel('Assign')
+                        ->action(function ($records) {
+                            // Cari event yang aktif
+                            $activeEvent = Event::where('is_active', true)->first();
+                            
+                            // Jika tidak ada event aktif, tampilkan notifikasi error
+                            if (!$activeEvent) {
+                                Notification::make()
+                                    ->title('No Active Event')
+                                    ->body('There is no active event available. Please activate an event first.')
+                                    ->danger()
+                                    ->send();
+                                return;
+                            }
+                            
+                            // Update semua property yang dipilih dengan event_id aktif
+                            $records->each->update(['event_id' => $activeEvent->id]);
+                            
+                            // Tampilkan notifikasi sukses
+                            Notification::make()
+                                ->title('Properties Assigned Successfully')
+                                ->body("Successfully assigned {$records->count()} properties to event: {$activeEvent->name}")
+                                ->success()
+                                ->send();
+                        })
                         ->deselectRecordsAfterCompletion(),
                 ]),
                

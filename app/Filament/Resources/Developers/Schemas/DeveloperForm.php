@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Developers\Schemas;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -19,8 +20,10 @@ class DeveloperForm
                 Section::make('Informasi Developer')
                     ->description('Masukkan data lengkap developer properti')
                     ->icon('heroicon-o-building-office-2')
+                    ->columns(2)
                     ->schema([
                         Grid::make(2)
+                            ->ColumnSpanFull()
                             ->schema([
                                 TextInput::make('name')
                                     ->label('Nama Developer')
@@ -44,13 +47,20 @@ class DeveloperForm
                             ->required()
                             ->maxLength(500)
                             ->placeholder('Jl. Contoh No. 123, Jakarta Selatan')
-                            ->helperText('Alamat lengkap kantor developer')
-                            ->columnSpanFull(),
-
+                            ->helperText('Alamat lengkap kantor developer'),
+                        TextInput::make('Kontak')
+                            ->label('Kontak Kantor')
+                            ->required()
+                            ->numeric()
+                            ->maxLength(15)
+                            ->prefix('+62/+21')
+                            ->helperText('Alamat lengkap kantor developer'),
                         FileUpload::make('logo')
                             ->label('Logo Developer')
                             ->image()
                             ->imageEditor()
+                            ->ColumnSpanFull()
+
                             ->imageEditorAspectRatios([
                                 '16:9',
                                 '4:3',
@@ -59,8 +69,9 @@ class DeveloperForm
                             ->maxSize(2048)
                             ->directory('developers/logos')
                             ->visibility('public')
-                            ->helperText('Upload logo developer (Maks. 2MB, format: JPG, PNG)')
-                            ->columnSpanFull(),
+                            ->helperText('Upload logo developer (Maks. 2MB, format: JPG, PNG)'),
+                        Toggle::make('is_verified')
+                            ->label('Developer Terverifikasi'),
                     ])
                     ->collapsible()
                     ->persistCollapsed(),

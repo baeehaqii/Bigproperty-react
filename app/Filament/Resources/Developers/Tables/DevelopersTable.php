@@ -7,6 +7,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ImageColumn;
@@ -42,7 +43,6 @@ class DevelopersTable
                     ->searchable()
                     ->limit(50)
                     ->tooltip(fn ($record) => $record->alamat)
-                    ->icon('heroicon-o-map-pin')
                     ->iconColor('gray')
                     ->wrap(),
 
@@ -90,19 +90,21 @@ class DevelopersTable
                         };
                     })
                     ->icon('heroicon-o-building-storefront'),
-
+                ToggleColumn::make('is_verified')
+                    ->label('Terverifikasi')
+                    ->alignCenter(),
                 TextColumn::make('created_at')
                     ->label('Dibuat')
                     ->dateTime('d M Y')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
+                    
                     ->icon('heroicon-o-clock'),
 
                 TextColumn::make('updated_at')
                     ->label('Diperbarui')
                     ->dateTime('d M Y, H:i')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
+                    
                     ->since()
                     ->icon('heroicon-o-arrow-path'),
             ])

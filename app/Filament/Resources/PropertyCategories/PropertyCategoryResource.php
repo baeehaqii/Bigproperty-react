@@ -20,7 +20,7 @@ class PropertyCategoryResource extends Resource
 
 
     protected static ?string $recordTitleAttribute = 'PropertyCategory';
-    protected static string|\UnitEnum|null $navigationGroup = 'Kategori';
+    protected static string|\UnitEnum|null $navigationGroup = 'Main Content';
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Cog;
     protected static ?int $navigationSort = 1;
 
