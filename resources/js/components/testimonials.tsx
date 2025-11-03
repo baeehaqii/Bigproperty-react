@@ -4,43 +4,20 @@ import { useState } from "react"
 import { ChevronLeft, ChevronRight, Quote } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-interface Testimonial {
-  id: number
-  name: string
-  role: string
-  content: string
-  image: string
-  rating: number
-}
-
-const testimonials: Testimonial[] = [
+const testimonials = [
   {
-    id: 1,
-    name: "Raden Kautsar",
-    role: "Pembeli Panorama Bekasi Residence via Pinhome",
-    content:
-      "Cari hunian via aplikasi Pinhome lancar banget! Fitur pencarian terkategorisasi dengan baik. Setelah saya isi data diri untuk mencari info lebih lanjut soal Panorama Bekasi Residence, saya diarahkan untuk berkomunikasi langsung dengan agen. Agennya responsif dan ahli dalam pekerjaannya. Itu yang bikin saya yakin.",
-    image: "/placeholder.svg?height=400&width=600",
-    rating: 5,
+    name: "John Doe",
+    role: "Customer",
+    content: "Great product!",
+    image: "https://res.cloudinary.com/dx8w9qwl6/image/upload/v1749477428/image_15_b2vcbb.png",
   },
   {
-    id: 2,
-    name: "Siti Nurhaliza",
-    role: "Pembeli Villa Kebun Raya via Pinhome",
-    content:
-      "Pengalaman membeli rumah pertama saya melalui Pinhome sangat menyenangkan. Tim mereka sangat membantu dan proses verifikasi properti membuat saya merasa aman. Cicilan yang ditawarkan juga sangat kompetitif.",
-    image: "/placeholder.svg?height=400&width=600",
-    rating: 5,
+    name: "Jane Smith",
+    role: "Client",
+    content: "Excellent service!",
+    image: "https://res.cloudinary.com/dx8w9qwl6/image/upload/v1749477428/image_15_b2vcbb.png",
   },
-  {
-    id: 3,
-    name: "Budi Santoso",
-    role: "Investor Properti Jakarta",
-    content:
-      "Sudah beberapa kali transaksi properti melalui Pinhome. Yang saya suka adalah transparansi informasi dan kemudahan dalam proses negosiasi. Customer service mereka juga sangat responsif dalam menjawab pertanyaan.",
-    image: "/placeholder.svg?height=400&width=600",
-    rating: 5,
-  },
+  // Add more testimonials as needed
 ]
 
 export function Testimonials() {
@@ -64,19 +41,19 @@ export function Testimonials() {
   const currentTestimonial = testimonials[currentIndex]
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-blue-500 to-blue-400 py-16 md:py-24">
+    <section className="relative w-full overflow-hidden bg-gradient-to-br from-[#ECEC5C] via-[#d4d44a] to-[#c4a747] py-16 md:py-24">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0 bg-[url('/placeholder.svg?height=800&width=1600')] bg-cover bg-center" />
       </div>
 
-      <div className="container relative mx-auto px-4">
-        <div className="mb-8 md:mb-12">
-          <h2 className="text-3xl font-bold text-white md:text-4xl">Kata Mereka</h2>
-          <p className="mt-2 text-lg text-white/90">Testimoni dari pelanggan yang puas</p>
+      <div className="relative mx-auto max-w-7xl">
+        <div className="mb-8 px-6 md:mb-12">
+          <h2 className="text-3xl font-bold text-gray-900 md:text-4xl">Kata Mereka</h2>
+          <p className="mt-2 text-lg text-gray-900/90">Testimoni dari pelanggan yang puas</p>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
+        <div className="grid gap-8 px-6 lg:grid-cols-2 lg:gap-12">
           {/* Image Section */}
           <div className="relative">
             <div className="relative overflow-hidden rounded-2xl">
@@ -101,15 +78,15 @@ export function Testimonials() {
                 isAnimating ? "opacity-0 translate-x-4" : "opacity-100 translate-x-0"
               }`}
             >
-              <Quote className="mb-6 h-12 w-12 text-white/80 md:h-16 md:w-16" />
+              <Quote className="mb-6 h-12 w-12 text-gray-900/70 md:h-16 md:w-16" />
 
-              <blockquote className="mb-8 text-lg leading-relaxed text-white md:text-xl">
+              <blockquote className="mb-8 text-lg leading-relaxed text-gray-900 md:text-xl">
                 {currentTestimonial.content}
               </blockquote>
 
               <div>
-                <div className="mb-1 text-xl font-bold text-white md:text-2xl">{currentTestimonial.name}</div>
-                <div className="text-base text-white/90 md:text-lg">{currentTestimonial.role}</div>
+                <div className="mb-1 text-xl font-bold text-gray-900 md:text-2xl">{currentTestimonial.name}</div>
+                <div className="text-base text-gray-900/80 md:text-lg">{currentTestimonial.role}</div>
               </div>
             </div>
 
@@ -120,7 +97,7 @@ export function Testimonials() {
                 disabled={isAnimating}
                 size="icon"
                 variant="secondary"
-                className="h-12 w-12 rounded-full bg-white text-blue-600 hover:bg-white/90 disabled:opacity-50"
+                className="h-12 w-12 rounded-full bg-white text-[#c4a747] hover:bg-white/90 disabled:opacity-50"
               >
                 <ChevronLeft className="h-6 w-6" />
               </Button>
@@ -129,7 +106,7 @@ export function Testimonials() {
                 disabled={isAnimating}
                 size="icon"
                 variant="secondary"
-                className="h-12 w-12 rounded-full bg-white text-blue-600 hover:bg-white/90 disabled:opacity-50"
+                className="h-12 w-12 rounded-full bg-white text-[#c4a747] hover:bg-white/90 disabled:opacity-50"
               >
                 <ChevronRight className="h-6 w-6" />
               </Button>
