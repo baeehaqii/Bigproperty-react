@@ -257,7 +257,7 @@ export function PopularProperties() {
               onClick={() => setSelectedCity(city.id)}
               className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
                 selectedCity === city.id
-                  ? "bg-blue-600 text-white"
+                  ? "bg-[#ECEC5C] text-gray-900"
                   : "bg-white text-gray-600 border border-gray-300 hover:border-gray-400"
               }`}
             >
@@ -265,7 +265,7 @@ export function PopularProperties() {
             </button>
           ))}
         </div>
-        <a href="#" className="text-blue-600 font-medium text-sm whitespace-nowrap hover:underline">
+        <a href="#" className="text-[#ECEC5C] font-medium text-sm whitespace-nowrap hover:underline">
           Lihat Semua
         </a>
       </div>

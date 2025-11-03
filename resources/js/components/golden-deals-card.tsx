@@ -49,7 +49,7 @@ export function GoldenDealsCard({
       {/* Image Container with Banner */}
       <div className="relative h-[160px] overflow-hidden">
         <img src={image || "/placeholder.svg"} alt={propertyName} className="w-full h-full object-cover" />
-        <div className="absolute bottom-0 left-0 right-0 bg-blue-600 text-white px-3 py-2.5">
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-[#ECEC5C] to-[#d4d44a] text-gray-900 px-3 py-2.5">
           <p className="text-[11px] font-semibold leading-tight">Cuma di Pinhome: Emas Batangan hingga 12gr</p>
         </div>
         {badge && (
@@ -76,7 +76,7 @@ export function GoldenDealsCard({
 
         <div className="mb-2">
           <p className="text-base font-bold text-gray-900 leading-tight mb-1">{priceRange}</p>
-          <p className="text-[11px] text-blue-600 font-semibold">{installment}</p>
+          <p className="text-[11px] text-amber-600 font-semibold">{installment}</p>
         </div>
 
         <div className="mb-2">
@@ -117,12 +117,12 @@ export function GoldenDealsCard({
           <Button
             variant="outline"
             size="sm"
-            className="flex-1 text-blue-600 border-blue-600 hover:bg-blue-50 bg-white h-9 text-xs font-semibold"
+            className="flex-1 text-amber-600 border-amber-600 hover:bg-amber-50 bg-white h-9 text-xs font-semibold"
           >
             <FileText className="w-3.5 h-3.5 mr-1.5" />
             Brosur
           </Button>
-          <Button size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700 h-9 text-xs font-semibold">
+          <Button size="sm" className="flex-1 bg-amber-600 hover:bg-amber-700 h-9 text-xs font-semibold text-white">
             <MessageCircle className="w-3.5 h-3.5 mr-1.5" />
             Chat
           </Button>
