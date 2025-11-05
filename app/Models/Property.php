@@ -26,7 +26,7 @@ class Property extends Model
         'building_size_max',
         'certificate_type',
         'promo_text',
-        'features',
+        'keunggulan',
         'images',
         'main_image',
         'button_type',
@@ -34,12 +34,20 @@ class Property extends Model
         'is_popular',
         'last_updated',
         "event_id",
-        "kategori"
+        "fasilitas",
+        "url_maps",
+        "nearest_place",
+        "kategori",
+        'developer_id',
+        "count_clicked",
+        "agen_id"
     ];
 
     protected $casts = [
-        'features' => 'array',
+        'nearest_place' => 'array',
         'kategori' => 'array',
+        'keunggulan' => 'array',
+        'fasilitas' => 'array',
         'images' => 'array',
         'price_min' => 'decimal:2',
         'price_max' => 'decimal:2',
@@ -52,11 +60,20 @@ class Property extends Model
         'is_available' => 'boolean',
         'is_popular' => 'boolean',
         'last_updated' => 'datetime',
+        
     ];
 
     public function event(): BelongsTo
     {
         return $this->belongsTo(Event::class);
+    }
+    public function agen()
+    {
+        return $this->belongsTo(Agen::class);
+    }
+    public function developer()
+    {
+        return $this->belongsTo(Developer::class);
     }
     // Accessor untuk format harga
     public function getPriceRangeAttribute(): string

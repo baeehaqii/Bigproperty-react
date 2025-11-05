@@ -21,7 +21,7 @@ class UserResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::User;
 
     protected static ?string $navigationLabel = 'User';
-    protected static string|\UnitEnum|null $navigationGroup = 'Main';
+    protected static string|\UnitEnum|null $navigationGroup = '#';
     protected static ?string $modelLabel = 'Data User';
     protected static ?string $pluralModelLabel = 'User';
     protected static ?string $recordTitleAttribute = 'User';

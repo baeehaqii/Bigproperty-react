@@ -14,6 +14,9 @@ return new class extends Migration
         Schema::create('properties', function (Blueprint $table) {
             $table->id();
             $table->foreignId('event_id')->nullable()->constrained('events')->nullOnDelete();
+            $table->foreignId('developer_id')->nullable()->constrained('developers')->cascadeOnDelete();
+            $table->foreignId('agen_id')->nullable()->constrained('agens')->cascadeOnDelete();
+
             // Basic Info
             $table->string('city');
             $table->string('provinsi');
@@ -38,7 +41,10 @@ return new class extends Migration
             
             // Marketing
             $table->text('promo_text')->nullable();
-            $table->json('features')->nullable();
+            $table->json('keunggulan')->nullable();
+            $table->json('nearest_place')->nullable();
+            $table->json('kategori')->nullable();
+            $table->string('url_maps')->nullable();
             
             // Images
             $table->json('images');
@@ -50,9 +56,10 @@ return new class extends Migration
             $table->boolean('is_popular')->default(false);
             
 
+            $table->integer('count_clicked')->default(0);
             $table->timestamp('last_updated')->nullable();
             $table->timestamps();
-            $table->json('kategori')->nullable();
+            $table->json('fasilitas')->nullable();
             // Indexes
             $table->index(['is_popular']);
             $table->index('is_available');

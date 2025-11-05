@@ -1,114 +1,90 @@
+// golden-deals.tsx
 "use client"
 
 import { GoldenDealsCard } from "./golden-deals-card"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { useRef } from "react"
+import { useRef, useState, useEffect } from "react"
 import { Button } from "./ui/button"
 
-const goldenDealsProperties = [
-  {
-    id: "1",
-    image: "/placeholder.svg?height=160&width=280",
-    type: "Rumah Baru",
-    priceRange: "Rp 1,2 M - Rp 2,1 M",
-    installment: "Angsuran mulai dari Rp8,3 Jt/bln",
-    propertyName: "Villa Bogor Indah 6",
-    developer: "Kalindo Land",
-    developerLogo: "/placeholder.svg?height=20&width=20",
-    location: "Sukaraja, Kab. Bogor",
-    bedrooms: "2-3 KT",
-    landSize: "LT 72-84m²",
-    buildingSize: "LB 60-",
-    updatedAt: "Diperbarui lebih dari 1 bulan lalu",
-  },
-  {
-    id: "2",
-    image: "/placeholder.svg?height=160&width=280",
-    type: "Rumah Baru",
-    priceRange: "Rp 850 Jt - Rp 1,1 M",
-    installment: "Angsuran mulai dari Rp5,8 Jt/bln",
-    propertyName: "Mulia Kerta Residence",
-    developer: "PT Agung Mulia Kerta",
-    developerLogo: "/placeholder.svg?height=20&width=20",
-    location: "Cipayung, Kota Jakarta Timur",
-    bedrooms: "2-3 KT",
-    landSize: "LT 60-81m²",
-    buildingSize: "LB 45-",
-    updatedAt: "Diperbarui lebih dari 1 bulan lalu",
-  },
-  {
-    id: "3",
-    image: "/placeholder.svg?height=160&width=280",
-    badge: "SIAP HUNI",
-    type: "Rumah Baru",
-    typeExtra: "Sisa 4 Unit",
-    priceRange: "Rp 420 Jt - Rp 515 Jt",
-    installment: "Angsuran mulai dari Rp2,9 Jt/bln",
-    propertyName: "Kavling Malaika Sandrina Tania",
-    developer: "Indanaland",
-    developerLogo: "/placeholder.svg?height=20&width=20",
-    location: "Tambun Utara, Kab. Bekasi",
-    bedrooms: "2 KT",
-    landSize: "LT 60m²",
-    buildingSize: "LB 36m²",
-    shm: true,
-    updatedAt: "Diperbarui lebih dari 1 bulan lalu",
-  },
-  {
-    id: "4",
-    image: "/placeholder.svg?height=160&width=280",
-    type: "Rumah Baru",
-    priceRange: "Rp 1,9 M - Rp 3,7 M",
-    installment: "Angsuran mulai dari Rp13,5 Jt/bln",
-    propertyName: "Summarecon Crown Gading",
-    developer: "PT Summarecon Agung Tbk",
-    developerLogo: "/placeholder.svg?height=20&width=20",
-    location: "Tarumajaya, Kab. Bekasi",
-    bedrooms: "2-5 KT",
-    landSize: "LT 55-192m²",
-    buildingSize: "LB 50-",
-    updatedAt: "Diperbarui lebih dari 1 bulan lalu",
-  },
-  {
-    id: "5",
-    image: "/placeholder.svg?height=160&width=280",
-    badge: "READY",
-    type: "Apartemen",
-    priceRange: "Rp 750 Jt - Rp 1,05 M",
-    installment: "Angsuran mulai dari Rp4,9 Jt/bln",
-    propertyName: "Skyline Residence Tower A",
-    developer: "PT Cipta Properti Nusantara",
-    developerLogo: "/placeholder.svg?height=20&width=20",
-    location: "Kebayoran, Kota Jakarta Selatan",
-    bedrooms: "1-2 KT",
-    landSize: "LT -",
-    buildingSize: "LB 36-72m²",
-    updatedAt: "Diperbarui 2 minggu lalu",
-  },
-  {
-    id: "6",
-    image: "/placeholder.svg?height=160&width=280",
-    type: "Kavling",
-    typeExtra: "Sisa 12 Lot",
-    priceRange: "Rp 320 Jt - Rp 450 Jt",
-    installment: "Angsuran mulai dari Rp2,1 Jt/bln",
-    propertyName: "Greenfield Kavling Asri",
-    developer: "Greenfield Developments",
-    developerLogo: "/placeholder.svg?height=20&width=20",
-    location: "Cileungsi, Kab. Bogor",
-    bedrooms: "-",
-    landSize: "LT 90-120m²",
-    buildingSize: "-",
-    updatedAt: "Diperbarui 3 hari lalu",
-  },
-]
+interface Property {
+  id: string
+  image: string | null
+  promo_text: string | null
+  kategori: string[]
+  units_remaining: number | null
+  price_range: string
+  installment: string
+  property_name: string
+  location: string
+  city: string
+  provinsi: string
+  bedrooms: string
+  land_size: string
+  building_size: string
+  certificate_type: string | null
+  is_popular: boolean
+  last_updated: string | null
+  developer_name: string  // Tambah ini
+  developer_logo: string | null  // Tambah ini
+}
+
+interface GoldenDealsData {
+  event: {
+    id: number
+    name: string
+    description: string | null
+    banner: string | null
+    start_date: string
+    end_date: string
+  }
+  properties: Property[]
+}
 
 export function GoldenDeals() {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const [goldenDeals, setGoldenDeals] = useState<GoldenDealsData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchGoldenDeals = async () => {
+      try {
+        setLoading(true)
+        console.log('Fetching from:', window.location.origin + '/golden-deals')
+        
+        const response = await fetch('/golden-deals')
+        
+        console.log('Response status:', response.status)
+        console.log('Response ok:', response.ok)
+        
+        if (!response.ok) {
+          const errorText = await response.text()
+          console.error('Response error:', errorText)
+          throw new Error(`HTTP ${response.status}: ${errorText}`)
+        }
+        
+        const result = await response.json()
+        console.log('Golden Deals data:', result)
+        
+        if (result.success && result.data) {
+          setGoldenDeals(result.data)
+        } else {
+          throw new Error(result.message || 'Data tidak valid')
+        }
+      } catch (err) {
+        console.error('Error fetching Golden Deals:', err)
+        setError(err instanceof Error ? err.message : 'An error occurred')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchGoldenDeals()
+  }, [])
 
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
-      const scrollAmount = 296 // card width + gap
+      const scrollAmount = 296
       const newScrollLeft =
         scrollContainerRef.current.scrollLeft + (direction === "left" ? -scrollAmount : scrollAmount)
 
@@ -119,12 +95,43 @@ export function GoldenDeals() {
     }
   }
 
+  const defaultBanner = "https://res.cloudinary.com/dx8w9qwl6/image/upload/v1761071336/Type_85_zmze7h.avif"
+  const bannerImage = goldenDeals?.event?.banner || defaultBanner
+
+  if (loading) {
+    return (
+      <section className="relative px-4 overflow-hidden">
+        <div className="max-w-7xl mx-auto pt-12 pb-8">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-gray-600 text-lg">Memuat Golden Deals...</div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  if (error && !goldenDeals) {
+    return (
+      <section className="relative px-4 overflow-hidden">
+        <div className="max-w-7xl mx-auto pt-12 pb-8">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-red-600">Error: {error}</div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  if (!goldenDeals?.properties || goldenDeals.properties.length === 0) {
+    return null
+  }
+
   return (
     <section className="relative px-4 overflow-hidden">
       <div
         className="absolute inset-x-0 top-0 h-[280px] bg-cover bg-center rounded-3xl mx-4"
         style={{
-          backgroundImage: "url('https://res.cloudinary.com/dx8w9qwl6/image/upload/v1761071336/Type_85_zmze7h.avif')",
+          backgroundImage: `url('${bannerImage}')`,
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-[#ECEC5C]/90 via-[#d4d44a]/90 to-[#c4a747]/90 rounded-3xl" />
@@ -142,7 +149,7 @@ export function GoldenDeals() {
                   WebkitTextStroke: "2px #7c3aed",
                 }}
               >
-                GOLDEN
+                {goldenDeals.event.name.split(' ')[0] || 'GOLDEN'}
               </h2>
               <h2
                 className="text-5xl font-black leading-none"
@@ -154,7 +161,7 @@ export function GoldenDeals() {
                   filter: "drop-shadow(2px 2px 0px #7c3aed)",
                 }}
               >
-                DEALS
+                {goldenDeals.event.name.split(' ')[1] || 'DEALS'}
               </h2>
             </div>
           </div>
@@ -162,6 +169,12 @@ export function GoldenDeals() {
             LIHAT SEMUA
           </Button>
         </div>
+
+        {error && goldenDeals && (
+          <div className="mb-4 bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-2 rounded">
+            Peringatan: {error}
+          </div>
+        )}
 
         <div className="relative group">
           <button
@@ -177,8 +190,27 @@ export function GoldenDeals() {
             className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
-            {goldenDealsProperties.map((property) => (
-              <GoldenDealsCard key={property.id} {...property} />
+            {goldenDeals.properties.map((property) => (
+              <GoldenDealsCard 
+                key={property.id} 
+                id={property.id}
+                image={property.image || '/placeholder.svg?height=160&width=280'}
+                badge={property.promo_text || undefined}
+                type={property.kategori?.[0] || 'Properti'}
+                typeExtra={property.units_remaining ? `Sisa ${property.units_remaining} Unit` : undefined}
+                priceRange={property.price_range}
+                installment={property.installment}
+                propertyName={property.property_name}
+                developer={property.developer_name}
+                promoText={property.promo_text}
+                developerLogo={property.developer_logo || '/placeholder.svg?height=20&width=20'}  // Update ini
+                location={property.location}
+                bedrooms={property.bedrooms}
+                landSize={property.land_size}
+                buildingSize={property.building_size}
+                shm={property.certificate_type === 'SHM'}
+                updatedAt={property.last_updated || 'Baru diperbarui'}
+              />
             ))}
           </div>
 

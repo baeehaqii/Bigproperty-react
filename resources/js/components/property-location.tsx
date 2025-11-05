@@ -1,37 +1,45 @@
 "use client"
 
 import { useState } from "react"
-import type { PropertyLocation as PropertyLocationType } from "@/types/property"
 import { MapPin, Navigation } from "lucide-react"
 import { Button } from "./ui/button"
 
+interface NearestPlace {
+  category: string
+  name: string
+  distance: string
+}
+
 interface PropertyLocationProps {
-  location: PropertyLocationType
+  location: any
   propertyName: string
 }
 
-const nearbyPlacesByCategory = {
-  school: [
-    { name: "SMA Islam Terpadu Alia Islamic School", distance: "1,98 KM" },
-    { name: "SD Negeri Cijantri 1", distance: "0,99 KM" },
-    { name: "SMP Negeri 2 Pagedangan", distance: "1,72 KM" },
-  ],
-  shopping: [
-    { name: "Summarecon Mall Serpong", distance: "2,5 KM" },
-    { name: "AEON Mall BSD City", distance: "3,2 KM" },
-    { name: "Living World Alam Sutera", distance: "4,1 KM" },
-  ],
-  transport: [
-    { name: "Stasiun Serpong", distance: "2,7 KM" },
-    { name: "Halte Transjakarta Serpong", distance: "2,3 KM" },
-    { name: "Terminal Serpong", distance: "3,5 KM" },
-  ],
-}
-
 export function PropertyLocation({ location, propertyName }: PropertyLocationProps) {
-  const [activeTab, setActiveTab] = useState<"school" | "shopping" | "transport">("school")
+  // Get unique categories from nearestPlaces
+  const categories = location?.nearestPlaces 
+    ? Array.from(new Set(location.nearestPlaces.map((place: NearestPlace) => place.category)))
+    : []
+  
+  const [activeTab, setActiveTab] = useState<string>(categories[0] || "")
 
-  const displayedPlaces = nearbyPlacesByCategory[activeTab]
+  // Filter places by active category
+  const displayedPlaces = location?.nearestPlaces?.filter(
+    (place: NearestPlace) => place.category === activeTab
+  ) || []
+
+  // Get category display name
+  const getCategoryName = (category: string) => {
+    const names: { [key: string]: string } = {
+      'sekolah': 'Sekolah & Universitas',
+      'tempat belanja': 'Pusat Perbelanjaan',
+      'transportasi': 'Transportasi',
+      'rumah sakit': 'Rumah Sakit',
+      'tempat ibadah': 'Tempat Ibadah',
+      'taman': 'Taman & Rekreasi',
+    }
+    return names[category.toLowerCase()] || category
+  }
 
   return (
     <section className="bg-white border rounded-lg p-6 space-y-4">
@@ -52,82 +60,75 @@ export function PropertyLocation({ location, propertyName }: PropertyLocationPro
 
       <div className="flex items-start gap-2 text-sm text-gray-700">
         <MapPin className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-        <a href="#" className="text-blue-600 hover:underline">
-          {location.address}
-        </a>
+        <span className="text-gray-700">
+          {location?.full || 'Lokasi tidak tersedia'}
+        </span>
       </div>
 
-      <div className="relative h-[300px] bg-gray-200 rounded-lg overflow-hidden">
-        <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3965.3076234567!2d106.6197!3d-6.2897!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69fb56b25975f9%3A0x50c7d605ba8542f5!2sLegok%2C%20Tangerang%20Regency%2C%20Banten!5e0!3m2!1sen!2sid!4v1234567890"
-          width="100%"
-          height="100%"
-          style={{ border: 0 }}
-          allowFullScreen
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-        />
-        <div className="absolute bottom-4 left-4">
-          <Button
-            variant="secondary"
-            className="bg-white hover:bg-gray-50"
-            onClick={() =>
-              window.open(
-                `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location.address)}`,
-                "_blank",
-              )
-            }
-          >
-            <Navigation className="w-4 h-4 mr-2" />
-            Buka Peta
-          </Button>
-        </div>
-      </div>
+      {/* Google Maps Embed */}
+      {location?.mapUrl && (
+  <div className="relative h-[300px] bg-gray-200 rounded-lg overflow-hidden">
+    <iframe
+      src={location.mapUrl}
+      width="100%"
+      height="100%"
+      style={{ border: 0 }}
+      allowFullScreen
+      loading="lazy"
+      referrerPolicy="no-referrer-when-downgrade"
+    />
+    <div className="absolute bottom-4 left-4">
+      <Button
+        variant="secondary"
+        className="bg-white hover:bg-gray-50 text-black"
+        onClick={() => window.open(location.mapUrlOriginal || location.mapUrl, "_blank")}
+      >
+        <Navigation className="w-4 h-4 mr-2 text-blacks" />
+        Buka Peta
+      </Button>
+    </div>
+  </div>
+)}
 
-      <div className="flex gap-2 border-b">
-        <button
-          onClick={() => setActiveTab("school")}
-          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors rounded-t-lg ${
-            activeTab === "school"
-              ? "border-[#ECEC5C] text-gray-900 bg-[#ECEC5C]/10"
-              : "border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-          }`}
-        >
-          Sekolah & Universitas
-        </button>
-        <button
-          onClick={() => setActiveTab("shopping")}
-          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors rounded-t-lg ${
-            activeTab === "shopping"
-              ? "border-[#ECEC5C] text-gray-900 bg-[#ECEC5C]/10"
-              : "border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-          }`}
-        >
-          Pusat Perbelanjaan
-        </button>
-        <button
-          onClick={() => setActiveTab("transport")}
-          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors rounded-t-lg ${
-            activeTab === "transport"
-              ? "border-[#ECEC5C] text-gray-900 bg-[#ECEC5C]/10"
-              : "border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-          }`}
-        >
-          Aks
-        </button>
-      </div>
-
-      <div className="space-y-3">
-        {displayedPlaces.map((place, index) => (
-          <div key={index} className="flex items-center justify-between py-2">
-            <div className="flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-gray-400" />
-              <span className="text-sm text-gray-700">{place.name}</span>
-            </div>
-            <span className="text-sm font-medium text-gray-900">{place.distance}</span>
+      {/* Category Tabs */}
+      {categories.length > 0 && (
+        <>
+          <div className="flex gap-2 border-b overflow-x-auto">
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setActiveTab(category)}
+                className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors rounded-t-lg whitespace-nowrap ${
+                  activeTab === category
+                    ? "border-[#ECEC5C] text-gray-900 bg-[#ECEC5C]/10"
+                    : "border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                }`}
+              >
+                {getCategoryName(category)}
+              </button>
+            ))}
           </div>
-        ))}
-      </div>
+
+          {/* Nearby Places List */}
+          <div className="space-y-3">
+            {displayedPlaces.length > 0 ? (
+              displayedPlaces.map((place: NearestPlace, index: number) => (
+                <div key={index} className="flex items-center justify-between py-2">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-gray-400" />
+                    <span className="text-sm text-gray-700">{place.name}</span>
+                  </div>
+                  <span className="text-sm font-medium text-gray-900">{place.distance}</span>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-gray-500 text-center py-4">
+                Tidak ada data untuk kategori ini
+              </p>
+            )}
+          </div>
+        </>
+      )}
     </section>
   )
 }

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Properties\Tables;
 
+use App\Models\Agen;
 use App\Models\Event;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
@@ -21,6 +22,21 @@ class PropertiesTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function ($query) {
+                $user = auth()->user();
+                
+                // Jika bukan super_admin, filter berdasarkan agen
+                if (!$user->hasRole('super_admin')) {
+                    $agen = Agen::where('user_id', $user->id)->first();
+                    
+                    if ($agen) {
+                        $query->where('agen_id', $agen->id);
+                    }
+                }
+                
+                // Jika super_admin, tampilkan semua (no filter)
+                return $query;
+            })
             ->columns([
                 ImageColumn::make('main_image')
                     ->label('Image')

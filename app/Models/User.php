@@ -32,12 +32,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail, Has
     use TwoFactorAuthenticatable;
     use HasUuids, HasRoles;
     use HasApiTokens, HasFactory, Notifiable;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+    
     protected $fillable = [
         'username',
         'email',
@@ -186,5 +181,20 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail, Has
     public function clearTwoFactorSession(): void
     {
         session()->forget('two_factor_confirmed_at.' . session()->getId());
+    }
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($user) {
+            // Hapus relasi roles sebelum delete user
+            $user->roles()->detach();
+            
+            // Hapus relasi permissions juga
+            $user->permissions()->detach();
+            
+            // Hapus media juga kalau ada
+            $user->clearMediaCollection();
+        });
     }
 }

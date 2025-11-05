@@ -1,41 +1,114 @@
 "use client"
 
-import { useState } from "react"
-import { ChevronLeft, ChevronRight, Quote } from "lucide-react"
+import { useState, useEffect } from "react"
+import { ChevronLeft, ChevronRight, Quote, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-const testimonials = [
-  {
-    name: "John Doe",
-    role: "Customer",
-    content: "Great product!",
-    image: "https://res.cloudinary.com/dx8w9qwl6/image/upload/v1749477428/image_15_b2vcbb.png",
-  },
-  {
-    name: "Jane Smith",
-    role: "Client",
-    content: "Excellent service!",
-    image: "https://res.cloudinary.com/dx8w9qwl6/image/upload/v1749477428/image_15_b2vcbb.png",
-  },
-  // Add more testimonials as needed
-]
+interface Testimonial {
+  id: number
+  name: string
+  role: string
+  content: string
+  image: string | null
+  rating: number
+  order: number
+}
 
 export function Testimonials() {
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isAnimating, setIsAnimating] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // Fetch testimonials on mount
+  useEffect(() => {
+    fetchTestimonials()
+  }, [])
+
+  const fetchTestimonials = async () => {
+    try {
+      const response = await fetch('/testimonials')
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      console.log('Testimonials response:', data)
+      
+      if (data.success && Array.isArray(data.data)) {
+        setTestimonials(data.data)
+      } else {
+        setError('Tidak ada testimoni tersedia')
+      }
+    } catch (err) {
+      console.error('Error fetching testimonials:', err)
+      setError('Gagal memuat testimoni')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handlePrevious = () => {
-    if (isAnimating) return
+    if (isAnimating || testimonials.length === 0) return
     setIsAnimating(true)
     setCurrentIndex((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1))
     setTimeout(() => setIsAnimating(false), 500)
   }
 
   const handleNext = () => {
-    if (isAnimating) return
+    if (isAnimating || testimonials.length === 0) return
     setIsAnimating(true)
     setCurrentIndex((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1))
     setTimeout(() => setIsAnimating(false), 500)
+  }
+
+  const handleDotClick = (index: number) => {
+    if (!isAnimating && index !== currentIndex) {
+      setIsAnimating(true)
+      setCurrentIndex(index)
+      setTimeout(() => setIsAnimating(false), 500)
+    }
+  }
+
+  // Auto-play carousel every 5 seconds
+  useEffect(() => {
+    if (testimonials.length <= 1) return
+
+    const interval = setInterval(() => {
+      handleNext()
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [currentIndex, testimonials.length, isAnimating])
+
+  if (loading) {
+    return (
+      <section className="relative w-full overflow-hidden bg-gradient-to-br from-[#ECEC5C] via-[#d4d44a] to-[#c4a747] py-16 md:py-24">
+        <div className="relative mx-auto max-w-7xl px-6">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-gray-900 text-lg">Memuat testimoni...</div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  if (error || testimonials.length === 0) {
+    return (
+      <section className="relative w-full overflow-hidden bg-gradient-to-br from-[#ECEC5C] via-[#d4d44a] to-[#c4a747] py-16 md:py-24">
+        <div className="relative mx-auto max-w-7xl px-6">
+          <div className="mb-8 md:mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 md:text-4xl">Kata Mereka</h2>
+            <p className="mt-2 text-lg text-gray-900/90">Testimoni dari pelanggan yang puas</p>
+          </div>
+          <div className="flex items-center justify-center h-64">
+            <div className="text-gray-900 text-lg">{error || 'Belum ada testimoni'}</div>
+          </div>
+        </div>
+      </section>
+    )
   }
 
   const currentTestimonial = testimonials[currentIndex]
@@ -80,12 +153,30 @@ export function Testimonials() {
             >
               <Quote className="mb-6 h-12 w-12 text-gray-900/70 md:h-16 md:w-16" />
 
-              <blockquote className="mb-8 text-lg leading-relaxed text-gray-900 md:text-xl">
+              <blockquote className="mb-6 text-lg leading-relaxed text-gray-900 md:text-xl">
                 {currentTestimonial.content}
               </blockquote>
 
+              {/* Rating Stars */}
+              {currentTestimonial.rating && (
+                <div className="flex gap-1 mb-6">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`w-5 h-5 ${
+                        i < currentTestimonial.rating
+                          ? "fill-gray-900 text-gray-900"
+                          : "fill-gray-900/20 text-gray-900/20"
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+
               <div>
-                <div className="mb-1 text-xl font-bold text-gray-900 md:text-2xl">{currentTestimonial.name}</div>
+                <div className="mb-1 text-xl font-bold text-gray-900 md:text-2xl">
+                  {currentTestimonial.name}
+                </div>
                 <div className="text-base text-gray-900/80 md:text-lg">{currentTestimonial.role}</div>
               </div>
             </div>
@@ -112,24 +203,20 @@ export function Testimonials() {
               </Button>
 
               {/* Dots Indicator */}
-              <div className="ml-4 flex gap-2">
-                {testimonials.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      if (!isAnimating) {
-                        setIsAnimating(true)
-                        setCurrentIndex(index)
-                        setTimeout(() => setIsAnimating(false), 500)
-                      }
-                    }}
-                    className={`h-2 rounded-full transition-all ${
-                      index === currentIndex ? "w-8 bg-white" : "w-2 bg-white/50 hover:bg-white/70"
-                    }`}
-                    aria-label={`Go to testimonial ${index + 1}`}
-                  />
-                ))}
-              </div>
+              {testimonials.length > 1 && (
+                <div className="ml-4 flex gap-2">
+                  {testimonials.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleDotClick(index)}
+                      className={`h-2 rounded-full transition-all ${
+                        index === currentIndex ? "w-8 bg-white" : "w-2 bg-white/50 hover:bg-white/70"
+                      }`}
+                      aria-label={`Go to testimonial ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>

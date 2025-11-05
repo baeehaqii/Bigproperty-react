@@ -13,12 +13,21 @@ class Developer extends Model
         "pt",
         'alamat',
         'logo', 
-        'list_property',
         "is_verified",
         "kontak"
     ];
-    
-    protected $casts = [
-        'list_property' => 'array',
-    ];
+    public function properties()
+    {
+        return $this->hasMany(Property::class);
+    }
+    public function agens()
+    {
+        return $this->hasMany(Agen::class);
+    }
+
+    // Scope untuk agen yang aktif dari developer ini
+    public function activeAgens()
+    {
+        return $this->hasMany(Agen::class)->where('is_active', true);
+    }
 }

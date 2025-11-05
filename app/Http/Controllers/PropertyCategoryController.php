@@ -8,10 +8,15 @@ class PropertyCategoryController extends Controller
 {
     public function index()
     {
-        return response()->json([
+        $categories = [
             'buy' => PropertyCategory::buy()->get(),
             'rent' => PropertyCategory::rent()->get(),
             'listing' => PropertyCategory::listing()->get(),
+        ];
+
+        return response()->json([
+            'success' => true,
+            'data' => $categories
         ]);
     }
 }

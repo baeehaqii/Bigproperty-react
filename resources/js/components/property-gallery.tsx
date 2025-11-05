@@ -1,12 +1,10 @@
 "use client"
 import { useState } from "react"
-import type { PropertyImage } from "@/types/property"
-import { CheckCircle2 } from "lucide-react"
 import { Button } from "./ui/button"
 import { ImageLightbox } from "./image-lightbox"
 
 interface PropertyGalleryProps {
-  images: PropertyImage[]
+  images: string[] // Array of image paths
   title: string
   developer?: string
 }
@@ -20,6 +18,12 @@ export function PropertyGallery({ images, title, developer }: PropertyGalleryPro
     setLightboxOpen(true)
   }
 
+  // Convert string array to PropertyImage format for lightbox
+  const formattedImages = images.map((url, index) => ({
+    url,
+    alt: `${title} - Photo ${index + 1}`,
+  }))
+
   return (
     <>
       <section className="relative bg-white">
@@ -28,24 +32,30 @@ export function PropertyGallery({ images, title, developer }: PropertyGalleryPro
             {/* Main Image */}
             <div className="relative h-[300px] md:h-[400px] cursor-pointer" onClick={() => openLightbox(0)}>
               <img
-                src={images[0]?.url || "/placeholder.svg"}
-                alt={images[0]?.alt}
+                src={images[0] || "/placeholder.svg"}
+                alt={`${title} - Main`}
                 className="w-full h-full object-cover rounded-lg"
+                onError={(e) => {
+                  e.currentTarget.src = "/placeholder.svg"
+                }}
               />
             </div>
 
             {/* Thumbnail Grid - 2x2 */}
             <div className="grid grid-cols-2 gap-2">
-              {images.slice(1, 5).map((image, index) => (
+              {images.slice(1, 5).map((imageUrl, index) => (
                 <div
                   key={index}
                   className="relative h-[145px] md:h-[196px] cursor-pointer"
                   onClick={() => openLightbox(index + 1)}
                 >
                   <img
-                    src={image.url || "/placeholder.svg"}
-                    alt={image.alt}
+                    src={imageUrl || "/placeholder.svg"}
+                    alt={`${title} - ${index + 2}`}
                     className="w-full h-full object-cover rounded-lg"
+                    onError={(e) => {
+                      e.currentTarget.src = "/placeholder.svg"
+                    }}
                   />
                   {index === 3 && images.length > 5 && (
                     <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-lg">
@@ -63,7 +73,7 @@ export function PropertyGallery({ images, title, developer }: PropertyGalleryPro
       </section>
 
       <ImageLightbox
-        images={images}
+        images={formattedImages}
         currentIndex={currentImageIndex}
         isOpen={lightboxOpen}
         onClose={() => setLightboxOpen(false)}

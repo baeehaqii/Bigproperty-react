@@ -13,6 +13,7 @@ interface GoldenDealsCardProps {
   priceRange: string
   installment: string
   propertyName: string
+  promoText?: string | null
   developer: string
   developerLogo?: string
   location: string
@@ -32,6 +33,7 @@ export function GoldenDealsCard({
   priceRange,
   installment,
   propertyName,
+  promoText,
   developer,
   developerLogo,
   location,
@@ -50,7 +52,7 @@ export function GoldenDealsCard({
       <div className="relative h-[160px] overflow-hidden">
         <img src={image || "/placeholder.svg"} alt={propertyName} className="w-full h-full object-cover" />
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-[#ECEC5C] to-[#d4d44a] text-gray-900 px-3 py-2.5">
-          <p className="text-[11px] font-semibold leading-tight">Cuma di Pinhome: Emas Batangan hingga 12gr</p>
+          <p className="text-[11px] font-semibold leading-tight">{promoText}</p>
         </div>
         {badge && (
           <div className="absolute top-3 right-3 bg-white px-2.5 py-1 rounded-md text-[10px] font-bold text-gray-800 shadow-sm">
@@ -97,7 +99,7 @@ export function GoldenDealsCard({
         <p className="text-[11px] text-gray-600 mb-3">{location}</p>
 
         <div className="flex items-center gap-1.5 text-[11px] text-gray-600 mb-2 flex-wrap">
-          <span className="font-medium">{bedrooms}</span>
+          <span className="font-medium">{bedrooms} KT</span>
           <span className="text-gray-400">•</span>
           <span className="font-medium">{landSize}</span>
           <span className="text-gray-400">•</span>

@@ -9,14 +9,57 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 export function Hero() {
   const [searchType, setSearchType] = useState<"Beli" | "Sewa">("Beli")
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const slides = [
+  const [current, setCurrent] = useState(0)
+  
+  // State untuk data dari database
+  const [heroes, setHeroes] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // Fetch data dari Laravel
+  useEffect(() => {
+    const fetchHeroes = async () => {
+      try {
+        setLoading(true)
+        // Langsung ke route web.php
+        const response = await fetch('/heroes-data')
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch heroes')
+        }
+        
+        const result = await response.json()
+        
+        if (result.success && result.data) {
+          setHeroes(result.data)
+        }
+      } catch (err) {
+        console.error('Error fetching heroes:', err)
+        setError(err instanceof Error ? err.message : 'An error occurred')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchHeroes()
+  }, [])
+
+  // Fallback slides kalo belum ada data
+  const defaultSlides = [
     "https://res.cloudinary.com/dx8w9qwl6/image/upload/v1761071664/Gate_lkgdrn.avif",
     "https://res.cloudinary.com/dx8w9qwl6/image/upload/v1761071337/type_90_qpwdco.avif",
     "https://res.cloudinary.com/dx8w9qwl6/image/upload/v1761071336/Type_85_zmze7h.avif",
   ]
-  const [current, setCurrent] = useState(0)
 
+  // Gunakan images dari database atau fallback
+  const slides = heroes.length > 0 
+    ? heroes.flatMap(hero => hero.image || []) 
+    : defaultSlides
+
+  // Auto slide
   useEffect(() => {
+    if (slides.length === 0) return
+
     const id = setInterval(() => {
       setCurrent((c) => (c + 1) % slides.length)
     }, 15000)
@@ -26,9 +69,33 @@ export function Hero() {
     }
   }, [slides.length])
 
+  // Ambil hero yang aktif saat ini
+  const activeHero = heroes[0]
+
   return (
-    <section className="relative min-h-[480px] overflow-hidden bg-gradient-to-br from-[#ECEC5C] via-[#d4d44a] to-[#c4a747] rounded-2xl">
-      {/* Sliding Banner (hidden on small screens) */}
+    <section 
+      className="relative min-h-[480px] overflow-hidden rounded-2xl bg-gradient-to-br"
+      style={{
+        backgroundImage: activeHero?.main_color 
+          ? `linear-gradient(to bottom right, ${activeHero.main_color}, ${activeHero.main_color}dd, ${activeHero.main_color}bb)`
+          : 'linear-gradient(to bottom right, #ECEC5C, #d4d44a, #c4a747)'
+      }}
+    >
+      {/* Loading State */}
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-900/20 backdrop-blur-sm z-20 rounded-2xl">
+          <div className="text-white text-xl font-semibold">Loading...</div>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && !loading && (
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded-lg z-20">
+          Error: {error}
+        </div>
+      )}
+
+      {/* Sliding Banner */}
       <div className="absolute inset-0 overflow-hidden rounded-2xl">
         <div
           className="flex h-full w-full transition-transform duration-700 ease-in-out"
@@ -45,9 +112,15 @@ export function Hero() {
       {/* Content */}
       <div className="relative z-10 flex min-h-[480px] flex-col items-center justify-center px-6 py-16">
         <div className="w-full max-w-5xl text-center">
-          <h1 className="mb-4 text-center text-4xl md:text-5xl font-extrabold text-gray-900">#FindYourWayHome</h1>
+          <h1 className="mb-4 text-center text-4xl md:text-5xl font-extrabold text-gray-900">
+            {activeHero?.title || "#FindYourWayHome"}
+          </h1>
           <p className="mb-8 text-center text-lg text-gray-900">
-            Semua kebutuhan properti ada di <span className="font-bold">Pinhome</span>
+            {activeHero?.subtitle || (
+              <>
+                Semua kebutuhan properti ada di <span className="font-bold">Pinhome</span>
+              </>
+            )}
           </p>
 
           {/* Search Box */}
@@ -105,6 +178,21 @@ export function Hero() {
               </div>
             </div>
           </div>
+
+          {/* Optional: Display description */}
+          {activeHero?.deskripsi && (
+            <p className="mt-4 text-sm text-gray-800">{activeHero.deskripsi}</p>
+          )}
+
+          {/* Optional: CTA Link */}
+          {activeHero?.link_url && activeHero?.link_text && (
+            <a 
+              href={activeHero.link_url}
+              className="mt-6 inline-block px-6 py-3 bg-white/90 hover:bg-white text-gray-900 font-semibold rounded-lg transition-colors"
+            >
+              {activeHero.link_text}
+            </a>
+          )}
         </div>
       </div>
     </section>

@@ -184,7 +184,7 @@ export function VerifiedProjectCard({
 
           {/* Property Specs */}
           <div className="flex items-center gap-3 text-xs text-gray-600 mb-2">
-            <span>{bedrooms}</span>
+            <span>{bedrooms} KT</span>
             <span>LT {landSize}</span>
             <span>LB {buildingSize}</span>
             {additionalInfo && <span>{additionalInfo}</span>}

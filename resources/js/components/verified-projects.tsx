@@ -1,100 +1,65 @@
 "use client"
 
-import { useRef } from "react"
+import { useState, useEffect, useRef } from "react"
 import { VerifiedProjectCard } from "./verified-project-card"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
-const verifiedProjects = [
-  {
-    id: "1",
-    image: "/placeholder.svg?height=200&width=320",
-    images: [
-      "/placeholder.svg?height=200&width=320",
-      "/placeholder.svg?height=200&width=320",
-      "/placeholder.svg?height=200&width=320",
-    ],
-    type: "Rumah Baru",
-    units: "Sisa 0 Unit",
-    priceRange: "Rp 500 Jt - Rp 800 Jt",
-    installment: "Angsuran mulai dari Rp3,4 Jt/bln",
-    name: "Aria Residence Tamansari",
-    developer: "PT Dayamas Citra Abadi Properindo",
-    developerLogo: "/placeholder.svg?height=32&width=32",
-    location: "Karawaci, Kota Tangerang",
-    bedrooms: "2 KT",
-    landSize: "63-79m²",
-    buildingSize: "37-46m²",
-    lastUpdated: "Diperbarui 2 hari lalu",
-  },
-  {
-    id: "2",
-    image: "/placeholder.svg?height=200&width=320",
-    images: [
-      "/placeholder.svg?height=200&width=320",
-      "/placeholder.svg?height=200&width=320",
-      "/placeholder.svg?height=200&width=320",
-    ],
-    type: "Rumah Baru",
-    units: "Sisa 0 Unit",
-    priceRange: "Rp 750 Jt - Rp 2,6 M",
-    installment: "Angsuran mulai dari Rp5,1 Jt/bln",
-    name: "Arsa Royal Bekasi",
-    developer: "PT Triarsa Property",
-    developerLogo: "/placeholder.svg?height=32&width=32",
-    location: "Jatisampurna (Jati Sampurna), Kota Bekasi",
-    bedrooms: "2-3 KT",
-    landSize: "60-81m²",
-    buildingSize: "45-",
-    lastUpdated: "Diperbarui 8 hari lalu",
-  },
-  {
-    id: "3",
-    image: "/placeholder.svg?height=200&width=320",
-    images: [
-      "/placeholder.svg?height=200&width=320",
-      "/placeholder.svg?height=200&width=320",
-      "/placeholder.svg?height=200&width=320",
-    ],
-    type: "Rumah Baru",
-    units: "Sisa 0 Unit",
-    priceRange: "Rp 450 Jt - Rp 680 Jt",
-    installment: "Angsuran mulai dari Rp3,1 Jt/bln",
-    name: "Wynn Residence",
-    developer: "PT Dayamas Citra Abadi Properindo",
-    developerLogo: "/placeholder.svg?height=32&width=32",
-    location: "Setu, Kab. Bekasi",
-    bedrooms: "2 KT",
-    landSize: "60m²",
-    buildingSize: "36m²",
-    additionalInfo: "SHM",
-    lastUpdated: "Diperbarui 8 hari lalu",
-  },
-  {
-    id: "4",
-    image: "/placeholder.svg?height=200&width=320",
-    images: [
-      "/placeholder.svg?height=200&width=320",
-      "/placeholder.svg?height=200&width=320",
-      "/placeholder.svg?height=200&width=320",
-    ],
-    type: "Rumah Baru",
-    units: "Sisa 0 Unit",
-    priceRange: "Rp 400 Jt - Rp 700 Jt",
-    installment: "Angsuran mulai dari Rp2,7 Jt/bln",
-    name: "Permata Arco Sawangan",
-    developer: "PT Lentera Mitra Strategis",
-    developerLogo: "/placeholder.svg?height=32&width=32",
-    location: "Tajurhalang, Kab. Bogor",
-    bedrooms: "2 KT",
-    landSize: "60m²",
-    buildingSize: "30m²",
-    additionalInfo: "HGB",
-    lastUpdated: "Diperbarui 18 hari lalu",
-  },
-]
+interface Property {
+  id: string
+  image: string
+  images: string[]
+  type: string
+  units?: string
+  priceRange: string
+  installment: string
+  name: string
+  developer: string
+  developerLogo: string
+  location: string
+  bedrooms: string
+  landSize: string
+  buildingSize: string
+  additionalInfo?: string
+  lastUpdated: string
+  countClicked?: number
+  isVerified: boolean
+}
 
 export function VerifiedProjects() {
+  const [properties, setProperties] = useState<Property[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
+
+  // Fetch properties on mount
+  useEffect(() => {
+    fetchVerifiedProperties()
+  }, [])
+
+  const fetchVerifiedProperties = async () => {
+    try {
+      const response = await fetch('/verified-projects')
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      console.log('Verified projects response:', data)
+      
+      if (data.success && data.data) {
+        setProperties(data.data || [])
+      } else {
+        console.error('Invalid data format:', data)
+        setError('Tidak ada proyek terverifikasi tersedia')
+      }
+    } catch (err) {
+      console.error('Error fetching verified projects:', err)
+      setError('Gagal memuat data proyek terverifikasi: ' + (err instanceof Error ? err.message : 'Unknown error'))
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
@@ -104,6 +69,26 @@ export function VerifiedProjects() {
         behavior: "smooth",
       })
     }
+  }
+
+  if (loading) {
+    return (
+      <section className="py-12 px-4 max-w-[1400px] mx-auto">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-gray-500">Memuat data...</div>
+        </div>
+      </section>
+    )
+  }
+
+  if (error) {
+    return (
+      <section className="py-12 px-4 max-w-[1400px] mx-auto">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-red-500">{error}</div>
+        </div>
+      </section>
+    )
   }
 
   return (
@@ -122,30 +107,38 @@ export function VerifiedProjects() {
       </div>
 
       {/* Property Cards with Navigation */}
-      <div className="relative group">
-        {/* Left Arrow */}
-        <button
-          onClick={() => scroll("left")}
-          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-50"
-        >
-          <ChevronLeft className="w-6 h-6 text-gray-600" />
-        </button>
-
-        {/* Cards Container */}
-        <div ref={scrollContainerRef} className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4">
-          {verifiedProjects.map((project) => (
-            <VerifiedProjectCard key={project.id} {...project} />
-          ))}
+      {properties.length === 0 ? (
+        <div className="flex items-center justify-center h-64">
+          <div className="text-gray-500">Tidak ada proyek terverifikasi tersedia</div>
         </div>
+      ) : (
+        <div className="relative group">
+          {/* Left Arrow */}
+          <button
+            onClick={() => scroll("left")}
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-50"
+            aria-label="Scroll left"
+          >
+            <ChevronLeft className="w-6 h-6 text-gray-600" />
+          </button>
 
-        {/* Right Arrow */}
-        <button
-          onClick={() => scroll("right")}
-          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-50"
-        >
-          <ChevronRight className="w-6 h-6 text-gray-600" />
-        </button>
-      </div>
+          {/* Cards Container */}
+          <div ref={scrollContainerRef} className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4">
+            {properties.map((property) => (
+              <VerifiedProjectCard key={property.id} {...property} />
+            ))}
+          </div>
+
+          {/* Right Arrow */}
+          <button
+            onClick={() => scroll("right")}
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-50"
+            aria-label="Scroll right"
+          >
+            <ChevronRight className="w-6 h-6 text-gray-600" />
+          </button>
+        </div>
+      )}
     </section>
   )
 }

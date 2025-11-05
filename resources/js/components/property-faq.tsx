@@ -1,11 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import type { PropertyDetail } from "@/types/property"
 import { ChevronDown } from "lucide-react"
 
 interface PropertyFAQProps {
-  property: PropertyDetail
+  property: any
 }
 
 interface FAQItem {
@@ -16,36 +15,37 @@ interface FAQItem {
 export function PropertyFAQ({ property }: PropertyFAQProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
 
-  const formatPrice = (price: number) => {
-    if (price >= 1000000000) {
-      return `Rp${(price / 1000000000).toFixed(1)} M`
+  const formatPrice = (price: string | number) => {
+    const numPrice = typeof price === 'string' ? parseFloat(price) : price
+    if (numPrice >= 1000000000) {
+      return `Rp${(numPrice / 1000000000).toFixed(1).replace(".", ",")} M`
     }
-    return `Rp${(price / 1000000).toFixed(1)} Jt`
+    return `Rp${(numPrice / 1000000).toFixed(1)} Jt`
   }
 
   const faqs: FAQItem[] = [
     {
       question: `Berapa harga jual properti di ${property.name}?`,
-      answer: `Harga jual properti ${property.name} adalah ${formatPrice(property.price.min)} - ${formatPrice(property.price.max)}.`,
+      answer: `Harga jual properti ${property.name} adalah ${property.priceRange}.`,
     },
     {
       question: `Dimana lokasi ${property.name}?`,
-      answer: `${property.name} berada di ${property.location.address}, ${property.location.district}, ${property.location.city}, ${property.location.province}.`,
+      answer: `${property.name} berada di ${property.location?.full || property.location?.district}, ${property.location?.city}, ${property.location?.province}.`,
     },
     {
       question: `Berapa kamar yang tersedia di ${property.name}?`,
-      answer: `${property.name} memiliki ${property.specifications.bedrooms} Kamar Tidur dan ${property.specifications.bathrooms} Kamar Mandi.`,
+      answer: `${property.name} memiliki ${property.bedrooms} Kamar Tidur.`,
     },
     {
       question: `Berapa luas bangunan di ${property.name}?`,
-      answer: `Luas bangunan properti ${property.name} adalah ${property.specifications.buildingArea}.`,
+      answer: `Luas bangunan properti ${property.name} adalah ${property.buildingSize} dan luas tanah ${property.landSize}.`,
     },
   ]
 
   return (
     <section className="space-y-4">
       <h3 className="text-2xl font-bold text-gray-900">
-        FAQ {property.name} by {property.developer.name}
+        FAQ {property.name} by {property.developer?.name || 'Developer'}
       </h3>
 
       <div className="space-y-2">

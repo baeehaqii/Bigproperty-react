@@ -76,69 +76,69 @@ class DeveloperForm
                     ->collapsible()
                     ->persistCollapsed(),
 
-                Section::make('Property Portfolio')
-                    ->description('Pilih property yang dikembangkan oleh developer ini')
-                    ->icon('heroicon-o-building-storefront')
-                    ->schema([
-                        Select::make('list_property')
-                            ->label('Daftar Property')
-                            ->multiple()
-                            ->searchable()
-                            ->preload()
-                            ->options(function () {
-                                return Property::query()
-                                    ->where('is_available', true)
-                                    ->orderBy('name')
-                                    ->get()
-                                    ->mapWithKeys(function ($property) {
-                                        $label = $property->name;
+                // Section::make('Property Portfolio')
+                //     ->description('Pilih property yang dikembangkan oleh developer ini')
+                //     ->icon('heroicon-o-building-storefront')
+                //     ->schema([
+                //         Select::make('list_property')
+                //             ->label('Daftar Property')
+                //             ->multiple()
+                //             ->searchable()
+                //             ->preload()
+                //             ->options(function () {
+                //                 return Property::query()
+                //                     ->where('is_available', true)
+                //                     ->orderBy('name')
+                //                     ->get()
+                //                     ->mapWithKeys(function ($property) {
+                //                         $label = $property->name;
                                         
-                                        // Tambahkan info lokasi
-                                        if ($property->city) {
-                                            $label .= ' - ' . $property->city;
-                                        }
+                //                         // Tambahkan info lokasi
+                //                         if ($property->city) {
+                //                             $label .= ' - ' . $property->city;
+                //                         }
                                         
-                                        // Tambahkan range harga
-                                        if ($property->price_min) {
-                                            $priceRange = number_format($property->price_min / 1000000, 0) . 'jt';
-                                            if ($property->price_max && $property->price_max != $property->price_min) {
-                                                $priceRange .= ' - ' . number_format($property->price_max / 1000000, 0) . 'jt';
-                                            }
-                                            $label .= ' (' . $priceRange . ')';
-                                        }
+                //                         // Tambahkan range harga
+                //                         if ($property->price_min) {
+                //                             $priceRange = number_format($property->price_min / 1000000, 0) . 'jt';
+                //                             if ($property->price_max && $property->price_max != $property->price_min) {
+                //                                 $priceRange .= ' - ' . number_format($property->price_max / 1000000, 0) . 'jt';
+                //                             }
+                //                             $label .= ' (' . $priceRange . ')';
+                //                         }
                                         
-                                        // Tambahkan badge popular
-                                        if ($property->is_popular) {
-                                            $label .= ' ⭐';
-                                        }
+                //                         // Tambahkan badge popular
+                //                         if ($property->is_popular) {
+                //                             $label .= ' ⭐';
+                //                         }
                                         
-                                        return [$property->id => $label];
-                                    })
-                                    ->toArray();
-                            })
-                            ->getSearchResultsUsing(function (string $search) {
-                                return Property::query()
-                                    ->where('is_available', true)
-                                    ->where(function ($query) use ($search) {
-                                        $query->where('name', 'like', "%{$search}%")
-                                            ->orWhere('city', 'like', "%{$search}%")
-                                            ->orWhere('location', 'like', "%{$search}%");
-                                    })
-                                    ->limit(50)
-                                    ->get()
-                                    ->mapWithKeys(function ($property) {
-                                        return [$property->id => $property->name . ' - ' . $property->city];
-                                    })
-                                    ->toArray();
-                            })
-                            ->helperText('Pilih satu atau lebih property yang dikembangkan')
-                            ->hint('Tekan Ctrl/Cmd untuk pilih multiple')
-                            ->hintIcon('heroicon-m-information-circle')
-                            ->native(false)
-                            ->columnSpanFull(),
-                    ])
-                    ->collapsible()
-                    ->persistCollapsed(),
+                //                         return [$property->id => $label];
+                //                     })
+                //                     ->toArray();
+                //             })
+                //             ->getSearchResultsUsing(function (string $search) {
+                //                 return Property::query()
+                //                     ->where('is_available', true)
+                //                     ->where(function ($query) use ($search) {
+                //                         $query->where('name', 'like', "%{$search}%")
+                //                             ->orWhere('city', 'like', "%{$search}%")
+                //                             ->orWhere('location', 'like', "%{$search}%");
+                //                     })
+                //                     ->limit(50)
+                //                     ->get()
+                //                     ->mapWithKeys(function ($property) {
+                //                         return [$property->id => $property->name . ' - ' . $property->city];
+                //                     })
+                //                     ->toArray();
+                //             })
+                //             ->helperText('Pilih satu atau lebih property yang dikembangkan')
+                //             ->hint('Tekan Ctrl/Cmd untuk pilih multiple')
+                //             ->hintIcon('heroicon-m-information-circle')
+                //             ->native(false)
+                //             ->columnSpanFull(),
+                //     ])
+                //     ->collapsible()
+                //     ->persistCollapsed(),
             ]);
     }
 }

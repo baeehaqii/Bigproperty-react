@@ -1,6 +1,6 @@
 "use client"
 
-import { Heart, MapPin, ChevronLeft, ChevronRight } from "lucide-react"
+import { Heart, MapPin, ChevronLeft, ChevronRight, Eye } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { Link } from "@inertiajs/react"
@@ -32,6 +32,7 @@ interface PopularPropertyCardProps {
   lastUpdated: string
   buttonType: "view" | "chat"
   available: boolean
+  countClicked?: number
 }
 
 export function PopularPropertyCard({
@@ -56,6 +57,7 @@ export function PopularPropertyCard({
   lastUpdated,
   buttonType,
   available,
+  countClicked = 0,
 }: PopularPropertyCardProps) {
   const [isFavorite, setIsFavorite] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
@@ -67,6 +69,17 @@ export function PopularPropertyCard({
 
   const prevImage = () => {
     setCurrentImageIndex((prev) => (prev - 1 + allImages.length) % allImages.length)
+  }
+
+  // Format angka views (1000 -> 1K, 1000000 -> 1M)
+  const formatViews = (count: number) => {
+    if (count >= 1000000) {
+      return `${(count / 1000000).toFixed(1)}M`
+    }
+    if (count >= 1000) {
+      return `${(count / 1000).toFixed(1)}K`
+    }
+    return count.toString()
   }
 
   return (
@@ -89,6 +102,12 @@ export function PopularPropertyCard({
               TIDAK TERSEDIA
             </div>
           )}
+
+          {/* Views Counter Badge */}
+          <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-full flex items-center gap-1.5">
+            <Eye className="w-3.5 h-3.5" />
+            <span>{formatViews(countClicked)}</span>
+          </div>
 
           <button
             onClick={(e) => {
@@ -195,13 +214,19 @@ export function PopularPropertyCard({
           </div>
 
           <div className="flex items-center gap-3 text-xs text-gray-600 mb-2">
-            <span>{bedrooms}</span>
+            <span>{bedrooms} KT</span>
             <span>LT {landSize}</span>
             <span>LB {buildingSize}</span>
             {additionalInfo && <span>{additionalInfo}</span>}
           </div>
 
-          <p className="text-xs text-gray-400 mb-4">{lastUpdated}</p>
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-xs text-gray-400">{lastUpdated}</p>
+            <div className="flex items-center gap-1 text-xs text-gray-500">
+              <Eye className="w-3 h-3" />
+              <span>{countClicked.toLocaleString('id-ID')} views</span>
+            </div>
+          </div>
         </div>
       </Link>
 

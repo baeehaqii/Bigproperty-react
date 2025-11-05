@@ -9,6 +9,8 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Str;
 
 class HeroForm
 {
@@ -49,26 +51,13 @@ class HeroForm
                     ->icon('heroicon-o-photo')
                     ->schema([
                         FileUpload::make('image')
-                            ->label('Gambar Hero Banner')
-                            ->multiple()
-                            ->image()
-                            ->required()
-                            ->disk('public')
-                            ->directory('heroes')
-                            ->visibility('public')
-                            ->imageEditor()
-                            ->imageEditorAspectRatios([
-                                '16:9',
-                                '21:9',
-                                '4:3',
-                            ])
-                            ->maxSize(5120)
-                            ->maxFiles(5)
-                            ->reorderable()
-                            ->helperText('Upload 1-5 gambar untuk slider. Rasio 16:9 atau 21:9 recommended. Maksimal 5MB per file')
-                            ->columnSpanFull()
-                            ->panelLayout('grid')
-                            ->panelAspectRatio('16:9'),
+                                    ->label('Gallery Images')
+                                    ->image()
+                                    ->multiple()
+                                    ->directory('hero/images')
+                                    ->maxFiles(5)
+                                    ->helperText('Upload up to 10 images')
+                                    ->columnSpanFull(),
 
                         ColorPicker::make('main_color')
                             ->label('Warna Utama')
