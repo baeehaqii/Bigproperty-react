@@ -43,8 +43,10 @@ class PropertyForm
                         Hidden::make("agen_id")
                         ->afterStateHydrated(function(callable $set, $record){
                             if(!$record){
-                                $agen = Agen::where("user_id",'=',auth()->user()->id)->first();
-                                $set("agen_id", $agen->id);
+                                if(auth()->user()->hasRole("agen")){
+                                    $agen = Agen::where("user_id",'=',auth()->user()->id)->first();
+                                    $set("agen_id", $agen->id);
+                                }
                             }
                         })
                         ->dehydrated(),
