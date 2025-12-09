@@ -24,6 +24,8 @@ class HeroResource extends Resource
 
     protected static ?string $navigationLabel = 'Hero';
     protected static string|\UnitEnum|null $navigationGroup = '#';
+    protected static ?int $navigationSort = 5;
+
     protected static ?string $modelLabel = 'Data Hero';
     protected static ?string $pluralModelLabel = 'Hero';
     protected static ?string $recordTitleAttribute = 'Hero';

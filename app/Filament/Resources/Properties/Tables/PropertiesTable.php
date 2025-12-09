@@ -77,10 +77,6 @@ class PropertiesTable
                     ->label('Bedrooms')
                     ->badge()
                     ->color('success'),
-
-                TextColumn::make('event.name')
-                    ->label('Event')
-                    ->badge(),
                 
                 TextColumn::make('units_remaining')
                     ->label('Units Left')

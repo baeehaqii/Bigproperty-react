@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Properties\Schemas;
 use App\Models\PropertyCategory;
 use App\Models\Nearest_place_category;
 use App\Models\Property;
+use App\Models\Developer;
 use App\Models\Agen;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DateTimePicker;
@@ -118,19 +119,21 @@ class PropertyForm
                             ->numeric()
                             ->placeholder('e.g., 16')
                             ->suffix('units'),
-                        
-                        Select::make('event_id')
-                            ->label('Associated Event')
-                            ->relationship('event', 'name')
-                            ->searchable()
-                            ->preload()
-                            ->placeholder('Select event'),
+                            
                         Select::make('developer_id')
-                            ->label('Developer ')
-                            ->relationship('developer', 'name')
-                            ->searchable()
-                            ->preload()
-                            ->placeholder('Select event'),
+                            ->afterstateHydrated(function(callable $set, $state){
+                                if(auth()->user()->hasRole('Agen')){
+                                    $agen = Agen::where("user_id",'=',auth()->user()->id)->first();
+                                    // dd($agen);
+                                    if($agen->developer_id){
+                                        $set($state,$agen->developer_id);
+                                    }
+                                }
+                            })
+                            ->options(function(){
+                            return Developer::orderBy('name')->pluck('name', 'id');
+                            })
+                            ->label('Developer '),
                         Select::make('kategori')
                             ->label('Property Categories')
                             ->multiple()

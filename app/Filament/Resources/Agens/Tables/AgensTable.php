@@ -44,13 +44,6 @@ class AgensTable
                         ->copyable()
                         ->tooltip('Klik untuk copy'),
 
-                    TextColumn::make('position')
-                        ->label('Jabatan')
-                        ->searchable()
-                        ->badge()
-                        ->color('info')
-                        ->icon('heroicon-m-briefcase'),
-
                 // Developer
                 TextColumn::make('developer.name')
                     ->label('Developer')
@@ -69,24 +62,19 @@ class AgensTable
                         ->copyable()
                         ->tooltip('Klik untuk copy'),
 
-                    TextColumn::make('phone')
-                        ->label('Telepon')
-                        ->searchable()
-                        ->icon('heroicon-m-phone')
-                        ->iconColor('gray')
-                        ->url(fn ($record) => 'tel:' . $record->phone)
-                        ->openUrlInNewTab(false),
-
-                // WhatsApp
-                TextColumn::make('whatsapp')
+                TextColumn::make('phone')
                     ->label('WhatsApp')
                     ->searchable()
-                    ->badge()
-                    ->color('success')
-                    ->icon('heroicon-m-chat-bubble-left-right')
+                    ->icon('heroicon-m-phone')
+                    ->iconColor('gray')
                     ->url(fn ($record) => $record->whatsapp_link)
-                    ->openUrlInNewTab()
-                    ->tooltip('Klik untuk chat WhatsApp'),
+                    ->openUrlInNewTab(false),
+
+                // WhatsApp
+                TextColumn::make('sumber')
+                    ->label('Sumber Informasi')
+                    ->searchable()
+                    ->badge(),
 
                 // Status Aktif
                 IconColumn::make('is_active')

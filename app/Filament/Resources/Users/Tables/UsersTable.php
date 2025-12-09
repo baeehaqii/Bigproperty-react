@@ -15,17 +15,38 @@ class UsersTable
         return $table
             ->columns([
                 TextColumn::make('username')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('firstname')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable()
+                    ->label('First Name'),
                 TextColumn::make('lastname')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable()
+                    ->label('Last Name'),
                 TextColumn::make('email')
                     ->label('Email address')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
+                    
+                // FIX: Handle kalo roles kosong
+                TextColumn::make('roles.name')
+                    ->label('Roles')
+                    ->badge()
+                    ->searchable()
+                    ->default('No Role') // Kalo kosong, tampilkan "No Role"
+                    ->separator(','), // Kalo multiple roles, pisahin pake koma
+                    
                 TextColumn::make('email_verified_at')
                     ->dateTime()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                    
+                TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
@@ -37,6 +58,7 @@ class UsersTable
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultSort('created_at', 'desc');
     }
 }

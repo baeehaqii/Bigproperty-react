@@ -24,6 +24,8 @@ class AgenResource extends Resource
     protected static ?string $navigationLabel = 'Agen';
     protected static string|\UnitEnum|null $navigationGroup = '#';
     protected static ?string $modelLabel = 'Data Agen';
+    protected static ?int $navigationSort = 2;
+
     protected static ?string $pluralModelLabel = 'Agen';
     protected static ?string $recordTitleAttribute = 'Agen';
 

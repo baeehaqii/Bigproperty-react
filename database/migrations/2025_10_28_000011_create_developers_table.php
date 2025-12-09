@@ -21,6 +21,11 @@ return new class extends Migration
             $table->string('logo')->nullable();
             $table->boolean('is_verified')->default(false);
             $table->string('kontak')->nullable();
+            $table->string('nama_property')->nullable();
+            $table->string('email_perusahaan')->nullable();
+            $table->string('nib')->nullable();
+            $table->string('website')->nullable();
+            $table->string('sumber')->nullable();
             $table->timestamps();
         });
     }

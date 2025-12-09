@@ -13,13 +13,15 @@ class Agen extends Model
 
     protected $fillable = [
         'developer_id',
+        "ktp",
         'name',
         'email',
         'phone',
         'photo',
         'license_number',
         'is_active',
-        "user_id"
+        "user_id",
+        "sumber",
     ];
 
     // Relasi ke Developer

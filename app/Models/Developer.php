@@ -14,7 +14,17 @@ class Developer extends Model
         'alamat',
         'logo', 
         "is_verified",
-        "kontak"
+        "kontak",
+
+        "nama_property",
+        "email_perusahaan",
+        "nib",
+        "website",
+        "sumber",
+
+
+
+        "nama_pic",
     ];
     public function properties()
     {

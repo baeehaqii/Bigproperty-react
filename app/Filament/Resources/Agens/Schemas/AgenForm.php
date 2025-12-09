@@ -3,7 +3,11 @@
 namespace App\Filament\Resources\Agens\Schemas;
 
 use App\Models\Agen;
+use App\Models\Developer;
+use App\Models\Sumber;
 use App\Models\User;
+use App\Models\Visitor;
+use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -13,6 +17,8 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Forms\Get;
+use Filament\Notifications\Notification;
+
 
 class AgenForm
 {
@@ -43,15 +49,36 @@ class AgenForm
                 // Section: Informasi Developer
                 Section::make('Informasi Developer')
                     ->schema([
+                        Toggle::make('is_developer')
+                            ->label('Agen Developer ?')
+                            ->disabled(function (callable $get) {
+                                return $get('developer_id') !== null;
+                            })
+                            ->afterstateHydrated(function (callable $get, $set) {
+                                // dd($get('developer_id'));
+                                if($get('developer_id') !== null){
+                                    $set('is_developer', true);
+                                }else{
+                                    $set('is_developer', false);
+                                }
+                            })
+                            ->reactive()
+                            ->columnSpanFull(),
                         Select::make('developer_id')
                             ->label('Developer')
                             ->relationship('developer', 'name')
                             ->searchable()
+                            ->visible(function (callable $get) {
+                                return $get('is_developer') === true;
+                            })
+                            ->reactive()
                             ->preload()
-                            ->required()
+                            ->required(function (callable $get) {
+                                return $get('is_developer') === true;
+                            })
                             ->columnSpanFull(),
                     ])
-                    ->columns(1),
+                    ->columns(2),
 
                 // Section: Akun User
                 Section::make('Akun User')
@@ -98,7 +125,15 @@ class AgenForm
                                     ->label('Nama Lengkap')
                                     ->required()
                                     ->maxLength(255)
-                                    ->placeholder('Contoh: John Doe'),
+                                    ->placeholder('Contoh: Slamet Riyadi'),
+                                FileUpload::make('ktp')
+                                    ->label('Upload ktp')
+                                    ->image()
+                                    ->required()
+                                    ->directory('agen/ktp')
+                                    ->openable()
+                                    ->downloadable()
+                                    ->maxSize(2048),
                             ]),
 
                         Grid::make(2)
@@ -147,6 +182,100 @@ class AgenForm
                             ->default(true)
                             ->inline(false)
                             ->columnSpanFull(),
+                        Select::make("sumber")
+                            ->label('Sumber Informasi')
+                            ->suffixAction(
+                            Action::make('addCategory')
+                                        ->icon('heroicon-o-plus-circle')
+                                        ->color('success')
+                                        ->form([
+                                                TextInput::make('nama')
+                                                    ->label('Nama Sumber')
+                                                    ->required()
+                                                    ->maxLength(255)
+                                                    ->placeholder('e.g., Facebook, Instagram, Teman, Event')
+                                            ])
+                                            ->action(function (array $data, $set, $get) {
+                                                // Check if category already exists
+                                                $exists = Sumber::where('nama', $data['nama'])->exists();
+                                                
+                                                if ($exists) {
+                                                    Notification::make()
+                                                        ->title('Sumber sudah ada')
+                                                        ->warning()
+                                                        ->send();
+                                                    return;
+                                                }
+                                                
+                                                // Create new category
+                                                Sumber::create([
+                                                    'nama' => $data['nama']
+                                                ]);
+                                                
+                                                Notification::make()
+                                                    ->title('Sumber berhasil ditambahkan')
+                                                    ->success()
+                                                    ->send();
+                                                
+                                                // Set the newly created category
+                                                // $set('sumber', $data['sumber']);
+                                            })
+                                    )
+                                    ->prefixAction(
+                                        Action::make('deleteCategory')
+                                            ->icon('heroicon-o-trash')
+                                            ->color('danger')
+                                            ->requiresConfirmation()
+                                            ->modalHeading('Hapus Sumber')
+                                            ->modalDescription(fn ($get) => 
+                                                'Apakah Anda yakin ingin menghapus Sumber "' . $get('sumber') . '"? Sumber yang sudah digunakan tidak dapat dihapus.'
+                                            )
+                                            ->modalSubmitActionLabel('Hapus')
+                                            ->action(function ($get, $set,$record) {
+                                                $categoryName = $get('sumber');
+                                                
+                                                if (!$categoryName) {
+                                                    Notification::make()
+                                                        ->title('Pilih sumber terlebih dahulu')
+                                                        ->warning()
+                                                        ->send();
+                                                    return;
+                                                }
+                                                
+                                                // Check if category is being used
+                                                $isUsed = Agen::where('sumber', $categoryName)->where('id', '!=',$record->id)->exists();
+                                                $isUsed2 = Visitor::where('sumber', $categoryName)->where('id', '!=',$record->id)->exists();
+                                                $isUsed3 = Developer::where('sumber', $categoryName)->where('id', '!=',$record->id)->exists();
+                                                
+                                                if ($isUsed && $isUsed2 && $isUsed3) {
+                                                    Notification::make()
+                                                        ->title('sumber tidak dapat dihapus')
+                                                        ->body('sumber ini sedang digunakan oleh property lain.')
+                                                        ->danger()
+                                                        ->send();
+                                                    return;
+                                                }
+                                                
+                                                // Delete category
+                                                $deleted = sumber::where('nama', $categoryName)->delete();
+                                                
+                                                if ($deleted) {
+                                                    Notification::make()
+                                                        ->title('sumber berhasil dihapus')
+                                                        ->success()
+                                                        ->send();
+                                                    
+                                                    // Clear the select field
+                                                    $set('kategori', null);
+                                                    $record->sumber = null;
+                                                    $record->save();
+                                                }
+                                            })
+                                            ->hidden(fn ($get) => !$get('sumber'))
+                                    )
+                            ->options(function () {
+                                return Sumber::orderBy('nama')->pluck('nama', 'nama');
+                            })
                     ])
                     ->columns(1)
                     ->collapsible(),

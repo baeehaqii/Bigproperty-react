@@ -19,9 +19,9 @@ class DeveloperResource extends Resource
     protected static ?string $model = Developer::class;
 
     protected static ?string $recordTitleAttribute = 'Developer';
-    protected static string|\UnitEnum|null $navigationGroup = 'Sub Content';
+    protected static string|\UnitEnum|null $navigationGroup = '#';
     protected static string|BackedEnum|null $navigationIcon = Heroicon::CheckBadge;
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 4;
 
     protected static ?string $navigationLabel = 'Developer';
     protected static ?string $modelLabel = 'Data Developer';
