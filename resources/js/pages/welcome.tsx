@@ -23,9 +23,9 @@ export default function Welcome() {
                 <Navbar />
             </div>
 
-            <div className="flex min-h-screen flex-col items-center bg-white p-6 text-gray-900 lg:justify-center lg:p-8 w-full">
+            <div className="flex min-h-screen flex-col items-center bg-white text-gray-900 w-full">
                 <main className="w-full flex-1 mt-8">
-                    <div className="w-full">
+                    <div className="max-w-[1420px] mx-auto px-6 lg:px-0">
                         <Hero />
                         <div className="mt-12 w-full">
                             <PropertyCategories />

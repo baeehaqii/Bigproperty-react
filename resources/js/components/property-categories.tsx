@@ -16,6 +16,31 @@ import {
   Handshake,
   TrendingUp,
   Bed,
+  Building,
+  MapPin,
+  Map,
+  Globe,
+  Briefcase,
+  Banknote,
+  DollarSign,
+  Grid2X2,
+  Plus,
+  Columns3,
+  Star,
+  Heart,
+  Flame,
+  Sparkles,
+  Zap,
+  Key,
+  ShoppingCart,
+  ShoppingBag,
+  Tv,
+  Wifi,
+  Truck,
+  Wrench,
+  Sun,
+  Moon,
+  Cloud,
 } from "lucide-react"
 
 // Types
@@ -52,7 +77,7 @@ function CategoryCard({ icon, label, badge, badgeColor, highlighted = false, isO
   return (
     <div className="relative flex min-w-[90px] flex-col items-center gap-2 rounded-lg border border-gray-200 bg-white p-3 transition-all hover:shadow-md hover:border-primary/30 cursor-pointer flex-shrink-0">
       {badge && (
-        <div 
+        <div
           className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full px-2 py-0.5 text-[10px] font-bold text-white whitespace-nowrap z-10"
           style={{ backgroundColor: badgeColor || '#ef4444' }}
         >
@@ -60,13 +85,12 @@ function CategoryCard({ icon, label, badge, badgeColor, highlighted = false, isO
         </div>
       )}
       <div
-        className={`flex h-10 w-10 items-center justify-center rounded-full ${
-          isOrange
+        className={`flex h-10 w-10 items-center justify-center rounded-full ${isOrange
             ? "bg-gradient-to-br from-orange-500 to-orange-600"
             : highlighted
               ? "bg-gradient-to-br from-[#ECEC5C] to-[#c4a747]"
               : "bg-blue-500"
-        }`}
+          }`}
       >
         <div className={isOrange || highlighted ? "text-white" : "text-white"}>{icon}</div>
       </div>
@@ -75,8 +99,53 @@ function CategoryCard({ icon, label, badge, badgeColor, highlighted = false, isO
   )
 }
 
-// Icon mapping - map icon name dari database ke Lucide icon
-const iconMap: Record<string, React.ReactNode> = {
+// Heroicon mapping dari backend Laravel (menggunakan Lucide React equivalents)
+const heroiconMap: Record<string, React.ReactNode> = {
+  // Property & Real Estate
+  "heroicon-o-home": <Home className="h-5 w-5" />,
+  "heroicon-o-home-modern": <Building className="h-5 w-5" />,
+  "heroicon-o-building-office": <Building2 className="h-5 w-5" />,
+  "heroicon-o-building-office-2": <Building2 className="h-5 w-5" />,
+  "heroicon-o-building-storefront": <Store className="h-5 w-5" />,
+  "heroicon-o-building-library": <Building className="h-5 w-5" />,
+
+  // Location
+  "heroicon-o-map-pin": <MapPin className="h-5 w-5" />,
+  "heroicon-o-map": <Map className="h-5 w-5" />,
+  "heroicon-o-globe-alt": <Globe className="h-5 w-5" />,
+
+  // Business
+  "heroicon-o-briefcase": <Briefcase className="h-5 w-5" />,
+  "heroicon-o-banknotes": <Banknote className="h-5 w-5" />,
+  "heroicon-o-currency-dollar": <DollarSign className="h-5 w-5" />,
+
+  // Categories
+  "heroicon-o-squares-2x2": <Grid2X2 className="h-5 w-5" />,
+  "heroicon-o-squares-plus": <Plus className="h-5 w-5" />,
+  "heroicon-o-rectangle-group": <Columns3 className="h-5 w-5" />,
+
+  // Common
+  "heroicon-o-star": <Star className="h-5 w-5" />,
+  "heroicon-o-heart": <Heart className="h-5 w-5" />,
+  "heroicon-o-fire": <Flame className="h-5 w-5" />,
+  "heroicon-o-sparkles": <Sparkles className="h-5 w-5" />,
+  "heroicon-o-bolt": <Zap className="h-5 w-5" />,
+  "heroicon-o-key": <Key className="h-5 w-5" />,
+  "heroicon-o-shopping-cart": <ShoppingCart className="h-5 w-5" />,
+  "heroicon-o-shopping-bag": <ShoppingBag className="h-5 w-5" />,
+
+  // Facilities
+  "heroicon-o-tv": <Tv className="h-5 w-5" />,
+  "heroicon-o-wifi": <Wifi className="h-5 w-5" />,
+  "heroicon-o-truck": <Truck className="h-5 w-5" />,
+  "heroicon-o-wrench-screwdriver": <Wrench className="h-5 w-5" />,
+
+  // Nature
+  "heroicon-o-sun": <Sun className="h-5 w-5" />,
+  "heroicon-o-moon": <Moon className="h-5 w-5" />,
+  "heroicon-o-cloud": <Cloud className="h-5 w-5" />,
+
+  // Legacy mappings (untuk backward compatibility)
   Home: <Home className="h-5 w-5" />,
   CheckCircle2: <CheckCircle2 className="h-5 w-5" />,
   PlusCircle: <PlusCircle className="h-5 w-5" />,
@@ -104,13 +173,13 @@ export function PropertyCategories() {
       try {
         setLoading(true)
         const response = await fetch('/property-categories')
-        
+
         if (!response.ok) {
           throw new Error('Failed to fetch categories')
         }
-        
+
         const result = await response.json()
-        
+
         if (result.success && result.data) {
           setCategories(result.data)
         }
@@ -156,123 +225,6 @@ export function PropertyCategories() {
       badge_text: null,
       badge_color: null,
       order: 2,
-      is_active: true,
-    },
-    {
-      id: 3,
-      name: "Rumah",
-      slug: "rumah",
-      icon: "Home",
-      section: "buy",
-      is_highlighted: false,
-      has_badge: false,
-      badge_text: null,
-      badge_color: null,
-      order: 3,
-      is_active: true,
-    },
-    {
-      id: 4,
-      name: "Rumah Baru",
-      slug: "rumah-baru",
-      icon: "Home",
-      section: "buy",
-      is_highlighted: false,
-      has_badge: false,
-      badge_text: null,
-      badge_color: null,
-      order: 4,
-      is_active: true,
-    },
-    {
-      id: 5,
-      name: "Apartemen",
-      slug: "apartemen",
-      icon: "Building2",
-      section: "buy",
-      is_highlighted: false,
-      has_badge: false,
-      badge_text: null,
-      badge_color: null,
-      order: 5,
-      is_active: true,
-    },
-    {
-      id: 6,
-      name: "Tanah",
-      slug: "tanah",
-      icon: "Layers",
-      section: "buy",
-      is_highlighted: false,
-      has_badge: false,
-      badge_text: null,
-      badge_color: null,
-      order: 6,
-      is_active: true,
-    },
-    {
-      id: 7,
-      name: "Ruko",
-      slug: "ruko",
-      icon: "Store",
-      section: "buy",
-      is_highlighted: false,
-      has_badge: false,
-      badge_text: null,
-      badge_color: null,
-      order: 7,
-      is_active: true,
-    },
-    {
-      id: 8,
-      name: "Tempat Usaha",
-      slug: "tempat-usaha",
-      icon: "Store",
-      section: "buy",
-      is_highlighted: false,
-      has_badge: false,
-      badge_text: null,
-      badge_color: null,
-      order: 8,
-      is_active: true,
-    },
-    {
-      id: 9,
-      name: "Kost",
-      slug: "kost",
-      icon: "Bed",
-      section: "buy",
-      is_highlighted: false,
-      has_badge: false,
-      badge_text: null,
-      badge_color: null,
-      order: 9,
-      is_active: true,
-    },
-    {
-      id: 10,
-      name: "Gudang & Pabrik",
-      slug: "gudang-pabrik",
-      icon: "Factory",
-      section: "buy",
-      is_highlighted: false,
-      has_badge: false,
-      badge_text: null,
-      badge_color: null,
-      order: 10,
-      is_active: true,
-    },
-    {
-      id: 11,
-      name: "Tanpa Perantara",
-      slug: "tanpa-perantara",
-      icon: "UserX",
-      section: "buy",
-      is_highlighted: false,
-      has_badge: false,
-      badge_text: null,
-      badge_color: null,
-      order: 11,
       is_active: true,
     },
   ]
@@ -377,14 +329,14 @@ export function PropertyCategories() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12">
-      {/* Beli Properti Section */}
-      <div className="mb-8">
+      {/* Beli Properti Section - Full Width */}
+      <div className="mb-12">
         <h2 className="mb-4 text-xl font-bold text-gray-900">Beli Properti</h2>
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
           {buyCategories.map((category: PropertyCategory) => (
             <CategoryCard
               key={category.id}
-              icon={iconMap[category.icon] || <Home className="h-5 w-5" />}
+              icon={heroiconMap[category.icon] || <Home className="h-5 w-5" />}
               label={category.name}
               highlighted={category.is_highlighted}
               badge={category.has_badge && category.badge_text ? category.badge_text : undefined}
@@ -394,41 +346,44 @@ export function PropertyCategories() {
         </div>
       </div>
 
-      {/* Sewa Properti Section */}
-      <div className="mb-8">
-        <div className="flex items-center gap-2 mb-4">
-          <h2 className="text-xl font-bold text-gray-900">Sewa Properti</h2>
+      {/* Two Column Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
+        {/* Sewa Properti Section - Left Column */}
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <h2 className="text-xl font-bold text-gray-900">Sewa Properti</h2>
+          </div>
+          <div className="flex gap-3 overflow-x-auto pb-2 pt-3 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
+            {rentCategories.map((category: PropertyCategory) => (
+              <CategoryCard
+                key={category.id}
+                icon={heroiconMap[category.icon] || <Home className="h-5 w-5" />}
+                label={category.name}
+                badge={category.has_badge && category.badge_text ? category.badge_text : undefined}
+                badgeColor={category.badge_color || undefined}
+                highlighted={category.is_highlighted}
+              />
+            ))}
+          </div>
         </div>
-        <div className="flex gap-3 overflow-x-auto pb-2 pt-3 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
-          {rentCategories.map((category: PropertyCategory) => (
-            <CategoryCard
-              key={category.id}
-              icon={iconMap[category.icon] || <Home className="h-5 w-5" />}
-              label={category.name}
-              badge={category.has_badge && category.badge_text ? category.badge_text : undefined}
-              badgeColor={category.badge_color || undefined}
-              highlighted={category.is_highlighted}
-            />
-          ))}
-        </div>
-      </div>
 
-      {/* Titip Jual & Sewa Properti Section */}
-      <div className="mb-8">
-        <div className="flex items-center gap-2 mb-4">
-          <h2 className="text-xl font-bold text-gray-900">Titip Jual & Sewa Properti</h2>
-        </div>
-        <div className="flex gap-3 overflow-x-auto pb-2 pt-3 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
-          {listingCategories.map((category: PropertyCategory) => (
-            <CategoryCard
-              key={category.id}
-              icon={iconMap[category.icon] || <PlusCircle className="h-5 w-5" />}
-              label={category.name}
-              badge={category.has_badge && category.badge_text ? category.badge_text : undefined}
-              badgeColor={category.badge_color || undefined}
-              isOrange={true}
-            />
-          ))}
+        {/* Titip Jual & Sewa Properti Section - Right Column */}
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <h2 className="text-xl font-bold text-gray-900">Titip Jual & Sewa Properti</h2>
+          </div>
+          <div className="flex gap-3 overflow-x-auto pb-2 pt-3 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
+            {listingCategories.map((category: PropertyCategory) => (
+              <CategoryCard
+                key={category.id}
+                icon={heroiconMap[category.icon] || <PlusCircle className="h-5 w-5" />}
+                label={category.name}
+                badge={category.has_badge && category.badge_text ? category.badge_text : undefined}
+                badgeColor={category.badge_color || undefined}
+                isOrange={true}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </div>

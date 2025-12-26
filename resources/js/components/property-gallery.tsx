@@ -22,6 +22,7 @@ export function PropertyGallery({ images, title, developer }: PropertyGalleryPro
   const formattedImages = images.map((url, index) => ({
     url,
     alt: `${title} - Photo ${index + 1}`,
+    priority: index,
   }))
 
   return (

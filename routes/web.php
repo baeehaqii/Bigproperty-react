@@ -70,6 +70,10 @@ Route::middleware([
 
 Route::get('/property-categories', [PropertyCategoryController::class, 'index']);
 Route::get('/property/{id}', [PropertyController::class, 'show'])->name('property.show');
+Route::get('/property-test/{id}', function ($id) {
+    $property = \App\Models\Property::findOrFail($id);
+    return Inertia::render('PropertyDetailTest', ['property' => $property]);
+});
 // route untuk yang menampilkan gambar hero dari storage lokal
 Route::get('/storage/hero/images/{filename}', function ($filename) {
     $path = 'hero/images/' . $filename;

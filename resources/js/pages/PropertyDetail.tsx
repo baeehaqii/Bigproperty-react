@@ -1,5 +1,5 @@
 import { Head } from '@inertiajs/react'
-import { Navbar } from '@/components/navbar'
+import Navbar from '@/components/navbar'
 import { PropertyContact } from '@/components/property-contact'
 import { PropertyGallery } from '@/components/property-gallery'
 import { PropertySummary } from '@/components/property-summary'
@@ -19,11 +19,6 @@ interface PropertyDetailProps {
 
 export default function PropertyDetail({ property }: PropertyDetailProps) {
     console.log('Property data received:', property)
-    console.log('Property images:', property?.images)
-    console.log('Property advantages:', property?.advantages)
-    console.log('Property facilities:', property?.facilities)
-    console.log('Property data received:', property)
-    console.log('Property images:', property?.images)
 
     if (!property) {
         return (
@@ -45,7 +40,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
     return (
         <>
             <Head title={`${property.name} - Big Property`} />
-            <div className="min-h-screen bg-white">
+            <div className="min-h-screen bg-white" style={{ minHeight: '100vh' }}>
                 {/* Navbar */}
                 <Navbar />
 
