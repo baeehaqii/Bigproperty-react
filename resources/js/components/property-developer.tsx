@@ -4,10 +4,19 @@ import type { PropertyDeveloper as DeveloperType } from "@/types/property"
 import { Button } from "./ui/button"
 
 interface PropertyDeveloperProps {
-  developer: DeveloperType
+  developer: DeveloperType | null
 }
 
 export function PropertyDeveloper({ developer }: PropertyDeveloperProps) {
+  if (!developer) {
+    return (
+      <section id="developer" className="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
+        <h2 className="text-2xl font-bold text-gray-900">Developer</h2>
+        <p className="text-gray-600">Informasi developer tidak tersedia</p>
+      </section>
+    )
+  }
+
   return (
     <section id="developer" className="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
       <h2 className="text-2xl font-bold text-gray-900">Developer</h2>

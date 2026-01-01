@@ -3,66 +3,23 @@
 use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\ImageController;
 use App\Http\Controllers\Api\PopularPropertyController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HeroController;
 use App\Http\Controllers\PropertyCategoryController;
 use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\PropertyListingController;
 use App\Http\Controllers\TestimoniController;
 use App\Http\Controllers\VerifiedProjectController;
 use App\Models\Hero;
 use App\Models\PropertyCategory;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use Laravel\WorkOS\Http\Middleware\ValidateSessionWithWorkOS;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
 })->name('home');
 
-//     return Inertia::render('PropertyDetail', [
-//         'property' => [
-//             'id' => $id,
-//             'name' => 'Test Property ' . $id,
-//             'type' => 'Rumah',
-//             'status' => 'Available',
-//             'price' => [
-//                 'min' => 500000000,
-//                 'max' => 800000000,
-//                 'currency' => 'IDR'
-//             ],
-//             'images' => [
-//                 ['url' => 'https://via.placeholder.com/600x400', 'alt' => 'Test Property', 'priority' => 1]
-//             ],
-//             'specifications' => [
-//                 'bedrooms' => '2-3 BR',
-//                 'bathrooms' => '1-2',
-//                 'landArea' => '60-90m²',
-//                 'buildingArea' => '45-70m²',
-//                 'certificateType' => 'SHM'
-//             ],
-//             'installment' => [
-//                 'monthly' => 'Angsuran mulai dari Rp5Jt/bln',
-//             ],
-//             'developer' => [
-//                 'name' => 'Test Developer',
-//                 'logo' => 'https://via.placeholder.com/40',
-//             ],
-//             'location' => [
-//                 'district' => 'Legok',
-//                 'subDistrict' => 'Legok',
-//                 'city' => 'Tangerang',
-//                 'province' => 'Banten',
-//             ],
-//             'description' => 'Test property dengan lokasi strategis.',
-//             'remainingUnits' => 10
-//         ]
-//     ]);
-// })->name('property.show');
-
-
-Route::middleware([
-    'auth',
-    ValidateSessionWithWorkOS::class,
-])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
@@ -77,14 +34,14 @@ Route::get('/property-test/{id}', function ($id) {
 // route untuk yang menampilkan gambar hero dari storage lokal
 Route::get('/storage/hero/images/{filename}', function ($filename) {
     $path = 'hero/images/' . $filename;
-    
+
     if (!Storage::disk('local')->exists($path)) {
         abort(404);
     }
-    
+
     $file = Storage::disk('local')->get($path);
     $type = Storage::disk('local')->mimeType($path);
-    
+
     return response($file, 200)->header('Content-Type', $type);
 })->where('filename', '.*');
 
@@ -94,11 +51,11 @@ Route::get('/heroes-data', [HeroController::class, 'index']);
 // route untk menampilkan gambar dari storage private
 Route::get('/storage/private/{path}', function ($path) {
     $fullPath = storage_path('app/private/' . $path);
-    
+
     if (!file_exists($fullPath)) {
         abort(404);
     }
-    
+
     return response()->file($fullPath);
 })->where('path', '.*');
 
@@ -109,5 +66,35 @@ Route::get('/verified-projects', [VerifiedProjectController::class, 'index']);
 
 Route::get('/testimonials', [TestimoniController::class, 'index']);
 Route::get('/testimonials/{id}', [TestimoniController::class, 'show']);
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
+
+// Property Listing Routes (Beli / Sewa)
+Route::get('/beli', [PropertyListingController::class, 'beli'])->name('listing.beli');
+Route::get('/sewa', [PropertyListingController::class, 'sewa'])->name('listing.sewa');
+Route::get('/api/property-filter-count', [PropertyListingController::class, 'getFilteredCount'])->name('api.property.filter-count');
+Route::get('/api/property-search-suggestions', [PropertyListingController::class, 'searchSuggestions'])->name('api.property.search-suggestions');
+
+
+
+
+
+// Agent Authentication Routes
+use App\Http\Controllers\AgentAuthController;
+
+Route::prefix('agent')->name('agent.')->group(function () {
+    // Guest routes untuk agent - hanya yang belum login sebagai agent
+    Route::middleware('guest:agent')->group(function () {
+        Route::get('/register', [AgentAuthController::class, 'showSignupForm'])->name('register');
+        Route::post('/register', [AgentAuthController::class, 'register']);
+        Route::get('/login', [AgentAuthController::class, 'showLoginForm'])->name('login');
+        Route::post('/login', [AgentAuthController::class, 'login']);
+    });
+
+    // Agent authenticated routes - hanya yang sudah login sebagai agent
+    Route::middleware('auth:agent')->group(function () {
+        Route::get('/dashboard', [AgentAuthController::class, 'dashboard'])->name('dashboard');
+        Route::post('/logout', [AgentAuthController::class, 'logout'])->name('logout');
+    });
+});
+
+require __DIR__ . '/settings.php';
+require __DIR__ . '/auth.php';

@@ -20,6 +20,11 @@ class Property extends Model
         'installment_start',
         'location',
         'bedrooms',
+        'bathrooms',
+        'carport',
+        'listrik',
+        'market_type',
+        'construction_status',
         'land_size_min',
         'land_size_max',
         'building_size_min',
@@ -32,6 +37,9 @@ class Property extends Model
         'button_type',
         'is_available',
         'is_popular',
+        'is_verified',
+        'has_promo',
+        'tanpa_perantara',
         'last_updated',
         "event_id",
         "fasilitas",
@@ -56,11 +64,18 @@ class Property extends Model
         'land_size_max' => 'integer',
         'building_size_min' => 'integer',
         'building_size_max' => 'integer',
+        'bedrooms' => 'integer',
+        'bathrooms' => 'integer',
+        'carport' => 'integer',
+        'listrik' => 'integer',
         'units_remaining' => 'integer',
         'is_available' => 'boolean',
         'is_popular' => 'boolean',
+        'is_verified' => 'boolean',
+        'has_promo' => 'boolean',
+        'tanpa_perantara' => 'boolean',
         'last_updated' => 'datetime',
-        
+
     ];
 
     public function event(): BelongsTo
@@ -81,8 +96,8 @@ class Property extends Model
         if ($this->price_min === $this->price_max) {
             return 'Rp ' . number_format($this->price_min / 1000000, 1, ',', '.') . ' Jt';
         }
-        return 'Rp ' . number_format($this->price_min / 1000000, 1, ',', '.') . ' Jt - Rp ' . 
-               number_format($this->price_max / 1000000, 1, ',', '.') . ($this->price_max >= 1000000000 ? ' M' : ' Jt');
+        return 'Rp ' . number_format($this->price_min / 1000000, 1, ',', '.') . ' Jt - Rp ' .
+            number_format($this->price_max / 1000000, 1, ',', '.') . ($this->price_max >= 1000000000 ? ' M' : ' Jt');
     }
 
     // Accessor untuk format cicilan

@@ -24,15 +24,15 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Tymon\JWTAuth\Contracts\JWTSubject;
+use Tymon\JWTAuth\Contracts\JWTSubject; // Tambahkan ini
 
-class User extends Authenticatable implements FilamentUser, MustVerifyEmail, HasName, HasMedia
+class User extends Authenticatable implements FilamentUser, MustVerifyEmail, HasName, HasMedia, JWTSubject
 {
     use InteractsWithMedia;
     use TwoFactorAuthenticatable;
     use HasUuids, HasRoles;
     use HasApiTokens, HasFactory, Notifiable;
-    
+    protected $guard_name = 'web';
     protected $fillable = [
         'username',
         'email',
@@ -42,13 +42,9 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail, Has
         'two_factor_secret',
         'two_factor_recovery_codes',
         'two_factor_confirmed_at',
+        'email_verified_at'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<string, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
@@ -56,25 +52,26 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail, Has
         'two_factor_secret',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'two_factor_confirmed_at' => 'datetime',
     ];
 
-    /**
-     * The accessors to append to the model's array form.
-     *
-     * @var array<int, string>
-     */
     protected $appends = [
         'two_factor_enabled',
     ];
+
+    // JWT Methods - TAMBAHKAN INI
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
 
     public function getFilamentName(): string
     {
@@ -83,13 +80,9 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail, Has
 
     public function canAccessPanel(Panel $panel): bool
     {
-        // if ($panel->getId() === 'admin') {
-        //     return str_ends_with($this->email, '@yourdomain.com') && $this->hasVerifiedEmail();
-        // }
-
         return true;
     }
-    // Define an accessor for the 'name' attribute
+
     public function getNameAttribute()
     {
         return "{$this->firstname} {$this->lastname}";
@@ -107,34 +100,22 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail, Has
             ->nonQueued();
     }
 
-    /**
-     * Determine if two-factor authentication has been enabled.
-     */
     public function hasEnabledTwoFactor(): bool
     {
         return !is_null($this->two_factor_secret);
     }
 
-    /**
-     * Determine if two-factor authentication has been confirmed.
-     */
     public function hasConfirmedTwoFactor(): bool
     {
         return !is_null($this->two_factor_confirmed_at);
     }
 
-    /**
-     * Enable two-factor authentication for the user.
-     */
     public function enableTwoFactorAuthentication(): void
     {
         $this->two_factor_confirmed_at = now();
         $this->save();
     }
 
-    /**
-     * Disable two-factor authentication for the user.
-     */
     public function disableTwoFactorAuthentication(): void
     {
         $this->forceFill([
@@ -144,17 +125,11 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail, Has
         ])->save();
     }
 
-    /**
-     * Get the two-factor authentication enabled state.
-     */
     public function getTwoFactorEnabledAttribute(): bool
     {
         return $this->hasEnabledTwoFactor() && $this->hasConfirmedTwoFactor();
     }
 
-    /**
-     * Determine if the user has a valid two-factor authentication session.
-     */
     public function hasValidTwoFactorSession(): bool
     {
         if (!$this->hasEnabledTwoFactor()) {
@@ -169,32 +144,47 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail, Has
                session($sessionKey) === $this->getAuthIdentifier();
     }
 
-    /**
-     * Mark the current session as having passed two-factor authentication.
-     */
     public function confirmTwoFactorSession(): void
     {
         session([
             'two_factor_confirmed_at.' . session()->getId() => now()->timestamp
         ]);
     }
+
     public function clearTwoFactorSession(): void
     {
         session()->forget('two_factor_confirmed_at.' . session()->getId());
     }
+
+    // Relasi ke KreditUser
+    public function kreditUser()
+    {
+        return $this->hasOne(\App\Models\KreditUser::class);
+    }
+
     protected static function boot()
     {
         parent::boot();
 
+        // Event setelah user dibuat - AUTO CREATE KREDIT
+        static::created(function ($user) {
+            \App\Models\KreditUser::create([
+                'user_id' => $user->id,
+                'kredit_new_user' => 3,
+                'kredit_listing' => 0,
+                'kredit_highlight' => 0,
+                'kredit_popup' => 0,
+                'kredit_banner' => 0,
+            ]);
+        });
+
         static::deleting(function ($user) {
-            // Hapus relasi roles sebelum delete user
             $user->roles()->detach();
-            
-            // Hapus relasi permissions juga
             $user->permissions()->detach();
-            
-            // Hapus media juga kalau ada
             $user->clearMediaCollection();
+            
+            // Hapus kredit user juga
+            $user->kreditUser()->delete();
         });
     }
 }

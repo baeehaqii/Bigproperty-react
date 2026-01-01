@@ -39,9 +39,9 @@ export default function Welcome() {
                         <div className="mt-8 w-full">
                             <VerifiedProjects />
                         </div>
-                        <div className="mt-8 w-full">
-                            <Testimonials />
-                        </div>
+                    </div>
+                    <div className="mt-8 w-full">
+                        <Testimonials />
                     </div>
                 </main>
 

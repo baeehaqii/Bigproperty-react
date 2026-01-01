@@ -15,25 +15,38 @@ class UserForm
         return $schema
             ->components([
                 TextInput::make('username')
-                    ->required(),
+                    ->required()
+                    ->unique(ignoreRecord: true),
                 TextInput::make('firstname')
-                    ->default(null),
+                    ->required()
+                    ->label('First Name'),
                 TextInput::make('lastname')
-                    ->default(null),
+                    ->required()
+                    ->label('Last Name'),
                 TextInput::make('email')
                     ->label('Email address')
                     ->email()
-                    ->required(),
+                    ->required()
+                    ->unique(ignoreRecord: true),
+                    
+                // FIX: Tambahin multiple() untuk handle array
                 Select::make('roles')
                     ->relationship('roles', 'name')
-                    ->multiple()
+                    ->multiple() // Tambahin ini!
                     ->preload()
                     ->searchable()
-                    ->label('Roles'),
-                DateTimePicker::make('email_verified_at'),
+                    ->label('Roles')
+                    ->placeholder('Select roles'),
+                    
+                DateTimePicker::make('email_verified_at')
+                    ->label('Email Verified At'),
+                    
                 TextInput::make('password')
                     ->password()
-                    ->required(),
+                    ->required(fn (string $operation): bool => $operation === 'create') // Required hanya saat create
+                    ->dehydrated(fn ($state) => filled($state)) // Hanya update kalo diisi
+                    ->revealable() // Bisa show/hide password
+                    ->minLength(8),
             ]);
     }
 }

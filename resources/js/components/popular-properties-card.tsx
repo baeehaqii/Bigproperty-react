@@ -84,8 +84,9 @@ export function PopularPropertyCard({
 
   return (
     <div className="flex-shrink-0 w-[320px] bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow">
-      <Link href={`/property/${id}`} className="block">
-        <div className="relative h-[200px] group cursor-pointer">
+      {/* Image Section with Link */}
+      <div className="relative h-[200px] group cursor-pointer">
+        <Link href={`/property/${id}`} className="block h-full w-full">
           <img
             src={allImages[currentImageIndex] || "/placeholder.svg"}
             alt={name}
@@ -96,85 +97,86 @@ export function PopularPropertyCard({
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <span className="text-white/30 text-4xl font-bold">Pinhome</span>
           </div>
+        </Link>
 
-          {!available && (
-            <div className="absolute top-3 left-3 bg-gray-600/90 text-white text-xs font-semibold px-3 py-1 rounded">
-              TIDAK TERSEDIA
-            </div>
-          )}
-
-          {/* Views Counter Badge */}
-          <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-full flex items-center gap-1.5">
-            <Eye className="w-3.5 h-3.5" />
-            <span>{formatViews(countClicked)}</span>
+        {!available && (
+          <div className="absolute top-3 left-3 bg-gray-600/90 text-white text-xs font-semibold px-3 py-1 rounded">
+            TIDAK TERSEDIA
           </div>
+        )}
 
-          <button
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              setIsFavorite(!isFavorite)
-            }}
-            className="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform z-10"
-          >
-            <Heart className={`w-4 h-4 ${isFavorite ? "fill-red-500 text-red-500" : "text-gray-600"}`} />
-          </button>
-
-          {allImages.length > 1 && (
-            <>
-              <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  prevImage()
-                }}
-                className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-100 transition-all opacity-0 group-hover:opacity-100 z-10"
-                aria-label="Previous image"
-              >
-                <ChevronLeft className="w-5 h-5 text-gray-700" />
-              </button>
-              <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  nextImage()
-                }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-100 transition-all opacity-0 group-hover:opacity-100 z-10"
-                aria-label="Next image"
-              >
-                <ChevronRight className="w-5 h-5 text-gray-700" />
-              </button>
-            </>
-          )}
-
-          {promoText && (
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-[#ECEC5C] to-[#d4d44a] text-gray-900 text-xs font-semibold text-center py-2">
-              {promoText}
-            </div>
-          )}
-
-          {allImages.length > 1 && (
-            <div
-              className={`absolute left-1/2 -translate-x-1/2 flex gap-1.5 z-10 ${promoText ? "bottom-10" : "bottom-3"}`}
-            >
-              {allImages.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    setCurrentImageIndex(index)
-                  }}
-                  className={`h-1.5 rounded-full transition-all ${index === currentImageIndex ? "bg-white w-4" : "bg-white/60 w-1.5"
-                    }`}
-                  aria-label={`Go to image ${index + 1}`}
-                />
-              ))}
-            </div>
-          )}
+        {/* Views Counter Badge */}
+        <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-full flex items-center gap-1.5">
+          <Eye className="w-3.5 h-3.5" />
+          <span>{formatViews(countClicked)}</span>
         </div>
-      </Link>
 
+        <button
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            setIsFavorite(!isFavorite)
+          }}
+          className="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform z-10"
+        >
+          <Heart className={`w-4 h-4 ${isFavorite ? "fill-red-500 text-red-500" : "text-gray-600"}`} />
+        </button>
+
+        {allImages.length > 1 && (
+          <>
+            <button
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                prevImage()
+              }}
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-100 transition-all opacity-0 group-hover:opacity-100 z-10"
+              aria-label="Previous image"
+            >
+              <ChevronLeft className="w-5 h-5 text-gray-700" />
+            </button>
+            <button
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                nextImage()
+              }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-100 transition-all opacity-0 group-hover:opacity-100 z-10"
+              aria-label="Next image"
+            >
+              <ChevronRight className="w-5 h-5 text-gray-700" />
+            </button>
+          </>
+        )}
+
+        {promoText && (
+          <div className="absolute bottom-0 left-0 right-0 bg-linear-to-r from-[#ECEC5C] to-[#d4d44a] text-gray-900 text-xs font-semibold text-center py-2">
+            {promoText}
+          </div>
+        )}
+
+        {allImages.length > 1 && (
+          <div
+            className={`absolute left-1/2 -translate-x-1/2 flex gap-1.5 z-10 ${promoText ? "bottom-10" : "bottom-3"}`}
+          >
+            {allImages.map((_, index) => (
+              <button
+                key={index}
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  setCurrentImageIndex(index)
+                }}
+                className={`h-1.5 rounded-full transition-all ${index === currentImageIndex ? "bg-white w-4" : "bg-white/60 w-1.5"
+                  }`}
+                aria-label={`Go to image ${index + 1}`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Content Section with Link */}
       <Link href={`/property/${id}`} className="block">
         <div className="p-4 cursor-pointer">
           <div className="flex items-center gap-2 mb-2">

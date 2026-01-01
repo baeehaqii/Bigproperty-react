@@ -2,24 +2,33 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
-class Agen extends Model
+class Agen extends Authenticatable
 {
-    use SoftDeletes;
+    use SoftDeletes, Notifiable;
 
     protected $table = 'agens';
 
     protected $fillable = [
         'developer_id',
+        "ktp",
         'name',
         'email',
+        'password',
         'phone',
         'photo',
         'license_number',
         'is_active',
-        "user_id"
+        "user_id",
+        "sumber",
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
     ];
 
     // Relasi ke Developer
@@ -28,7 +37,8 @@ class Agen extends Model
         return $this->belongsTo(Developer::class);
     }
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
     // Relasi ke Property (agen yang upload property)
