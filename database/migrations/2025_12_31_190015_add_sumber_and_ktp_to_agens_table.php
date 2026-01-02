@@ -11,8 +11,12 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('agens', function (Blueprint $table) {
-            $table->string('sumber')->nullable()->after('name');
-            $table->string('ktp')->nullable()->after('developer_id');
+            if (!Schema::hasColumn('agens', 'sumber')) {
+                $table->string('sumber')->nullable()->after('name');
+            }
+            if (!Schema::hasColumn('agens', 'ktp')) {
+                $table->string('ktp')->nullable()->after('developer_id');
+            }
         });
     }
 
@@ -22,7 +26,12 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::table('agens', function (Blueprint $table) {
-            $table->dropColumn(['sumber', 'ktp']);
+            if (Schema::hasColumn('agens', 'sumber')) {
+                $table->dropColumn('sumber');
+            }
+            if (Schema::hasColumn('agens', 'ktp')) {
+                $table->dropColumn('ktp');
+            }
         });
     }
 };

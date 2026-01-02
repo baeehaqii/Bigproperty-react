@@ -73,12 +73,17 @@ Route::get('/sewa', [PropertyListingController::class, 'sewa'])->name('listing.s
 Route::get('/api/property-filter-count', [PropertyListingController::class, 'getFilteredCount'])->name('api.property.filter-count');
 Route::get('/api/property-search-suggestions', [PropertyListingController::class, 'searchSuggestions'])->name('api.property.search-suggestions');
 
+// Leads API Route
+use App\Http\Controllers\LeadsAgentController;
+Route::post('/api/leads', [LeadsAgentController::class, 'store'])->name('api.leads.store');
+
 
 
 
 
 // Agent Authentication Routes
 use App\Http\Controllers\AgentAuthController;
+use App\Http\Controllers\AgentDashboardController;
 
 Route::prefix('agent')->name('agent.')->group(function () {
     // Guest routes untuk agent - hanya yang belum login sebagai agent
@@ -91,10 +96,24 @@ Route::prefix('agent')->name('agent.')->group(function () {
 
     // Agent authenticated routes - hanya yang sudah login sebagai agent
     Route::middleware('auth:agent')->group(function () {
-        Route::get('/dashboard', [AgentAuthController::class, 'dashboard'])->name('dashboard');
         Route::post('/logout', [AgentAuthController::class, 'logout'])->name('logout');
+
+        // Dashboard routes - using new folder structure
+        Route::get('/dashboard', [AgentDashboardController::class, 'overview'])->name('dashboard');
+        Route::get('/dashboard/upload-listing', [AgentDashboardController::class, 'uploadListingForm'])->name('dashboard.upload-listing');
+        Route::post('/dashboard/upload-listing', [AgentDashboardController::class, 'storeProperty'])->name('dashboard.store-property');
+        Route::get('/dashboard/leads', [AgentDashboardController::class, 'leads'])->name('dashboard.leads');
+        Route::get('/dashboard/report', [AgentDashboardController::class, 'report'])->name('dashboard.report');
+        Route::get('/dashboard/beli-credit', [AgentDashboardController::class, 'beliCredit'])->name('dashboard.beli-credit');
+        Route::get('/dashboard/history-credit', [AgentDashboardController::class, 'historyCredit'])->name('dashboard.history-credit');
     });
 });
+
+
+// Wilayah API Routes
+use App\Http\Controllers\Api\WilayahController;
+Route::get('/api/wilayah/provinces', [WilayahController::class, 'provinces']);
+Route::get('/api/wilayah/cities/{provinceCode}', [WilayahController::class, 'cities']);
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

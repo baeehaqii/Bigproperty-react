@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Head, Link, useForm } from "@inertiajs/react"
-import { User, Mail, Phone, Lock, Shield, Info } from "lucide-react"
+import { User, Mail, Phone, Lock, Shield, Info, ArrowRight, ArrowLeft } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select"
 
 export default function AgentSignup() {
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing, errors, setError, clearErrors } = useForm({
         name: "",
         email: "",
         phone: "",
@@ -25,6 +25,7 @@ export default function AgentSignup() {
     })
 
     const [showPassword, setShowPassword] = useState(false)
+    const [currentStep, setCurrentStep] = useState(1)
 
     const sumberOptions = [
         { value: "instagram", label: "Instagram" },
@@ -34,6 +35,32 @@ export default function AgentSignup() {
         { value: "google", label: "Google" },
         { value: "lainnya", label: "Lainnya" },
     ]
+
+    const validateStep1 = () => {
+        let isValid = true
+        clearErrors()
+
+        if (!data.name) {
+            setError('name', 'Nama lengkap wajib diisi')
+            isValid = false
+        }
+        if (!data.email) {
+            setError('email', 'Email wajib diisi')
+            isValid = false
+        }
+        if (!data.phone) {
+            setError('phone', 'No. WhatsApp wajib diisi')
+            isValid = false
+        }
+
+        return isValid
+    }
+
+    const handleNext = () => {
+        if (validateStep1()) {
+            setCurrentStep(2)
+        }
+    }
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
@@ -62,177 +89,218 @@ export default function AgentSignup() {
                         <div className="mb-8">
                             <Link href="/" className="inline-block mb-6">
                                 <img
-                                    src="/images/logo-big.png"
+                                    src="https://res.cloudinary.com/dx8w9qwl6/image/upload/v1761232717/Logo_Big_t3qpb3.png"
                                     alt="BigProperty"
                                     className="h-10"
                                 />
                             </Link>
                             <h1 className="text-2xl font-bold text-gray-900 lg:text-[28px] lg:leading-[42px]">
-                                Daftar Sebagai Agent
+                                {currentStep === 1 ? "Daftar Sebagai Agent" : "Lengkapi Keamanan"}
                             </h1>
                             <p className="mt-2 text-gray-600">
-                                Bergabunglah sebagai agent properti BigProperty
+                                {currentStep === 1
+                                    ? "Lengkapi data diri Anda untuk bergabung"
+                                    : "Buat password aman untuk akun Anda"
+                                }
                             </p>
+
+                            {/* Step Indicator */}
+                            <div className="flex bg-gray-100 h-2 mt-6 rounded-full overflow-hidden">
+                                <div
+                                    className={`h-full bg-[#ECEC5C] transition-all duration-300 ease-in-out ${currentStep === 1 ? 'w-1/2' : 'w-full'
+                                        }`}
+                                />
+                            </div>
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-5">
-                            {/* Nama Lengkap */}
-                            <div className="space-y-2">
-                                <Label htmlFor="name" className="font-semibold text-gray-900">
-                                    Nama Lengkap
-                                </Label>
-                                <div className="relative">
-                                    <User className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                                    <Input
-                                        id="name"
-                                        type="text"
-                                        value={data.name}
-                                        onChange={(e) => setData("name", e.target.value)}
-                                        className="h-12 rounded-full border-gray-200 pl-12 pr-4 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500"
-                                        placeholder="Masukkan nama lengkap Anda"
-                                    />
-                                </div>
-                                {errors.name && (
-                                    <p className="text-sm text-red-500">{errors.name}</p>
-                                )}
-                            </div>
+                            {/* Step 1 Fields */}
+                            {currentStep === 1 && (
+                                <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
+                                    {/* Nama Lengkap */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="name" className="font-semibold text-gray-900">
+                                            Nama Lengkap
+                                        </Label>
+                                        <div className="relative">
+                                            <User className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                                            <Input
+                                                id="name"
+                                                type="text"
+                                                value={data.name}
+                                                onChange={(e) => setData("name", e.target.value)}
+                                                className="h-12 rounded-full border-gray-200 pl-12 pr-4 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500"
+                                                placeholder="Masukkan nama lengkap Anda"
+                                            />
+                                        </div>
+                                        {errors.name && (
+                                            <p className="text-sm text-red-500">{errors.name}</p>
+                                        )}
+                                    </div>
 
-                            {/* Email */}
-                            <div className="space-y-2">
-                                <Label htmlFor="email" className="font-semibold text-gray-900">
-                                    Email Address
-                                </Label>
-                                <div className="relative">
-                                    <Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                                    <Input
-                                        id="email"
-                                        type="email"
-                                        value={data.email}
-                                        onChange={(e) => setData("email", e.target.value)}
-                                        className="h-12 rounded-full border-gray-200 pl-12 pr-4 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500"
-                                        placeholder="Masukkan alamat email Anda"
-                                    />
-                                </div>
-                                {errors.email && (
-                                    <p className="text-sm text-red-500">{errors.email}</p>
-                                )}
-                            </div>
+                                    {/* Email */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="email" className="font-semibold text-gray-900">
+                                            Email Address
+                                        </Label>
+                                        <div className="relative">
+                                            <Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                                            <Input
+                                                id="email"
+                                                type="email"
+                                                value={data.email}
+                                                onChange={(e) => setData("email", e.target.value)}
+                                                className="h-12 rounded-full border-gray-200 pl-12 pr-4 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500"
+                                                placeholder="Masukkan alamat email Anda"
+                                            />
+                                        </div>
+                                        {errors.email && (
+                                            <p className="text-sm text-red-500">{errors.email}</p>
+                                        )}
+                                    </div>
 
-                            {/* No WhatsApp */}
-                            <div className="space-y-2">
-                                <Label htmlFor="phone" className="font-semibold text-gray-900">
-                                    No. WhatsApp
-                                </Label>
-                                <div className="relative">
-                                    <Phone className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                                    <Input
-                                        id="phone"
-                                        type="tel"
-                                        value={data.phone}
-                                        onChange={(e) => setData("phone", e.target.value)}
-                                        className="h-12 rounded-full border-gray-200 pl-12 pr-4 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500"
-                                        placeholder="Contoh: 08123456789"
-                                    />
-                                </div>
-                                {errors.phone && (
-                                    <p className="text-sm text-red-500">{errors.phone}</p>
-                                )}
-                            </div>
+                                    {/* No WhatsApp */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="phone" className="font-semibold text-gray-900">
+                                            No. WhatsApp
+                                        </Label>
+                                        <div className="relative">
+                                            <Phone className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                                            <Input
+                                                id="phone"
+                                                type="tel"
+                                                value={data.phone}
+                                                onChange={(e) => setData("phone", e.target.value)}
+                                                className="h-12 rounded-full border-gray-200 pl-12 pr-4 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500"
+                                                placeholder="Contoh: 08123456789"
+                                            />
+                                        </div>
+                                        {errors.phone && (
+                                            <p className="text-sm text-red-500">{errors.phone}</p>
+                                        )}
+                                    </div>
 
-                            {/* Password */}
-                            <div className="space-y-2">
-                                <Label htmlFor="password" className="font-semibold text-gray-900">
-                                    Buat Password Baru
-                                </Label>
-                                <div className="relative">
-                                    <Lock className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                                    <Input
-                                        id="password"
-                                        type={showPassword ? "text" : "password"}
-                                        value={data.password}
-                                        onChange={(e) => setData("password", e.target.value)}
-                                        className="h-12 rounded-full border-gray-200 pl-12 pr-4 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500"
-                                        placeholder="Minimal 8 karakter"
-                                    />
-                                </div>
-                                {errors.password && (
-                                    <p className="text-sm text-red-500">{errors.password}</p>
-                                )}
-                            </div>
-
-                            {/* Konfirmasi Password */}
-                            <div className="space-y-2">
-                                <Label htmlFor="password_confirmation" className="font-semibold text-gray-900">
-                                    Konfirmasi Password
-                                </Label>
-                                <div className="relative">
-                                    <Lock className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                                    <Input
-                                        id="password_confirmation"
-                                        type={showPassword ? "text" : "password"}
-                                        value={data.password_confirmation}
-                                        onChange={(e) => setData("password_confirmation", e.target.value)}
-                                        className="h-12 rounded-full border-gray-200 pl-12 pr-4 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500"
-                                        placeholder="Ulangi password Anda"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Sumber Informasi */}
-                            <div className="space-y-2">
-                                <Label htmlFor="sumber" className="font-semibold text-gray-900">
-                                    Dapat informasi Agent Big dari mana?
-                                </Label>
-                                <div className="relative">
-                                    <Info className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 z-10 pointer-events-none" />
-                                    <Select
-                                        value={data.sumber}
-                                        onValueChange={(value) => setData("sumber", value)}
+                                    <Button
+                                        type="button"
+                                        onClick={handleNext}
+                                        className="h-12 w-full rounded-full bg-gray-900 text-white font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
                                     >
-                                        <SelectTrigger className="h-12 rounded-full border-gray-200 pl-12 pr-4 text-gray-900 focus:border-blue-500 focus:ring-blue-500">
-                                            <SelectValue placeholder="Pilih sumber informasi" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {sumberOptions.map((option) => (
-                                                <SelectItem key={option.value} value={option.value}>
-                                                    {option.label}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                        Lanjut Step 2
+                                        <ArrowRight className="w-5 h-5" />
+                                    </Button>
+
+                                    {/* Login Link */}
+                                    <p className="text-center text-gray-600">
+                                        Sudah punya akun agent?{" "}
+                                        <Link
+                                            href="/agent/login"
+                                            className="font-semibold text-blue-600 hover:underline"
+                                        >
+                                            Masuk di sini
+                                        </Link>
+                                    </p>
                                 </div>
-                                {errors.sumber && (
-                                    <p className="text-sm text-red-500">{errors.sumber}</p>
-                                )}
-                            </div>
+                            )}
 
-                            {/* Security Note */}
-                            <div className="flex items-center justify-center gap-2 rounded-lg bg-blue-50 p-3">
-                                <Shield className="h-5 w-5 flex-shrink-0 text-blue-600" />
-                                <p className="text-sm font-medium text-blue-900">
-                                    Data privasi Anda aman dalam sistem kami
-                                </p>
-                            </div>
+                            {/* Step 2 Fields */}
+                            {currentStep === 2 && (
+                                <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
+                                    {/* Password */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="password" className="font-semibold text-gray-900">
+                                            Buat Password Baru
+                                        </Label>
+                                        <div className="relative">
+                                            <Lock className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                                            <Input
+                                                id="password"
+                                                type={showPassword ? "text" : "password"}
+                                                value={data.password}
+                                                onChange={(e) => setData("password", e.target.value)}
+                                                className="h-12 rounded-full border-gray-200 pl-12 pr-4 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500"
+                                                placeholder="Minimal 8 karakter"
+                                            />
+                                        </div>
+                                        {errors.password && (
+                                            <p className="text-sm text-red-500">{errors.password}</p>
+                                        )}
+                                    </div>
 
-                            {/* Submit Button */}
-                            <Button
-                                type="submit"
-                                disabled={processing}
-                                className="h-12 w-full rounded-full bg-[#ECEC5C] text-gray-900 font-semibold hover:bg-[#d9d94f] transition-colors"
-                            >
-                                {processing ? "Mendaftar..." : "Daftar Sekarang"}
-                            </Button>
+                                    {/* Konfirmasi Password */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="password_confirmation" className="font-semibold text-gray-900">
+                                            Konfirmasi Password
+                                        </Label>
+                                        <div className="relative">
+                                            <Lock className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                                            <Input
+                                                id="password_confirmation"
+                                                type={showPassword ? "text" : "password"}
+                                                value={data.password_confirmation}
+                                                onChange={(e) => setData("password_confirmation", e.target.value)}
+                                                className="h-12 rounded-full border-gray-200 pl-12 pr-4 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500"
+                                                placeholder="Ulangi password Anda"
+                                            />
+                                        </div>
+                                    </div>
 
-                            {/* Login Link */}
-                            <p className="text-center text-gray-600">
-                                Sudah punya akun agent?{" "}
-                                <Link
-                                    href="/agent/login"
-                                    className="font-semibold text-blue-600 hover:underline"
-                                >
-                                    Masuk di sini
-                                </Link>
-                            </p>
+                                    {/* Sumber Informasi */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="sumber" className="font-semibold text-gray-900">
+                                            Dapat informasi Agent Big dari mana?
+                                        </Label>
+                                        <div className="relative">
+                                            <Info className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 z-10 pointer-events-none" />
+                                            <Select
+                                                value={data.sumber}
+                                                onValueChange={(value) => setData("sumber", value)}
+                                            >
+                                                <SelectTrigger className="h-12 rounded-full border-gray-200 pl-12 pr-4 text-gray-900 focus:border-blue-500 focus:ring-blue-500">
+                                                    <SelectValue placeholder="Pilih sumber informasi" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {sumberOptions.map((option) => (
+                                                        <SelectItem key={option.value} value={option.value}>
+                                                            {option.label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        {errors.sumber && (
+                                            <p className="text-sm text-red-500">{errors.sumber}</p>
+                                        )}
+                                    </div>
+
+                                    {/* Security Note */}
+                                    <div className="flex items-center justify-center gap-2 rounded-lg bg-blue-50 p-3">
+                                        <Shield className="h-5 w-5 flex-shrink-0 text-blue-600" />
+                                        <p className="text-sm font-medium text-blue-900">
+                                            Data privasi Anda aman dalam sistem kami
+                                        </p>
+                                    </div>
+
+                                    <div className="flex gap-3">
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            onClick={() => setCurrentStep(1)}
+                                            disabled={processing}
+                                            className="h-12 flex-1 rounded-full bg-white border border-gray-200 font-semibold text-gray-900 hover:bg-gray-50 flex items-center justify-center gap-2"
+                                        >
+                                            <ArrowLeft className="w-5 h-5" />
+                                            Kembali
+                                        </Button>
+                                        <Button
+                                            type="submit"
+                                            disabled={processing}
+                                            className="h-12 flex-[2] rounded-full bg-[#ECEC5C] text-gray-900 font-semibold hover:bg-[#d9d94f] transition-colors"
+                                        >
+                                            {processing ? "Mendaftar..." : "Daftar Sekarang"}
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
                         </form>
                     </div>
                 </div>
@@ -241,9 +309,9 @@ export default function AgentSignup() {
                 <div className="relative hidden w-full max-w-[640px] lg:flex">
                     <div className="fixed top-0 h-screen w-full max-w-[640px] overflow-hidden">
                         {/* Background Image */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-blue-800">
+                        <div className="absolute inset-0 bg-gradient-to-br from-yellow-500 to-blue-200">
                             <img
-                                src="/images/agent-banner.jpg"
+                                src="https://res.cloudinary.com/dtlhdbzcf/image/upload/v1767371627/freepik__candid-photography-with-natural-textures-and-highl__79326_lzaalq.avif"
                                 alt="Agent Banner"
                                 className="h-full w-full object-cover opacity-50"
                                 onError={(e) => {

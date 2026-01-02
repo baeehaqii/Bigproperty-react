@@ -110,6 +110,70 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
     // Share dropdown state
     const [shareOpen, setShareOpen] = useState(false)
 
+    // Lead modal state
+    const [leadModalOpen, setLeadModalOpen] = useState(false)
+    const [leadFormData, setLeadFormData] = useState({
+        nama_lengkap: '',
+        no_whatsapp: '',
+        email: ''
+    })
+    const [leadSubmitting, setLeadSubmitting] = useState(false)
+    const [leadSuccess, setLeadSuccess] = useState(false)
+    const [leadError, setLeadError] = useState('')
+    const [contactType, setContactType] = useState<'phone' | 'whatsapp'>('phone')
+
+    const handleLeadSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        setLeadSubmitting(true)
+        setLeadError('')
+
+        try {
+            const response = await fetch('/api/leads', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                },
+                body: JSON.stringify({
+                    ...leadFormData,
+                    property_id: property.id
+                })
+            })
+
+            const data = await response.json()
+
+            if (data.success) {
+                setLeadSuccess(true)
+                // Redirect to contact after 1.5 seconds
+                setTimeout(() => {
+                    setLeadModalOpen(false)
+                    setLeadSuccess(false)
+                    setLeadFormData({ nama_lengkap: '', no_whatsapp: '', email: '' })
+
+                    // Redirect based on contact type
+                    if (contactType === 'whatsapp') {
+                        const waNumber = (property.agent?.whatsapp || property.agent?.phone || '81388200000').replace(/^(\+62|62|0)/, '')
+                        window.open(`https://wa.me/62${waNumber}`, '_blank')
+                    } else {
+                        window.location.href = `tel:${property.agent?.phone || '+6281388200000'}`
+                    }
+                }, 1500)
+            } else {
+                setLeadError(data.message || 'Terjadi kesalahan')
+            }
+        } catch (err) {
+            setLeadError('Gagal menghubungi server. Silakan coba lagi.')
+        } finally {
+            setLeadSubmitting(false)
+        }
+    }
+
+    const openLeadModal = (type: 'phone' | 'whatsapp') => {
+        setContactType(type)
+        setLeadModalOpen(true)
+    }
+
     // Get all images
     const allImages = [property.mainImage, ...(property.images || [])].filter(Boolean) as string[]
 
@@ -239,7 +303,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                 <div className="flex flex-col w-fit gap-3">
                                     <p className="text-sm text-muted-foreground">Bedroom</p>
                                     <div className="flex items-center gap-2">
-                                        <svg className="size-5 text-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <svg className="size-5 color-secondary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                             <path d="M3 7v10a1 1 0 001 1h16a1 1 0 001-1V7" />
                                             <path d="M21 10H3" />
                                             <path d="M8 7V4a1 1 0 011-1h6a1 1 0 011 1v3" />
@@ -253,7 +317,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                 <div className="flex flex-col w-fit gap-3">
                                     <p className="text-sm text-muted-foreground">Bathroom</p>
                                     <div className="flex items-center gap-2">
-                                        <svg className="size-5 text-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <svg className="size-5 color-secondary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                             <path d="M4 12h16a1 1 0 011 1v5a3 3 0 01-3 3H6a3 3 0 01-3-3v-5a1 1 0 011-1z" />
                                             <path d="M6 12V5a2 2 0 012-2h1" />
                                         </svg>
@@ -266,7 +330,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                 <div className="flex flex-col w-fit gap-3">
                                     <p className="text-sm text-muted-foreground">Certificate</p>
                                     <div className="flex items-center gap-2">
-                                        <svg className="size-5 text-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <svg className="size-5 color-secondary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                             <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
                                             <path d="M14 2v6h6" />
                                             <path d="M12 18l-2-2 2-2 2 2z" />
@@ -280,7 +344,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                 <div className="flex flex-col w-fit gap-3">
                                     <p className="text-sm text-muted-foreground">Land of Area</p>
                                     <div className="flex items-center gap-2">
-                                        <svg className="size-5 text-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <svg className="size-5 color-secondary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                             <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
                                         </svg>
                                         <p className="font-semibold">{property.landSize || '0'}</p>
@@ -292,7 +356,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                 <div className="flex flex-col w-fit gap-3">
                                     <p className="text-sm text-muted-foreground">Land of Building</p>
                                     <div className="flex items-center gap-2">
-                                        <svg className="size-5 text-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <svg className="size-5 color-secondary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                             <path d="M3 21h18" />
                                             <path d="M5 21V7l8-4 8 4v14" />
                                             <path d="M9 21v-8h6v8" />
@@ -306,7 +370,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                 <div className="flex flex-col w-fit gap-3">
                                     <p className="text-sm text-muted-foreground">Electric Power</p>
                                     <div className="flex items-center gap-2">
-                                        <svg className="size-5 text-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <svg className="size-5 color-secondary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                             <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
                                         </svg>
                                         <p className="font-semibold">{property.electricPower || '2200'} Watt</p>
@@ -322,7 +386,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                 {/* About */}
                                 <div id="About" className="flex flex-col gap-4">
                                     <h2 className="font-semibold text-xl">About Project</h2>
-                                    <p className="leading-7 text-muted-foreground">
+                                    <p className="leading-7 bg-white p-4 rounded-md border border-border text-black">
                                         {property.description || 'Discover the perfect blend of style, quality, and affordability with this modernize home, designed specifically for the new generation. This property offers contemporary aesthetic, featuring sleek lines, open-concept spaces, and natural lighting that creates warm and inviting atmosphere every corner is thoughtfully crafted to provide function. Built with high-quality materials and a focus onto energy efficiency, this home is designed to last while keeping maintenance utility costs low. Whether you\'re a young professional, a growing family together.'}
                                     </p>
                                 </div>
@@ -426,8 +490,8 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                 {/* CTA Buttons */}
                                 <div className="flex items-center gap-3 mt-2">
                                     {/* Phone Button */}
-                                    <a
-                                        href={`tel:${property.agent?.phone || '+6281388200000'}`}
+                                    <button
+                                        onClick={() => openLeadModal('phone')}
                                         className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-full border-2 border-blue-600 text-blue-600 font-semibold hover:bg-blue-50 transition-colors"
                                     >
                                         <svg className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -437,25 +501,23 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                         <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                             <path d="M6 9l6 6 6-6" />
                                         </svg>
-                                    </a>
+                                    </button>
 
                                     {/* WhatsApp Button */}
-                                    <a
-                                        href={`https://wa.me/62${(property.agent?.whatsapp || property.agent?.phone || '81388200000').replace(/^(\+62|62|0)/, '')}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+                                    <button
+                                        onClick={() => openLeadModal('whatsapp')}
                                         className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-full bg-[#25D366] text-white font-semibold hover:bg-[#20BD5A] transition-colors"
                                     >
                                         <svg className="size-5" viewBox="0 0 24 24" fill="currentColor">
                                             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                                         </svg>
                                         <span className="text-sm">WhatsApp</span>
-                                    </a>
+                                    </button>
                                 </div>
 
                                 {/* Wishlist Button */}
                                 <button
-                                    className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-full border border-border text-foreground font-medium hover:bg-secondary transition-colors"
+                                    className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-full border border-border text-black font-medium hover:bg-secondary hover:text-white transition-colors"
                                     onClick={() => alert('Ditambahkan ke wishlist!')}
                                 >
                                     <svg className="size-5 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -464,23 +526,11 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                     <span className="text-sm">Tambahkan ke Wishlist</span>
                                 </button>
 
-                                <hr className="border-border" />
-
-                                {/* Security Badge */}
-                                <div className="flex items-center justify-center gap-2">
-                                    <svg className="size-5 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" />
-                                    </svg>
-                                    <p className="font-medium text-sm">All your privacy data secured</p>
-                                </div>
-
-                                <hr className="border-border" />
-
                                 {/* Share Button */}
                                 <div className="relative share-dropdown-container">
                                     <button
                                         onClick={() => setShareOpen(!shareOpen)}
-                                        className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-full border border-border text-foreground font-medium hover:bg-secondary transition-colors"
+                                        className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-full border border-border text-black font-medium hover:bg-secondary hover:text-white transition-colors"
                                     >
                                         <svg className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                             <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8" />
@@ -497,7 +547,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                             <div className="grid grid-cols-2 gap-2">
                                                 {/* WhatsApp */}
                                                 <a
-                                                    href={`https://wa.me/?text=${encodeURIComponent(`Check out this property: ${property.name} - ${window.location.href}`)}`}
+                                                    href={`https://wa.me/?text=${encodeURIComponent(`Check out this property: ${property.name} - ${typeof window !== 'undefined' ? window.location.href : ''}`)}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="flex items-center gap-2 p-2 rounded-lg hover:bg-secondary transition-colors"
@@ -510,7 +560,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
 
                                                 {/* LinkedIn */}
                                                 <a
-                                                    href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`}
+                                                    href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="flex items-center gap-2 p-2 rounded-lg hover:bg-secondary transition-colors"
@@ -523,7 +573,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
 
                                                 {/* Facebook */}
                                                 <a
-                                                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`}
+                                                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="flex items-center gap-2 p-2 rounded-lg hover:bg-secondary transition-colors"
@@ -536,7 +586,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
 
                                                 {/* X (Twitter) */}
                                                 <a
-                                                    href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Check out this property: ${property.name}`)}&url=${encodeURIComponent(window.location.href)}`}
+                                                    href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Check out this property: ${property.name}`)}&url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="flex items-center gap-2 p-2 rounded-lg hover:bg-secondary transition-colors"
@@ -550,12 +600,18 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                         </div>
                                     )}
                                 </div>
+                                {/* Security Badge */}
+                                <div className="flex items-center justify-center gap-2">
+                                    <svg className="size-5 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" />
+                                    </svg>
+                                    <p className="font-medium text-sm">All your privacy data secured</p>
+                                </div>
                             </div>
+
                         </section>
                     </div>
                 </main>
-
-                <div className="h-10" />
             </div>
 
             {/* Modal Gallery */}
@@ -582,6 +638,107 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                         >
                             Close
                         </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Lead Capture Modal */}
+            {leadModalOpen && (
+                <div
+                    className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 px-4"
+                    onClick={() => setLeadModalOpen(false)}
+                >
+                    <div
+                        className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Header */}
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="font-bold text-xl">Kontak Agen</h2>
+                            <button
+                                onClick={() => setLeadModalOpen(false)}
+                                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                            >
+                                <svg className="size-6 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M18 6L6 18M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <hr className="border-border mb-4" />
+
+                        <p className="text-gray-600 mb-6">
+                            Untuk dapat melakukan komunikasi dengan agen silakan login terlebih dahulu
+                        </p>
+
+                        {leadSuccess ? (
+                            <div className="text-center py-8">
+                                <svg className="size-16 text-green-500 mx-auto mb-4" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                                </svg>
+                                <p className="font-semibold text-lg text-gray-800">Lead berhasil disimpan!</p>
+                                <p className="text-gray-600 mt-2">Menghubungkan ke agent...</p>
+                            </div>
+                        ) : (
+                            <form onSubmit={handleLeadSubmit} className="space-y-4">
+                                {/* Nama Lengkap */}
+                                <div>
+                                    <input
+                                        type="text"
+                                        placeholder="Nama lengkap"
+                                        value={leadFormData.nama_lengkap}
+                                        onChange={(e) => setLeadFormData({ ...leadFormData, nama_lengkap: e.target.value })}
+                                        required
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    />
+                                </div>
+
+                                {/* No WhatsApp */}
+                                <div className="flex">
+                                    <div className="flex items-center gap-1 px-3 py-3 bg-gray-100 border border-r-0 border-gray-300 rounded-l-xl">
+                                        <span className="text-gray-700 font-medium">+62</span>
+                                        <svg className="size-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M6 9l6 6 6-6" />
+                                        </svg>
+                                    </div>
+                                    <input
+                                        type="tel"
+                                        placeholder="Nomor telepon"
+                                        value={leadFormData.no_whatsapp}
+                                        onChange={(e) => setLeadFormData({ ...leadFormData, no_whatsapp: e.target.value })}
+                                        required
+                                        className="flex-1 px-4 py-3 border border-gray-300 rounded-r-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    />
+                                </div>
+
+                                {/* Email */}
+                                <div>
+                                    <input
+                                        type="email"
+                                        placeholder="Email (opsional)"
+                                        value={leadFormData.email}
+                                        onChange={(e) => setLeadFormData({ ...leadFormData, email: e.target.value })}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    />
+                                </div>
+
+                                {/* Error Message */}
+                                {leadError && (
+                                    <div className="text-red-500 text-sm text-center">
+                                        {leadError}
+                                    </div>
+                                )}
+
+                                {/* Submit Button */}
+                                <button
+                                    type="submit"
+                                    disabled={leadSubmitting}
+                                    className="w-full py-3 px-4 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {leadSubmitting ? 'Mengirim...' : 'Verifikasi Nomor Telepon'}
+                                </button>
+                            </form>
+                        )}
                     </div>
                 </div>
             )}
