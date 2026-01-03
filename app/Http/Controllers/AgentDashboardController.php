@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Developer;
 use App\Models\Property;
 use App\Models\PropertyCategory;
+use App\Services\CloudinaryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -143,18 +144,27 @@ class AgentDashboardController extends Controller
         ]);
 
         try {
-            // Handle main image upload
-            $mainImagePath = null;
+            // Initialize Cloudinary service
+            $cloudinaryService = new CloudinaryService();
+
+            // Handle main image upload to Cloudinary
+            $mainImageUrl = null;
             if ($request->hasFile('main_image')) {
-                $mainImagePath = $request->file('main_image')->store('properties/images', 'public');
+                $result = $cloudinaryService->uploadPropertyImage(
+                    $request->file('main_image'),
+                    'big-property/properties'
+                );
+                $mainImageUrl = $result['url'];
             }
 
-            // Handle gallery images upload
+            // Handle gallery images upload to Cloudinary
             $galleryImages = [];
             if ($request->hasFile('images')) {
-                foreach ($request->file('images') as $image) {
-                    $galleryImages[] = $image->store('properties/images', 'public');
-                }
+                $results = $cloudinaryService->uploadMultiplePropertyImages(
+                    $request->file('images'),
+                    'big-property/properties'
+                );
+                $galleryImages = array_map(fn($r) => $r['url'], $results);
             }
 
             // Create property
@@ -189,7 +199,7 @@ class AgentDashboardController extends Controller
                 'promo_text' => $validated['promo_text'] ?? null,
                 'has_promo' => !empty($validated['promo_text']),
 
-                'main_image' => $mainImagePath,
+                'main_image' => $mainImageUrl,
                 'images' => $galleryImages,
 
                 'button_type' => 'whatsapp',

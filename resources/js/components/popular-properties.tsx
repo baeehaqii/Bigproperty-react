@@ -61,21 +61,32 @@ export function PopularProperties() {
   const fetchCities = async () => {
     try {
       const response = await fetch('/popular-properties/cities')
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
-      
+
       const data = await response.json()
       console.log('Cities response:', data) // Debug log
-      
+
       if (data.success && Array.isArray(data.data) && data.data.length > 0) {
-        // Format cities dengan ID yang sesuai
-        const formattedCities = data.data.map((city: string) => ({
-          id: city.toLowerCase().replace(/\s+/g, '-').replace(/\./g, ''),
-          name: city
-        }))
-        
+        // Handle both old format (string[]) and new format ({code, name}[])
+        const formattedCities = data.data.map((city: string | { code: string, name: string }) => {
+          if (typeof city === 'string') {
+            // Old format: just a string
+            return {
+              id: city,
+              name: city
+            }
+          } else {
+            // New format: {code, name}
+            return {
+              id: city.code,
+              name: city.name
+            }
+          }
+        })
+
         setCities(formattedCities)
         setSelectedCity(formattedCities[0].id)
       } else {
@@ -93,15 +104,16 @@ export function PopularProperties() {
   const fetchPropertiesByCity = async (cityId: string) => {
     setLoading(true)
     setError(null)
-    
+
     try {
-      // Find city name from ID
+      // Find city from ID (which is the city code)
       const city = cities.find(c => c.id === cityId)
       if (!city) return
 
-      const response = await fetch(`/popular-properties/city/${encodeURIComponent(city.name)}`)
+      // Use the city ID (code) for API call, not the name
+      const response = await fetch(`/popular-properties/city/${encodeURIComponent(city.id)}`)
       const data = await response.json()
-      
+
       if (data.success && data.data) {
         setProperties(data.data.properties || [])
       } else {
@@ -162,11 +174,10 @@ export function PopularProperties() {
             <button
               key={city.id}
               onClick={() => setSelectedCity(city.id)}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-                selectedCity === city.id
-                  ? "bg-[#ECEC5C] text-gray-900"
-                  : "bg-white text-gray-600 border border-gray-300 hover:border-gray-400"
-              }`}
+              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${selectedCity === city.id
+                ? "bg-[#ECEC5C] text-gray-900"
+                : "bg-white text-gray-600 border border-gray-300 hover:border-gray-400"
+                }`}
             >
               {city.name}
             </button>

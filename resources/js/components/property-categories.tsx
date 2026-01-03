@@ -368,7 +368,7 @@ export function PropertyCategories() {
         </div>
 
         {/* Titip Jual & Sewa Properti Section - Right Column */}
-        <div>
+        {/* <div>
           <div className="flex items-center gap-2 mb-4">
             <h2 className="text-xl font-bold text-gray-900">Titip Jual & Sewa Properti</h2>
           </div>
@@ -384,7 +384,7 @@ export function PropertyCategories() {
               />
             ))}
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   )

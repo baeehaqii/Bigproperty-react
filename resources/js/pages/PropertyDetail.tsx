@@ -239,7 +239,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                                     <circle cx="12" cy="10" r="3" />
                                 </svg>
-                                <p className="font-medium text-gray-700">{property.location?.city || 'Location'}, {property.location?.province || ''}</p>
+                                <p className="font-medium text-gray-700">{property.location?.full || property.location || 'Location'}</p>
                             </div>
                             <div className="flex items-center gap-2">
                                 <svg className="size-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -416,14 +416,31 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                 {/* Location Map */}
                                 <div id="Location" className="flex flex-col gap-4">
                                     <h2 className="font-semibold text-xl">Strategic Location</h2>
-                                    <div className="overflow-hidden w-full h-[320px] rounded-2xl border border-border">
-                                        <iframe
-                                            className="h-full w-full border-0"
-                                            src={property.location?.mapUrl || `https://www.google.com/maps/embed/v1/place?q=${encodeURIComponent(property.location?.full || property.location?.city || 'jakarta')}&key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8`}
-                                            allowFullScreen
-                                            loading="lazy"
-                                        ></iframe>
-                                    </div>
+                                    {property.location?.mapUrl || property.location?.mapUrlOriginal ? (
+                                        <div className="overflow-hidden w-full h-[320px] rounded-2xl border border-border">
+                                            <iframe
+                                                className="h-full w-full border-0"
+                                                src={property.location?.mapUrl || `https://www.google.com/maps/embed/v1/place?q=${encodeURIComponent(property.location?.full || property.location?.city || 'jakarta')}&key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8`}
+                                                allowFullScreen
+                                                loading="lazy"
+                                            ></iframe>
+                                        </div>
+                                    ) : (
+                                        <div className="overflow-hidden w-full h-[320px] rounded-2xl border border-border flex items-center justify-center bg-gray-100">
+                                            <p className="text-gray-500">Lokasi belum tersedia</p>
+                                        </div>
+                                    )}
+                                    {property.location?.mapUrlOriginal && (
+                                        <a
+                                            href={property.location.mapUrlOriginal}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-600 hover:underline text-sm flex items-center gap-1"
+                                        >
+                                            <Navigation className="size-4" />
+                                            Buka di Google Maps
+                                        </a>
+                                    )}
                                 </div>
                             </div>
 
@@ -460,20 +477,29 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                 {/* Agent Profile Card */}
                                 <div className="flex items-start justify-between gap-3">
                                     <div className="flex items-center gap-3">
-                                        {/* Agent Photo */}
+                                        {/* Agent Photo or Initials */}
                                         <div className="relative size-14 shrink-0">
-                                            <img
-                                                src={property.agent?.photo || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face'}
-                                                className="w-full h-full object-cover rounded-full ring-2 ring-blue-500"
-                                                alt={property.agent?.name || 'Agent'}
-                                                onError={(e) => { e.currentTarget.src = '/placeholder.svg' }}
-                                            />
+                                            {property.agent?.photo ? (
+                                                <img
+                                                    src={property.agent.photo}
+                                                    className="w-full h-full object-cover rounded-full ring-2 ring-blue-500"
+                                                    alt={property.agent?.name || 'Agent'}
+                                                    onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.querySelector('.avatar-fallback')?.classList.remove('hidden') }}
+                                                />
+                                            ) : null}
+                                            <div className={`avatar-fallback w-full h-full rounded-full ring-2 ring-blue-500 bg-blue-600 flex items-center justify-center ${property.agent?.photo ? 'hidden' : ''}`}>
+                                                <span className="text-white font-bold text-xl">
+                                                    {property.agent?.name?.charAt(0)?.toUpperCase() || 'A'}
+                                                </span>
+                                            </div>
                                         </div>
                                         {/* Agent Info */}
                                         <div>
                                             <p className="font-semibold text-base text-blue-600">{property.agent?.name || 'Agent Property'}</p>
-                                            <p className="text-sm text-muted-foreground">{property.agent?.role || 'Agen Korporat'}</p>
-                                            <p className="text-sm text-muted-foreground">NIB: {property.agent?.nib || '080623010****'}</p>
+                                            <p className="text-sm text-muted-foreground">{property.agent?.role || 'Agen Properti'}</p>
+                                            {property.agent?.licenseNumber && (
+                                                <p className="text-sm text-muted-foreground">NIB: {property.agent.licenseNumber}</p>
+                                            )}
                                         </div>
                                     </div>
                                     {/* Company Logo */}
@@ -497,10 +523,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                         <svg className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                             <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
                                         </svg>
-                                        <span className="text-sm">{property.agent?.phone || '+6281388200000'}</span>
-                                        <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <path d="M6 9l6 6 6-6" />
-                                        </svg>
+                                        <span className="text-sm">{property.agent?.whatsapp || property.agent?.phone || 'Hubungi'}</span>
                                     </button>
 
                                     {/* WhatsApp Button */}

@@ -23,7 +23,11 @@ interface PopularPropertyCardProps {
   installment: string
   name: string
   developer: string
-  developerLogo: string
+  developerLogo?: string
+  agent?: {
+    name: string
+    photo?: string
+  }
   location: string
   bedrooms: string
   landSize: string
@@ -49,6 +53,7 @@ export function PopularPropertyCard({
   name,
   developer,
   developerLogo,
+  agent,
   location,
   bedrooms,
   landSize,
@@ -92,6 +97,7 @@ export function PopularPropertyCard({
             alt={name}
             loading="lazy"
             className="w-full h-full object-cover transition-opacity duration-300"
+            onError={(e) => { e.currentTarget.src = '/placeholder.svg' }}
           />
 
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -196,14 +202,25 @@ export function PopularPropertyCard({
           <p className="text-sm text-gray-600 mb-3">{installment}</p>
 
           <div className="flex items-start gap-2 mb-2">
-            <img
-              src={developerLogo || "/placeholder.svg"}
-              alt={developer}
-              width={32}
-              height={32}
-              loading="lazy"
-              className="rounded-full flex-shrink-0"
-            />
+            {/* Agent/Developer Avatar */}
+            <div className="w-8 h-8 rounded-full flex-shrink-0 overflow-hidden">
+              {(agent?.photo || developerLogo) ? (
+                <img
+                  src={agent?.photo || developerLogo || "/placeholder.svg"}
+                  alt={developer}
+                  width={32}
+                  height={32}
+                  loading="lazy"
+                  className="w-full h-full object-cover"
+                  onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.querySelector('.avatar-fallback')?.classList.remove('hidden') }}
+                />
+              ) : null}
+              <div className={`avatar-fallback w-full h-full bg-blue-600 flex items-center justify-center ${(agent?.photo || developerLogo) ? 'hidden' : ''}`}>
+                <span className="text-white font-bold text-sm">
+                  {(agent?.name || developer)?.charAt(0)?.toUpperCase() || 'A'}
+                </span>
+              </div>
+            </div>
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-gray-900 text-sm truncate">{name}</p>
               <p className="text-xs text-gray-500">by {developer}</p>

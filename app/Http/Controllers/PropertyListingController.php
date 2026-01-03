@@ -40,7 +40,7 @@ class PropertyListingController extends Controller
 
         // Build optimized query with eager loading to avoid N+1
         $query = Property::query()
-            ->with(['developer:id,name,logo']) // Eager load only needed columns
+            ->with(['developer:id,name,logo', 'agen:id,name,phone,photo']) // Eager load agen too
             ->select([
                 'id',
                 'name',
@@ -69,21 +69,28 @@ class PropertyListingController extends Controller
                 'has_promo',
                 'tanpa_perantara',
                 'developer_id',
+                'agen_id',
                 'button_type',
                 'count_clicked',
                 'last_updated'
             ])
             ->where('is_available', true);
 
-        // Filter by listing type (beli/sewa)
-        // Properties have 'kategori' JSON column with values like 'Beli Rumah', 'Sewa Apartemen', etc.
-        // We filter by checking if any category starts with the listing type prefix
-        $listingPrefix = $type === 'beli' ? 'Beli' : 'Sewa';
-        $query->where(function ($q) use ($listingPrefix) {
-            // Search for categories that start with the listing prefix (case-insensitive)
-            $q->where('kategori', 'like', '%"' . $listingPrefix . ' %')
-                ->orWhere('kategori', 'like', '%"' . $listingPrefix . '"%');
-        });
+        // Filter by listing type (beli/sewa) using PropertyCategory IDs
+        // Get category IDs for the section (buy/rent)
+        $section = $type === 'beli' ? 'buy' : 'rent';
+        $categoryIds = PropertyCategory::where('section', $section)
+            ->pluck('id')
+            ->map(fn($id) => (string) $id) // Convert to string since kategori stores strings
+            ->toArray();
+
+        if (!empty($categoryIds)) {
+            $query->where(function ($q) use ($categoryIds) {
+                foreach ($categoryIds as $categoryId) {
+                    $q->orWhereJsonContains('kategori', $categoryId);
+                }
+            });
+        }
 
         // Apply all filters using indexed columns
         $this->applyFilters($query, $filters);
@@ -314,18 +321,40 @@ class PropertyListingController extends Controller
      */
     private function formatProperties($properties, string $type): array
     {
-        return $properties->map(function ($property) use ($type) {
-            // Helper function for private image URL
+        // Get categories map
+        $categories = Cache::remember('all_categories_map_list', 3600, function () {
+            return PropertyCategory::pluck('name', 'id')->toArray();
+        });
+
+        return $properties->map(function ($property) use ($type, $categories) {
+            // Helper function for image URL (supports Cloudinary and local paths)
             $getImageUrl = function ($path) {
                 if (!$path)
                     return null;
-                return '/storage/private/' . $path;
+                // If it's already a full URL (Cloudinary), return as is
+                if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+                    return $path;
+                }
+                // Local path
+                return '/storage/' . str_replace('private/', '', $path);
             };
+
+            // Agent photo URL
+            $agentPhotoUrl = $property->agen ? $getImageUrl($property->agen->photo) : null;
+
+            // Resolve property type
+            $typeLabel = 'Rumah';
+            if (!empty($property->kategori) && isset($property->kategori[0])) {
+                $catId = $property->kategori[0];
+                if (isset($categories[$catId])) {
+                    $typeLabel = $categories[$catId];
+                }
+            }
 
             return [
                 'id' => (string) $property->id,
                 'name' => $property->name,
-                'type' => $this->getPropertyType($property->kategori),
+                'type' => $typeLabel,
                 'images' => array_filter(array_map($getImageUrl, $property->images ?? [])),
                 'mainImage' => $getImageUrl($property->main_image),
                 'priceRange' => $property->price_range,
@@ -339,10 +368,13 @@ class PropertyListingController extends Controller
                 'buildingSize' => $property->building_size_text,
                 'certificateType' => $property->certificate_type,
                 'marketType' => $property->market_type ?? 'baru',
-                // Developer is already eager loaded
-                'developer' => $property->developer ? [
-                    'name' => $property->developer->name,
-                    'logo' => $getImageUrl($property->developer->logo),
+                // Use agent name, fallback to developer
+                'developer' => $property->agen?->name ?? $property->developer?->name ?? 'Unknown',
+                'developerLogo' => $agentPhotoUrl ?: ($property->developer ? $getImageUrl($property->developer->logo) : null),
+                // Agent data for avatar fallback
+                'agent' => $property->agen ? [
+                    'name' => $property->agen->name,
+                    'photo' => $agentPhotoUrl,
                 ] : null,
                 'isFurnished' => false,
                 'isVerified' => (bool) $property->is_verified,

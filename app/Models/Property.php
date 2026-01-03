@@ -93,17 +93,30 @@ class Property extends Model
     // Accessor untuk format harga
     public function getPriceRangeAttribute(): string
     {
-        if ($this->price_min === $this->price_max) {
-            return 'Rp ' . number_format($this->price_min / 1000000, 1, ',', '.') . ' Jt';
+        $formatPrice = function ($price) {
+            if ($price >= 1000000000) {
+                // Miliar
+                $value = $price / 1000000000;
+                return 'Rp ' . ($value == floor($value) ? number_format($value, 0) : number_format($value, 1, ',', '.')) . ' M';
+            } else {
+                // Juta
+                $value = $price / 1000000;
+                return 'Rp ' . ($value == floor($value) ? number_format($value, 0) : number_format($value, 1, ',', '.')) . ' Juta';
+            }
+        };
+
+        if ($this->price_min == $this->price_max) {
+            return $formatPrice($this->price_min);
         }
-        return 'Rp ' . number_format($this->price_min / 1000000, 1, ',', '.') . ' Jt - Rp ' .
-            number_format($this->price_max / 1000000, 1, ',', '.') . ($this->price_max >= 1000000000 ? ' M' : ' Jt');
+        return $formatPrice($this->price_min) . ' - ' . $formatPrice($this->price_max);
     }
 
     // Accessor untuk format cicilan
     public function getInstallmentTextAttribute(): string
     {
-        return 'Angsuran mulai dari Rp' . number_format($this->installment_start / 1000000, 1, ',', '.') . ' Jt/bln';
+        $value = $this->installment_start / 1000000;
+        $formatted = $value == floor($value) ? number_format($value, 0) : number_format($value, 1, ',', '.');
+        return 'Angsuran mulai dari Rp' . $formatted . ' Jt/bln';
     }
 
     // Accessor untuk ukuran tanah
