@@ -86,10 +86,59 @@ class AgentDashboardController extends Controller
                 ->with('error', 'Akun agent tidak ditemukan.');
         }
 
+        // Initialize WilayahService for location lookup
+        $wilayahService = new \App\Services\WilayahService();
+
+        // Cache for province/city lookups to avoid repeated API calls
+        $provinceCache = [];
+        $cityCache = [];
+
         // Get all properties for this agent
         $listings = Property::where('agen_id', $agent->id)
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($property) use ($wilayahService, &$provinceCache, &$cityCache) {
+                $provinceCode = $property->provinsi;
+                $cityCode = $property->city;
+
+                // Lookup province name
+                $provinceName = $provinceCode;
+                if ($provinceCode && !isset($provinceCache[$provinceCode])) {
+                    try {
+                        $provinces = $wilayahService->getProvinces();
+                        if (isset($provinces['data']) && is_array($provinces['data'])) {
+                            foreach ($provinces['data'] as $province) {
+                                $provinceCache[$province['code']] = $province['name'];
+                            }
+                        }
+                    } catch (\Exception $e) {
+                        \Log::warning('Failed to lookup province: ' . $e->getMessage());
+                    }
+                }
+                $provinceName = $provinceCache[$provinceCode] ?? $provinceCode;
+
+                // Lookup city name
+                $cityName = $cityCode;
+                if ($cityCode && $provinceCode && !isset($cityCache[$cityCode])) {
+                    try {
+                        $cities = $wilayahService->getCities($provinceCode);
+                        if (isset($cities['data']) && is_array($cities['data'])) {
+                            foreach ($cities['data'] as $city) {
+                                $cityCache[$city['code']] = $city['name'];
+                            }
+                        }
+                    } catch (\Exception $e) {
+                        \Log::warning('Failed to lookup city: ' . $e->getMessage());
+                    }
+                }
+                $cityName = $cityCache[$cityCode] ?? $cityCode;
+
+                // Add formatted location to property
+                $property->province_name = $provinceName;
+                $property->city_name = $cityName;
+
+                return $property;
+            });
 
         // Calculate stats
         $stats = [
@@ -358,6 +407,10 @@ class AgentDashboardController extends Controller
         ]);
 
         try {
+            // Increase execution time and memory for image processing
+            set_time_limit(120); // 2 minutes for multiple image uploads
+            ini_set('memory_limit', '256M');
+
             // Initialize Cloudinary service
             $cloudinaryService = new CloudinaryService();
 
@@ -498,7 +551,7 @@ class AgentDashboardController extends Controller
     }
 
     /**
-     * Show beli credit page (placeholder)
+     * Show beli credit page with membership packages
      */
     public function beliCredit()
     {
@@ -509,19 +562,53 @@ class AgentDashboardController extends Controller
                 ->with('error', 'Akun agent tidak ditemukan.');
         }
 
-        return Inertia::render('DashboardAgent/Overview/index', [
+        // Get highlight memberships only (sorted by price)
+        $memberships = \App\Models\Membership::where('jenis', 'highlight')
+            ->orderBy('harga->amount', 'asc')
+            ->get()
+            ->map(function ($membership) {
+                return [
+                    'id' => $membership->id,
+                    'nama' => $membership->nama,
+                    'jenis' => $membership->jenis,
+                    'deskripsi' => $membership->deskripsi,
+                    'harga' => $membership->harga,
+                    'jumlah_highlight' => $membership->jumlah_highlight,
+                    'formatted_harga' => $membership->formatted_harga,
+                    'formatted_highlight' => $membership->formatted_highlight,
+                ];
+            });
+
+        // Get active credits for this agent
+        $activeCredits = \App\Models\AgenCredit::with(['membership:id,nama,jenis'])
+            ->where('agen_id', $agent->id)
+            ->where('is_active', true)
+            ->where('expired_at', '>', now())
+            ->orderBy('expired_at', 'asc')
+            ->get();
+
+        // Calculate total remaining highlight
+        $totalRemainingHighlight = $activeCredits->sum('remaining_highlight');
+
+        // Midtrans config for frontend
+        $midtransConfig = [
+            'clientKey' => config('midtrans.client_key'),
+            'snapUrl' => config('midtrans.is_production')
+                ? 'https://app.midtrans.com/snap/snap.js'
+                : 'https://app.sandbox.midtrans.com/snap/snap.js',
+        ];
+
+        return Inertia::render('DashboardAgent/BeliCredit/index', [
             'agent' => $this->getAgentData(),
-            'stats' => [
-                'totalListings' => $agent->properties()->count(),
-                'totalViews' => $agent->properties()->sum('count_clicked') ?? 0,
-                'totalInquiries' => 0,
-                'totalLeads' => 0,
-            ],
+            'memberships' => $memberships,
+            'activeCredits' => $activeCredits,
+            'totalRemainingHighlight' => $totalRemainingHighlight,
+            'midtransConfig' => $midtransConfig,
         ]);
     }
 
     /**
-     * Show history credit page (placeholder)
+     * Show history credit page with transactions
      */
     public function historyCredit()
     {
@@ -532,14 +619,46 @@ class AgentDashboardController extends Controller
                 ->with('error', 'Akun agent tidak ditemukan.');
         }
 
-        return Inertia::render('DashboardAgent/Overview/index', [
+        // Get all transactions for this agent
+        $transactions = \App\Models\MembershipTransaction::with(['membership:id,nama,jenis,harga'])
+            ->where('agen_id', $agent->id)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($transaction) {
+                return [
+                    'id' => $transaction->id,
+                    'order_id' => $transaction->order_id,
+                    'membership_name' => $transaction->membership->nama ?? 'N/A',
+                    'membership_type' => $transaction->membership->jenis ?? 'N/A',
+                    'gross_amount' => $transaction->gross_amount,
+                    'status' => $transaction->status,
+                    'payment_type' => $transaction->payment_type,
+                    'created_at' => $transaction->created_at->format('d M Y H:i'),
+                    'snap_token' => $transaction->status === 'pending' ? $transaction->snap_token : null,
+                ];
+            });
+
+        // Calculate stats
+        $stats = [
+            'total' => $transactions->count(),
+            'settlement' => $transactions->where('status', 'settlement')->count(),
+            'pending' => $transactions->where('status', 'pending')->count(),
+            'totalSpent' => $transactions->where('status', 'settlement')->sum('gross_amount'),
+        ];
+
+        // Midtrans config for retry payment
+        $midtransConfig = [
+            'clientKey' => config('midtrans.client_key'),
+            'snapUrl' => config('midtrans.is_production')
+                ? 'https://app.midtrans.com/snap/snap.js'
+                : 'https://app.sandbox.midtrans.com/snap/snap.js',
+        ];
+
+        return Inertia::render('DashboardAgent/HistoryCredit/index', [
             'agent' => $this->getAgentData(),
-            'stats' => [
-                'totalListings' => $agent->properties()->count(),
-                'totalViews' => $agent->properties()->sum('count_clicked') ?? 0,
-                'totalInquiries' => 0,
-                'totalLeads' => 0,
-            ],
+            'transactions' => $transactions,
+            'stats' => $stats,
+            'midtransConfig' => $midtransConfig,
         ]);
     }
 }

@@ -226,6 +226,133 @@ class PopularPropertyController extends Controller
     }
 
     /**
+     * Get all popular properties without city filtering
+     */
+    public function getAll(): JsonResponse
+    {
+        try {
+            Log::info('Fetching all popular properties');
+
+            // Include agen relationship
+            $properties = Property::with(['developer', 'agen'])
+                ->where('is_available', true)
+                ->where('is_verified', true) // Only show approved listings
+                ->orderByDesc('count_clicked')
+                ->orderByDesc('last_updated')
+                ->take(20) // Limit to 20 properties
+                ->get();
+
+            Log::info('Properties found:', ['count' => $properties->count()]);
+
+            // Get property categories mapping
+            $categories = \App\Models\PropertyCategory::pluck('name', 'id')->toArray();
+
+            // Helper function for image URL (supports Cloudinary)
+            $getImageUrl = function ($path) {
+                if (!$path)
+                    return null;
+                // If it's already a full URL (Cloudinary), return as is
+                if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+                    return $path;
+                }
+                // Local path
+                $imagePath = str_replace('private/', '', $path);
+                return url('/storage/' . $imagePath);
+            };
+
+            $mappedProperties = $properties->map(function ($property) use ($getImageUrl, $categories) {
+                // Main image URL
+                $mainImageUrl = $getImageUrl($property->main_image);
+
+                // Fallback to images array
+                if (!$mainImageUrl && !empty($property->images)) {
+                    $mainImageUrl = $getImageUrl($property->images[0]);
+                }
+
+                // Map all images
+                $imagesUrls = [];
+                if (!empty($property->images)) {
+                    foreach ($property->images as $image) {
+                        $url = $getImageUrl($image);
+                        if ($url)
+                            $imagesUrls[] = $url;
+                    }
+                }
+
+                // Agent photo URL
+                $agentPhotoUrl = $property->agen ? $getImageUrl($property->agen->photo) : null;
+
+                // Developer logo URL
+                $developerLogoUrl = $property->developer ? $getImageUrl($property->developer->logo) : null;
+
+                // Determine type
+                $type = 'Rumah Baru';
+                if (!empty($property->kategori) && isset($property->kategori[0])) {
+                    $catId = $property->kategori[0];
+                    if (isset($categories[$catId])) {
+                        $type = $categories[$catId];
+                    }
+                }
+
+                return [
+                    'id' => $property->id,
+                    'image' => $mainImageUrl,
+                    'images' => $imagesUrls,
+                    'promoText' => null,
+                    'features' => $property->keunggulan ?? [],
+                    'type' => $type,
+                    'units' => $property->units_remaining ? "Sisa {$property->units_remaining} Unit" : null,
+                    'priceRange' => $property->price_range,
+                    'installment' => $property->installment_text,
+                    'name' => $property->name,
+                    // Use agent name, fallback to developer name
+                    'developer' => $property->agen?->name ?? $property->developer?->name ?? 'Developer',
+                    'developerLogo' => $agentPhotoUrl ?: $developerLogoUrl,
+                    // Agent data for avatar fallback
+                    'agent' => $property->agen ? [
+                        'name' => $property->agen->name,
+                        'photo' => $agentPhotoUrl,
+                    ] : null,
+                    // Location - just the address
+                    'location' => $property->location,
+                    'city' => $property->city,
+                    'province' => $property->provinsi,
+                    'bedrooms' => $property->bedrooms,
+                    'landSize' => $property->land_size_text,
+                    'buildingSize' => $property->building_size_text,
+                    'additionalInfo' => $property->certificate_type,
+                    'lastUpdated' => $property->last_updated ?
+                        $property->last_updated->diffForHumans() :
+                        'Diperbarui lebih dari 1 bulan lalu',
+                    'buttonType' => $property->button_type ?? 'view',
+                    'available' => $property->is_available,
+                    'countClicked' => $property->count_clicked ?? 0,
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'properties' => $mappedProperties,
+                    'total' => $mappedProperties->count(),
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Get all popular properties error:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                'data' => null
+            ], 500);
+        }
+    }
+
+    /**
      * Get all properties grouped by city (alternative endpoint)
      */
     public function index(): JsonResponse

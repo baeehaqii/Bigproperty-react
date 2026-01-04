@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Head, Link, useForm } from "@inertiajs/react"
-import { User, Mail, Phone, Lock, Shield, Info, ArrowRight, ArrowLeft } from "lucide-react"
+import { User, Mail, Phone, Lock, Shield, Info, ArrowRight, ArrowLeft, Eye, EyeOff } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -217,9 +217,20 @@ export default function AgentSignup() {
                                                 type={showPassword ? "text" : "password"}
                                                 value={data.password}
                                                 onChange={(e) => setData("password", e.target.value)}
-                                                className="h-12 rounded-full border-gray-200 pl-12 pr-4 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500"
+                                                className="h-12 rounded-full border-gray-200 pl-12 pr-12 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500"
                                                 placeholder="Minimal 8 karakter"
                                             />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                                            >
+                                                {showPassword ? (
+                                                    <EyeOff className="h-5 w-5" />
+                                                ) : (
+                                                    <Eye className="h-5 w-5" />
+                                                )}
+                                            </button>
                                         </div>
                                         {errors.password && (
                                             <p className="text-sm text-red-500">{errors.password}</p>
@@ -238,9 +249,20 @@ export default function AgentSignup() {
                                                 type={showPassword ? "text" : "password"}
                                                 value={data.password_confirmation}
                                                 onChange={(e) => setData("password_confirmation", e.target.value)}
-                                                className="h-12 rounded-full border-gray-200 pl-12 pr-4 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500"
+                                                className="h-12 rounded-full border-gray-200 pl-12 pr-12 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500"
                                                 placeholder="Ulangi password Anda"
                                             />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                                            >
+                                                {showPassword ? (
+                                                    <EyeOff className="h-5 w-5" />
+                                                ) : (
+                                                    <Eye className="h-5 w-5" />
+                                                )}
+                                            </button>
                                         </div>
                                     </div>
 

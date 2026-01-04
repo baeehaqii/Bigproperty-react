@@ -27,6 +27,8 @@ interface Property {
     name: string
     city: string
     provinsi: string
+    city_name?: string
+    province_name?: string
     location: string
     price_min: number
     price_max: number | null
@@ -76,10 +78,18 @@ export default function ListingSaya({ agent, listings, stats }: ListingSayaProps
         }
     }
 
-    // Format location - use location field if city/provinsi contains API codes
+    // Format location - use city_name from backend if available
     const formatLocation = (listing: Property) => {
-        // Check if city looks like an API code (is numeric or very short)
-        const isApiCode = /^\d+$/.test(listing.city) || listing.city.length <= 3
+        // Use city_name and province_name from backend if available
+        if (listing.city_name && listing.city_name !== listing.city) {
+            return {
+                primary: listing.city_name,
+                secondary: listing.province_name || ''
+            }
+        }
+
+        // Fallback: check if city looks like an API code
+        const isApiCode = /^\d+(\.\d+)?$/.test(listing.city)
 
         if (isApiCode && listing.location) {
             // Use location field as fallback
@@ -220,8 +230,8 @@ export default function ListingSaya({ agent, listings, stats }: ListingSayaProps
                             <button
                                 onClick={() => setFilterStatus("all")}
                                 className={`px-4 py-2.5 rounded-[16px] font-medium transition-all duration-200 cursor-pointer ${filterStatus === "all"
-                                        ? "bg-[#D6D667] text-[#0C1C3C]"
-                                        : "border border-[#DCDEDD] text-gray-600 hover:border-[#D6D667]"
+                                    ? "bg-[#D6D667] text-[#0C1C3C]"
+                                    : "border border-[#DCDEDD] text-gray-600 hover:border-[#D6D667]"
                                     }`}
                             >
                                 Semua
@@ -229,8 +239,8 @@ export default function ListingSaya({ agent, listings, stats }: ListingSayaProps
                             <button
                                 onClick={() => setFilterStatus("active")}
                                 className={`px-4 py-2.5 rounded-[16px] font-medium transition-all duration-200 cursor-pointer ${filterStatus === "active"
-                                        ? "bg-[#D6D667] text-[#0C1C3C]"
-                                        : "border border-[#DCDEDD] text-gray-600 hover:border-[#D6D667]"
+                                    ? "bg-[#D6D667] text-[#0C1C3C]"
+                                    : "border border-[#DCDEDD] text-gray-600 hover:border-[#D6D667]"
                                     }`}
                             >
                                 Aktif
@@ -238,8 +248,8 @@ export default function ListingSaya({ agent, listings, stats }: ListingSayaProps
                             <button
                                 onClick={() => setFilterStatus("pending")}
                                 className={`px-4 py-2.5 rounded-[16px] font-medium transition-all duration-200 cursor-pointer ${filterStatus === "pending"
-                                        ? "bg-[#D6D667] text-[#0C1C3C]"
-                                        : "border border-[#DCDEDD] text-gray-600 hover:border-[#D6D667]"
+                                    ? "bg-[#D6D667] text-[#0C1C3C]"
+                                    : "border border-[#DCDEDD] text-gray-600 hover:border-[#D6D667]"
                                     }`}
                             >
                                 Pending

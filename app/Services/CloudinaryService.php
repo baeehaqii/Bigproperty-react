@@ -4,14 +4,8 @@ namespace App\Services;
 
 use Cloudinary\Cloudinary;
 use Cloudinary\Api\Upload\UploadApi;
-use Cloudinary\Transformation\Transformation;
-use Cloudinary\Transformation\Resize;
-use Cloudinary\Transformation\Format;
-use Cloudinary\Transformation\Overlay;
-use Cloudinary\Transformation\Gravity;
-use Cloudinary\Transformation\Position;
-use Cloudinary\Transformation\Source;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 
 class CloudinaryService
 {
@@ -33,6 +27,8 @@ class CloudinaryService
 
     /**
      * Upload image to Cloudinary with watermark and AVIF conversion
+     * - If AVIF: upload directly
+     * - If PNG/JPG/JPEG: convert to AVIF locally first, then upload
      *
      * @param UploadedFile|string $file
      * @param string $folder
@@ -41,46 +37,130 @@ class CloudinaryService
     public function uploadPropertyImage(UploadedFile|string $file, string $folder = 'properties'): array
     {
         $uploadPath = $file instanceof UploadedFile ? $file->getRealPath() : $file;
+        $extension = $file instanceof UploadedFile ? strtolower($file->getClientOriginalExtension()) : pathinfo($file, PATHINFO_EXTENSION);
 
-        // Upload with eager transformation to apply watermark and convert to AVIF
-        $result = $this->cloudinary->uploadApi()->upload($uploadPath, [
-            'folder' => $folder,
-            'resource_type' => 'image',
-            'use_filename' => true,
-            'unique_filename' => true,
-            // Apply transformations during upload (eager transformation)
-            'eager' => [
-                [
-                    'format' => 'avif',
-                    'quality' => 'auto:best',
-                    'overlay' => [
-                        'font_family' => 'Arial',
-                        'font_size' => 24,
-                        'font_weight' => 'bold',
-                        'text' => 'Big Property',
-                    ],
-                    'color' => '#FFFFFF',
-                    'opacity' => 50,
-                    'gravity' => 'south_east',
-                    'x' => 20,
-                    'y' => 20,
-                ],
-            ],
-            'eager_async' => false, // Process immediately
-        ]);
+        // Check if image needs conversion to AVIF
+        $needsConversion = in_array($extension, ['png', 'jpg', 'jpeg', 'gif', 'webp']);
+        $convertedPath = null;
 
-        // Build the URL with watermark and AVIF format
-        $publicId = $result['public_id'];
+        if ($needsConversion && $this->canConvertToAvif()) {
+            $convertedPath = $this->convertToAvif($uploadPath);
+            if ($convertedPath) {
+                $uploadPath = $convertedPath;
+            }
+        }
 
-        // Generate the optimized URL with watermark
-        $url = $this->getOptimizedUrl($publicId);
+        try {
+            // Upload to Cloudinary
+            $result = $this->cloudinary->uploadApi()->upload($uploadPath, [
+                'folder' => $folder,
+                'resource_type' => 'image',
+                'use_filename' => true,
+                'unique_filename' => true,
+                // Apply watermark transformation on delivery (not during upload)
+                // This makes upload faster
+            ]);
 
-        return [
-            'url' => $url,
-            'public_id' => $publicId,
-            'format' => 'avif',
-            'original_url' => $result['secure_url'],
-        ];
+            // Clean up converted file
+            if ($convertedPath && file_exists($convertedPath)) {
+                unlink($convertedPath);
+            }
+
+            // Build the URL with watermark
+            $publicId = $result['public_id'];
+            $url = $this->getOptimizedUrl($publicId);
+
+            return [
+                'url' => $url,
+                'public_id' => $publicId,
+                'format' => $result['format'] ?? 'avif',
+                'original_url' => $result['secure_url'],
+            ];
+        } catch (\Exception $e) {
+            // Clean up converted file on error
+            if ($convertedPath && file_exists($convertedPath)) {
+                unlink($convertedPath);
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Check if system can convert to AVIF (requires GD with AVIF support or Imagick)
+     */
+    protected function canConvertToAvif(): bool
+    {
+        // Check GD with AVIF support
+        if (function_exists('imageavif') && function_exists('imagecreatefromstring')) {
+            return true;
+        }
+
+        // Check Imagick
+        if (extension_loaded('imagick')) {
+            $imagick = new \Imagick();
+            $formats = $imagick->queryFormats('AVIF');
+            return !empty($formats);
+        }
+
+        return false;
+    }
+
+    /**
+     * Convert image to AVIF format locally
+     *
+     * @param string $sourcePath
+     * @return string|null Path to converted file, or null if conversion failed
+     */
+    protected function convertToAvif(string $sourcePath): ?string
+    {
+        try {
+            $tempPath = sys_get_temp_dir() . '/' . uniqid('avif_') . '.avif';
+
+            // Try GD first (faster)
+            if (function_exists('imageavif') && function_exists('imagecreatefromstring')) {
+                $imageData = file_get_contents($sourcePath);
+                $image = @imagecreatefromstring($imageData);
+
+                if ($image) {
+                    // Preserve transparency for PNG
+                    imagesavealpha($image, true);
+
+                    // Convert to AVIF with quality 80 (good balance)
+                    $success = imageavif($image, $tempPath, 80);
+                    imagedestroy($image);
+
+                    if ($success && file_exists($tempPath)) {
+                        Log::info('Image converted to AVIF using GD', [
+                            'original_size' => filesize($sourcePath),
+                            'avif_size' => filesize($tempPath),
+                        ]);
+                        return $tempPath;
+                    }
+                }
+            }
+
+            // Fallback to Imagick
+            if (extension_loaded('imagick')) {
+                $imagick = new \Imagick($sourcePath);
+                $imagick->setImageFormat('avif');
+                $imagick->setImageCompressionQuality(80);
+                $imagick->writeImage($tempPath);
+                $imagick->destroy();
+
+                if (file_exists($tempPath)) {
+                    Log::info('Image converted to AVIF using Imagick', [
+                        'original_size' => filesize($sourcePath),
+                        'avif_size' => filesize($tempPath),
+                    ]);
+                    return $tempPath;
+                }
+            }
+
+            return null;
+        } catch (\Exception $e) {
+            Log::warning('AVIF conversion failed, uploading original: ' . $e->getMessage());
+            return null;
+        }
     }
 
     /**
@@ -111,11 +191,9 @@ class CloudinaryService
         $transformations[] = 'q_auto:best';
 
         // Add text watermark
-        // l_text: is the text overlay syntax
-        // Font: Arial, size 24, bold, white color with 50% opacity
         $transformations[] = 'l_text:Arial_24_bold:Big%20Property,co_white,o_50,g_south_east,x_20,y_20';
 
-        // Add format conversion to AVIF
+        // Add format conversion to AVIF (on delivery)
         $transformations[] = 'f_avif';
 
         $transformationString = implode('/', $transformations);
@@ -153,8 +231,9 @@ class CloudinaryService
             $result = $this->cloudinary->uploadApi()->destroy($publicId);
             return $result['result'] === 'ok';
         } catch (\Exception $e) {
-            \Log::error('Cloudinary delete error: ' . $e->getMessage());
+            Log::error('Cloudinary delete error: ' . $e->getMessage());
             return false;
         }
     }
 }
+

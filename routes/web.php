@@ -72,6 +72,7 @@ Route::get('/storage/private/{path}', function ($path) {
 
 Route::get('/popular-properties/cities', [PopularPropertyController::class, 'getCities']);
 Route::get('/popular-properties/city/{city}', [PopularPropertyController::class, 'getByCity']);
+Route::get('/popular-properties/all', [PopularPropertyController::class, 'getAll']);
 Route::get('/popular-properties', [PopularPropertyController::class, 'index']);
 Route::get('/verified-projects', [VerifiedProjectController::class, 'index']);
 
@@ -95,6 +96,7 @@ Route::post('/api/leads', [LeadsAgentController::class, 'store'])->name('api.lea
 // Agent Authentication Routes
 use App\Http\Controllers\AgentAuthController;
 use App\Http\Controllers\AgentDashboardController;
+use App\Http\Controllers\AgentMembershipController;
 
 Route::prefix('agent')->name('agent.')->group(function () {
     // Guest routes untuk agent - hanya yang belum login sebagai agent
@@ -122,6 +124,14 @@ Route::prefix('agent')->name('agent.')->group(function () {
         Route::get('/dashboard/beli-credit', [AgentDashboardController::class, 'beliCredit'])->name('dashboard.beli-credit');
         Route::get('/dashboard/history-credit', [AgentDashboardController::class, 'historyCredit'])->name('dashboard.history-credit');
     });
+});
+
+// Agent Membership Payment API Routes (within web context using session auth)
+Route::prefix('api/agent/membership')->middleware('auth:agent')->group(function () {
+    Route::post('/checkout', [AgentMembershipController::class, 'checkout'])->name('api.agent.membership.checkout');
+    Route::get('/status/{orderId}', [AgentMembershipController::class, 'status'])->name('api.agent.membership.status');
+    Route::post('/retry/{orderId}', [AgentMembershipController::class, 'retryPayment'])->name('api.agent.membership.retry');
+    Route::get('/my-credits', [AgentMembershipController::class, 'myCredits'])->name('api.agent.membership.my-credits');
 });
 
 

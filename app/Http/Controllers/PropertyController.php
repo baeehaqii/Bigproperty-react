@@ -206,13 +206,46 @@ class PropertyController extends Controller
     public function getCities()
     {
         try {
-            $cities = Property::where('is_popular', true)
-                ->where('is_available', true)
+            // Get cities from verified and available properties
+            // Sorted by most clicked properties (popular)
+            $cityCodes = Property::where('is_available', true)
                 ->where('is_verified', true) // Only show approved listings
-                ->distinct()
-                ->pluck('city')
-                ->filter()
-                ->values();
+                ->whereNotNull('city')
+                ->select('city', 'provinsi')
+                ->selectRaw('SUM(count_clicked) as total_clicks')
+                ->groupBy('city', 'provinsi')
+                ->orderByDesc('total_clicks')
+                ->get();
+
+            // Lookup city names using WilayahService
+            $wilayahService = new \App\Services\WilayahService();
+
+            $cities = $cityCodes->map(function ($item) use ($wilayahService) {
+                $cityCode = $item->city;
+                $provinceCode = $item->provinsi;
+
+                // Get city name from wilayah API (cached)
+                $cityName = $cityCode; // Fallback to code
+
+                try {
+                    $regencies = $wilayahService->getCities($provinceCode);
+                    if (isset($regencies['data']) && is_array($regencies['data'])) {
+                        foreach ($regencies['data'] as $regency) {
+                            if ($regency['code'] === $cityCode) {
+                                $cityName = $regency['name'];
+                                break;
+                            }
+                        }
+                    }
+                } catch (\Exception $e) {
+                    \Log::warning('Failed to lookup city name: ' . $e->getMessage());
+                }
+
+                return [
+                    'code' => $cityCode,
+                    'name' => $cityName,
+                ];
+            })->filter()->values();
 
             return response()->json([
                 'success' => true,
@@ -228,14 +261,92 @@ class PropertyController extends Controller
     }
 
     /**
+     * Get all popular properties without city filtering
+     */
+    public function getAllPopularProperties()
+    {
+        try {
+            // Helper function untuk image URL
+            $getImageUrl = function ($path) {
+                if (!$path)
+                    return null;
+
+                $path = trim($path, " \t\n\r\0\x0B\"'");
+
+                if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+                    return $path;
+                }
+                return '/storage/' . $path;
+            };
+
+            // Get all verified and available properties
+            // Sorted by click count (most popular first)
+            $properties = Property::with(['developer', 'agen'])
+                ->where('is_available', true)
+                ->where('is_verified', true) // Only show approved listings
+                ->orderBy('count_clicked', 'desc')
+                ->take(20) // Limit to 20 properties
+                ->get()
+                ->map(function ($property) use ($getImageUrl) {
+                    return [
+                        'id' => $property->id,
+                        'image' => $getImageUrl($property->main_image),
+                        'images' => array_filter(array_map($getImageUrl, $property->images ?? [])),
+                        'promoText' => $property->promo_text,
+                        'features' => [],
+                        'type' => $this->getPropertyType($property->kategori),
+                        'units' => $property->units_remaining ? $property->units_remaining . ' Unit' : null,
+                        'priceRange' => $property->price_range,
+                        'installment' => $property->installment_text,
+                        'name' => $property->name,
+                        // Use agent name, fallback to developer name
+                        'developer' => $property->agen->name ?? $property->developer->name ?? 'Unknown',
+                        'developerLogo' => $getImageUrl($property->agen->photo ?? null) ?: $getImageUrl($property->developer->logo ?? null),
+                        // Agent data for avatar fallback
+                        'agent' => $property->agen ? [
+                            'name' => $property->agen->name,
+                            'photo' => $getImageUrl($property->agen->photo),
+                        ] : null,
+                        'location' => $property->location,
+                        'city' => $property->city,
+                        'province' => $property->provinsi,
+                        'bedrooms' => $property->bedrooms,
+                        'landSize' => $property->land_size_text,
+                        'buildingSize' => $property->building_size_text,
+                        'additionalInfo' => $property->certificate_type,
+                        'lastUpdated' => $property->last_updated->diffForHumans(),
+                        'buttonType' => $property->button_type ?? 'chat',
+                        'available' => $property->is_available,
+                        'countClicked' => $property->count_clicked ?? 0,
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'properties' => $properties,
+                    'total' => $properties->count(),
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memuat properti',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
      * Get properties by city
      */
     public function getPropertiesByCity($city)
     {
         try {
+            // Get verified and available properties for this city
+            // Sorted by click count (most popular first)
             $properties = Property::with(['developer', 'agen'])
                 ->where('city', $city)
-                ->where('is_popular', true)
                 ->where('is_available', true)
                 ->where('is_verified', true) // Only show approved listings
                 ->orderBy('count_clicked', 'desc')

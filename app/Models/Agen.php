@@ -47,6 +47,56 @@ class Agen extends Authenticatable
         return $this->hasMany(Property::class);
     }
 
+    // Relasi ke Credit
+    public function credits()
+    {
+        return $this->hasMany(AgenCredit::class);
+    }
+
+    // Relasi ke Transaksi Membership
+    public function membershipTransactions()
+    {
+        return $this->hasMany(MembershipTransaction::class);
+    }
+
+    // Get active credits (belum expired)
+    public function activeCredits()
+    {
+        return $this->credits()->active();
+    }
+
+    /**
+     * Get total remaining highlight dari semua credit aktif
+     */
+    public function getTotalRemainingHighlightAttribute(): int
+    {
+        return $this->activeCredits()->sum('remaining_highlight');
+    }
+
+    /**
+     * Get total remaining listing dari semua credit aktif
+     */
+    public function getTotalRemainingListingAttribute(): int
+    {
+        return $this->activeCredits()->sum('remaining_listing');
+    }
+
+    /**
+     * Cek apakah agen punya highlight credit yang tersisa
+     */
+    public function hasHighlightCredit(): bool
+    {
+        return $this->activeCredits()->where('remaining_highlight', '>', 0)->exists();
+    }
+
+    /**
+     * Cek apakah agen punya listing credit yang tersisa
+     */
+    public function hasListingCredit(): bool
+    {
+        return $this->activeCredits()->where('remaining_listing', '>', 0)->exists();
+    }
+
     // Scope untuk agen yang aktif
     public function scopeActive($query)
     {

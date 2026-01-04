@@ -67,6 +67,7 @@ class MembershipForm
                                     ->placeholder('1')
                                     ->required()
                                     ->minValue(1)
+                                    ->visible(fn(callable $get) => $get('jenis') === 'highlight')
                                     ->columnSpan(1),
 
                                 Select::make('harga.period')
@@ -77,6 +78,7 @@ class MembershipForm
                                         'year' => 'Tahun',
                                     ])
                                     ->required()
+                                    ->visible(fn(callable $get) => $get('jenis') === 'highlight')
                                     ->native(false)
                                     ->columnSpan(2),
                             ]),
@@ -87,7 +89,7 @@ class MembershipForm
                     ->description('Kuota listing dan highlight untuk paket ini')
                     ->schema([
                         Grid::make(3)
-                            ->visible(fn (callable $get) => $get('jenis') === 'developer' || $get('jenis') === 'agen')
+                            ->visible(fn(callable $get) => $get('jenis') === 'developer' || $get('jenis') === 'agen')
                             ->schema([
                                 TextInput::make('jumlah_listing.quantity')
                                     ->label('Jumlah Listing')
@@ -159,14 +161,14 @@ class MembershipForm
                             ->reactive()
                             ->minValue(0)
                             ->helperText('Jumlah agent yang dapat ditambahkan')
-                            ->visible(fn (callable $get) => $get('jenis') === 'developer')
+                            ->visible(fn(callable $get) => $get('jenis') === 'developer')
                             ->columnSpanFull(),
                     ])
                     ->collapsible(),
 
                 Section::make('Fitur Iklan')
                     ->description('Kuota iklan popup dan banner')
-                    ->visible(fn (callable $get) => $get('jenis') === 'developer')
+                    ->visible(fn(callable $get) => $get('jenis') === 'developer')
                     ->reactive()
                     ->schema([
                         Grid::make(2)
