@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Event;
+use App\Models\PropertyCategory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -13,7 +14,7 @@ class EventController extends Controller
     {
         try {
             Log::info('Golden Deals endpoint accessed');
-            
+
             $event = Event::where('name', 'LIKE', '%Golden Deals%')
                 ->where('is_active', true)
                 ->whereDate('start_date', '<=', now())
@@ -24,7 +25,7 @@ class EventController extends Controller
 
             if (!$event) {
                 $event = Event::where('is_active', true)->first();
-                
+
                 if (!$event) {
                     return response()->json([
                         'success' => false,
@@ -35,33 +36,90 @@ class EventController extends Controller
             }
 
             $properties = $event->properties()
-                ->with('developer')
+                ->with(['developer', 'agen'])
                 ->where('is_available', true)
+                ->where('is_verified', true) // Only show approved listings
                 ->get();
 
             Log::info('Properties count:', ['count' => $properties->count()]);
 
             $mappedProperties = $properties->map(function ($property) {
-                // Generate proper URL for private storage image
-                $mainImageUrl = null;
-                if ($property->main_image) {
-                    // Hilangkan 'private/' prefix kalau ada
-                    $imagePath = str_replace('private/', '', $property->main_image);
-                    $mainImageUrl = url('/storage/private/' . $imagePath);
+                // Helper function to get proper image URL
+                $getImageUrl = function ($imagePath) {
+                    if (!$imagePath)
+                        return null;
+
+                    // If already a full URL (http/https or Cloudinary), return as is
+                    if (
+                        str_starts_with($imagePath, 'http://') ||
+                        str_starts_with($imagePath, 'https://') ||
+                        str_starts_with($imagePath, '//')
+                    ) {
+                        return $imagePath;
+                    }
+
+                    // Otherwise, it's a local file - add storage prefix
+                    $cleanPath = str_replace('private/', '', $imagePath);
+                    return url('/storage/private/' . $cleanPath);
+                };
+
+                // Get main image URL
+                $mainImageUrl = $getImageUrl($property->main_image);
+
+                // Fallback to images array if main_image empty
+                if (!$mainImageUrl && !empty($property->images)) {
+                    $mainImageUrl = $getImageUrl($property->images[0]);
                 }
 
-                // Fallback ke images array kalau main_image kosong
-                if (!$mainImageUrl && !empty($property->images)) {
-                    $firstImage = $property->images[0];
-                    $imagePath = str_replace('private/', '', $firstImage);
-                    $mainImageUrl = url('/storage/private/' . $imagePath);
+                // Get all images for carousel
+                $allImages = [];
+                if (!empty($property->images) && is_array($property->images)) {
+                    foreach ($property->images as $img) {
+                        $imgUrl = $getImageUrl($img);
+                        if ($imgUrl) {
+                            $allImages[] = $imgUrl;
+                        }
+                    }
+                }
+
+                // Get developer/agent info - prioritize agen over developer
+                $postedByName = 'Developer';
+                $postedByLogo = null;
+
+                if ($property->agen) {
+                    $postedByName = $property->agen->name ?? $property->agen->nama ?? 'Agent';
+                    $postedByLogo = $getImageUrl($property->agen->photo ?? $property->agen->foto ?? null);
+                } elseif ($property->developer) {
+                    $postedByName = $property->developer->name;
+                    $postedByLogo = $getImageUrl($property->developer->logo);
+                }
+
+                // Get kategori - lookup names by ID from PropertyCategory table
+                $kategoriArray = $property->kategori ?? [];
+                $kategoriDisplay = [];
+                if (is_array($kategoriArray) && count($kategoriArray) > 0) {
+                    // Kategori stores IDs, so we need to lookup the names
+                    $categoryIds = array_filter($kategoriArray, fn($val) => is_numeric($val));
+
+                    if (!empty($categoryIds)) {
+                        $categories = PropertyCategory::whereIn('id', $categoryIds)->pluck('name')->toArray();
+                        $kategoriDisplay = $categories;
+                    } else {
+                        // Fallback: if kategori contains strings directly
+                        foreach ($kategoriArray as $kat) {
+                            if (is_string($kat) && !is_numeric($kat)) {
+                                $kategoriDisplay[] = $kat;
+                            }
+                        }
+                    }
                 }
 
                 return [
                     'id' => $property->id,
-                    'image' => $mainImageUrl, // URL lengkap sekarang
+                    'image' => $mainImageUrl,
+                    'images' => $allImages,
                     'promo_text' => $property->promo_text,
-                    'kategori' => $property->kategori ?? [],
+                    'kategori' => $kategoriDisplay,
                     'units_remaining' => $property->units_remaining,
                     'price_range' => $property->price_range,
                     'installment' => $property->installment_text,
@@ -74,15 +132,31 @@ class EventController extends Controller
                     'building_size' => $property->building_size_text,
                     'certificate_type' => $property->certificate_type,
                     'is_popular' => $property->is_popular,
-                    'last_updated' => $property->last_updated ? 
-                        $property->last_updated->diffForHumans() : 
+                    'last_updated' => $property->last_updated ?
+                        $property->last_updated->diffForHumans() :
                         'Baru diperbarui',
-                    'developer_name' => $property->developer ? $property->developer->name : 'Developer',
-                    'developer_logo' => $property->developer && $property->developer->logo ? 
-                        url('/storage/private/' . str_replace('private/', '', $property->developer->logo)) : 
-                        null,
+                    'posted_by_name' => $postedByName,
+                    'posted_by_logo' => $postedByLogo,
+                    'count_clicked' => $property->count_clicked ?? 0,
                 ];
             });
+
+            // Helper to get proper URL for event banner
+            $getBannerUrl = function ($bannerPath) {
+                if (!$bannerPath)
+                    return null;
+
+                if (
+                    str_starts_with($bannerPath, 'http://') ||
+                    str_starts_with($bannerPath, 'https://') ||
+                    str_starts_with($bannerPath, '//')
+                ) {
+                    return $bannerPath;
+                }
+
+                $cleanPath = str_replace('private/', '', $bannerPath);
+                return url('/storage/private/' . $cleanPath);
+            };
 
             return response()->json([
                 'success' => true,
@@ -91,7 +165,7 @@ class EventController extends Controller
                         'id' => $event->id,
                         'name' => $event->name,
                         'description' => $event->description,
-                        'banner' => $event->banner ? url('/storage/private/' . str_replace('private/', '', $event->banner)) : null,
+                        'banner' => $getBannerUrl($event->banner),
                         'start_date' => $event->start_date,
                         'end_date' => $event->end_date,
                     ],
@@ -101,7 +175,7 @@ class EventController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Golden Deals error:', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan: ' . $e->getMessage(),

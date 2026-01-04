@@ -18,6 +18,7 @@ class PopularPropertyController extends Controller
         try {
             // Get all properties with city codes and locations
             $properties = Property::where('is_available', true)
+                ->where('is_verified', true) // Only show approved listings
                 ->whereNotNull('city')
                 ->where('city', '!=', '')
                 ->select('city', 'location', 'provinsi')
@@ -102,6 +103,7 @@ class PopularPropertyController extends Controller
             // Include agen relationship
             $properties = Property::with(['developer', 'agen'])
                 ->where('is_available', true)
+                ->where('is_verified', true) // Only show approved listings
                 ->where('city', $city)
                 ->orderByDesc('count_clicked')
                 ->orderByDesc('last_updated')
@@ -233,6 +235,7 @@ class PopularPropertyController extends Controller
 
             // Get unique cities
             $cities = Property::where('is_available', true)
+                ->where('is_verified', true) // Only show approved listings
                 ->select('city')
                 ->distinct()
                 ->orderBy('city')
@@ -244,6 +247,7 @@ class PopularPropertyController extends Controller
             foreach ($cities as $city) {
                 $properties = Property::with('developer')
                     ->where('is_available', true)
+                    ->where('is_verified', true) // Only show approved listings
                     ->where('city', $city)
                     ->orderByDesc('count_clicked') // Urutkan dari terbanyak
                     ->orderByDesc('last_updated')

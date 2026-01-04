@@ -54,18 +54,232 @@ class AgentDashboardController extends Controller
                 ->with('error', 'Akun agent tidak ditemukan.');
         }
 
+        // Get leads count
+        $leadsCount = \App\Models\LeadsAgent::where('agent_id', $agent->id)->count();
+        $leadsNotFollowed = \App\Models\LeadsAgent::where('agent_id', $agent->id)
+            ->where('status_followup', 'belum')
+            ->count();
+
         // Get agent stats
         $stats = [
             'totalListings' => $agent->properties()->count(),
             'totalViews' => $agent->properties()->sum('count_clicked') ?? 0,
-            'totalInquiries' => 0, // Will be implemented later
-            'totalLeads' => 0, // Will be implemented later
+            'totalInquiries' => $leadsNotFollowed, // Leads yang belum di-followup
+            'totalLeads' => $leadsCount,
         ];
 
         return Inertia::render('DashboardAgent/Overview/index', [
             'agent' => $this->getAgentData(),
             'stats' => $stats,
         ]);
+    }
+
+    /**
+     * Show agent's listings (Listing Saya)
+     */
+    public function listingSaya()
+    {
+        $agent = $this->guard()->user();
+
+        if (!$agent) {
+            return redirect()->route('agent.login')
+                ->with('error', 'Akun agent tidak ditemukan.');
+        }
+
+        // Get all properties for this agent
+        $listings = Property::where('agen_id', $agent->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Calculate stats
+        $stats = [
+            'total' => $listings->count(),
+            'active' => $listings->where('is_available', true)->where('is_verified', true)->count(),
+            'pending' => $listings->where('is_verified', false)->count(),
+            'totalViews' => $listings->sum('count_clicked') ?? 0,
+        ];
+
+        return Inertia::render('DashboardAgent/ListingSaya/index', [
+            'agent' => $this->getAgentData(),
+            'listings' => $listings,
+            'stats' => $stats,
+        ]);
+    }
+
+    /**
+     * Delete a listing
+     */
+    public function deleteListing($id)
+    {
+        $agent = $this->guard()->user();
+
+        if (!$agent) {
+            return redirect()->route('agent.login')
+                ->with('error', 'Akun agent tidak ditemukan.');
+        }
+
+        // Find property and verify ownership
+        $property = Property::where('id', $id)
+            ->where('agen_id', $agent->id)
+            ->first();
+
+        if (!$property) {
+            return back()->withErrors([
+                'general' => 'Properti tidak ditemukan atau Anda tidak memiliki akses.',
+            ]);
+        }
+
+        try {
+            $property->delete();
+            return redirect()->route('agent.dashboard.listing-saya')
+                ->with('success', 'Properti berhasil dihapus.');
+        } catch (\Exception $e) {
+            \Log::error('Property deletion error: ' . $e->getMessage());
+            return back()->withErrors([
+                'general' => 'Terjadi kesalahan saat menghapus properti.',
+            ]);
+        }
+    }
+
+    /**
+     * Show edit listing form
+     */
+    public function editListingForm($id)
+    {
+        $agent = $this->guard()->user();
+
+        if (!$agent) {
+            return redirect()->route('agent.login')
+                ->with('error', 'Akun agent tidak ditemukan.');
+        }
+
+        // Find property and verify ownership
+        $property = Property::where('id', $id)
+            ->where('agen_id', $agent->id)
+            ->first();
+
+        if (!$property) {
+            return redirect()->route('agent.dashboard.listing-saya')
+                ->withErrors(['general' => 'Properti tidak ditemukan atau Anda tidak memiliki akses.']);
+        }
+
+        // Get developers
+        $developers = Developer::select('id', 'name')->orderBy('name')->get();
+
+        // Get property categories
+        $categories = PropertyCategory::where('is_active', true)
+            ->select('id', 'name', 'slug')
+            ->orderBy('order')
+            ->get();
+
+        return Inertia::render('DashboardAgent/EditListing/index', [
+            'agent' => $this->getAgentData(),
+            'property' => $property,
+            'developers' => $developers,
+            'categories' => $categories,
+        ]);
+    }
+
+    /**
+     * Update a listing
+     */
+    public function updateListing(Request $request, $id)
+    {
+        $agent = $this->guard()->user();
+
+        if (!$agent) {
+            return redirect()->route('agent.login')
+                ->with('error', 'Akun agent tidak ditemukan.');
+        }
+
+        // Find property and verify ownership
+        $property = Property::where('id', $id)
+            ->where('agen_id', $agent->id)
+            ->first();
+
+        if (!$property) {
+            return back()->withErrors([
+                'general' => 'Properti tidak ditemukan atau Anda tidak memiliki akses.',
+            ]);
+        }
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'provinsi' => ['required', 'string', 'max:100'],
+            'city' => ['required', 'string', 'max:100'],
+            'location' => ['required', 'string', 'max:255'],
+            'url_maps' => ['nullable', 'url', 'max:500'],
+            'units_remaining' => ['nullable', 'integer', 'min:0'],
+            'developer_id' => ['nullable', 'exists:developers,id'],
+            'kategori' => ['nullable', 'string'],
+
+            'price_min' => ['required', 'numeric', 'min:0'],
+            'price_max' => ['nullable', 'numeric', 'min:0'],
+            'installment_start' => ['required', 'numeric', 'min:0'],
+
+            'bedrooms' => ['required', 'integer', 'min:0'],
+            'bathrooms' => ['nullable', 'integer', 'min:0'],
+            'carport' => ['nullable', 'integer', 'min:0'],
+            'listrik' => ['nullable', 'integer', 'min:0'],
+            'certificate_type' => ['nullable', 'string', 'max:50'],
+            'land_size_min' => ['required', 'integer', 'min:0'],
+            'land_size_max' => ['nullable', 'integer', 'min:0'],
+            'building_size_min' => ['required', 'integer', 'min:0'],
+            'building_size_max' => ['nullable', 'integer', 'min:0'],
+
+            'keunggulan' => ['nullable', 'string'],
+            'fasilitas' => ['nullable', 'string'],
+            'nearest_place' => ['nullable', 'string'],
+
+            'promo_text' => ['nullable', 'string', 'max:2000'],
+            'is_available' => ['nullable', 'boolean'],
+        ]);
+
+        try {
+            $property->update([
+                'name' => $validated['name'],
+                'provinsi' => $validated['provinsi'],
+                'city' => $validated['city'],
+                'location' => $validated['location'],
+                'url_maps' => $validated['url_maps'] ?? $property->url_maps,
+                'units_remaining' => $validated['units_remaining'] ?? $property->units_remaining,
+                'developer_id' => $validated['developer_id'] ?? $property->developer_id,
+                'kategori' => json_decode($validated['kategori'] ?? '[]', true),
+
+                'price_min' => $validated['price_min'],
+                'price_max' => $validated['price_max'] ?? $validated['price_min'],
+                'installment_start' => $validated['installment_start'],
+
+                'bedrooms' => $validated['bedrooms'],
+                'bathrooms' => $validated['bathrooms'] ?? $property->bathrooms,
+                'carport' => $validated['carport'] ?? $property->carport,
+                'listrik' => $validated['listrik'] ?? $property->listrik,
+                'certificate_type' => $validated['certificate_type'] ?? $property->certificate_type,
+                'land_size_min' => $validated['land_size_min'],
+                'land_size_max' => $validated['land_size_max'] ?? $validated['land_size_min'],
+                'building_size_min' => $validated['building_size_min'],
+                'building_size_max' => $validated['building_size_max'] ?? $property->building_size_max,
+
+                'keunggulan' => json_decode($validated['keunggulan'] ?? '[]', true),
+                'fasilitas' => json_decode($validated['fasilitas'] ?? '[]', true),
+                'nearest_place' => json_decode($validated['nearest_place'] ?? '[]', true),
+
+                'promo_text' => $validated['promo_text'] ?? $property->promo_text,
+                'has_promo' => !empty($validated['promo_text']),
+                'is_available' => $validated['is_available'] ?? $property->is_available,
+                'is_verified' => false, // Need re-verification after edit
+                'last_updated' => now(),
+            ]);
+
+            return redirect()->route('agent.dashboard.listing-saya')
+                ->with('success', 'Properti berhasil diperbarui! Menunggu verifikasi ulang.');
+
+        } catch (\Exception $e) {
+            \Log::error('Property update error: ' . $e->getMessage());
+            return back()->withErrors([
+                'general' => 'Terjadi kesalahan saat memperbarui properti: ' . $e->getMessage(),
+            ])->withInput();
+        }
     }
 
     /**

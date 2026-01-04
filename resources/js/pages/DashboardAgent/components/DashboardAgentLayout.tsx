@@ -13,6 +13,7 @@ import {
     Menu,
     X,
     BarChart3,
+    Building2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -28,7 +29,7 @@ interface DashboardAgentLayoutProps {
     agent: Agent
     children: ReactNode
     title?: string
-    activeMenu?: 'overview' | 'upload-listing' | 'leads' | 'report' | 'beli-credit' | 'history-credit'
+    activeMenu?: 'overview' | 'listing-saya' | 'upload-listing' | 'leads' | 'report' | 'beli-credit' | 'history-credit'
 }
 
 interface NavItem {
@@ -41,6 +42,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
     { id: 'overview', label: 'Overview', icon: TrendingUp, href: '/agent/dashboard', section: 'AGENT AREA' },
+    { id: 'listing-saya', label: 'Listing Saya', icon: Building2, href: '/agent/dashboard/listing-saya', section: 'AGENT AREA' },
     { id: 'upload-listing', label: 'Upload Listing', icon: Upload, href: '/agent/dashboard/upload-listing', section: 'AGENT AREA' },
     { id: 'leads', label: 'Leads', icon: Users, href: '/agent/dashboard/leads', section: 'AGENT AREA' },
     { id: 'report', label: 'Report', icon: Globe, href: '/agent/dashboard/report', section: 'AGENT AREA' },

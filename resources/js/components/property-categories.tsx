@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { useState, useEffect } from "react"
+import { Link } from "@inertiajs/react"
 
 import {
   Home,
@@ -67,35 +68,49 @@ interface CategoriesResponse {
 interface CategoryCardProps {
   icon: React.ReactNode
   label: string
+  slug: string
+  section: "buy" | "rent" | "listing"
   badge?: string
   badgeColor?: string
   highlighted?: boolean
   isOrange?: boolean
 }
 
-function CategoryCard({ icon, label, badge, badgeColor, highlighted = false, isOrange = false }: CategoryCardProps) {
+function CategoryCard({ icon, label, slug, section, badge, badgeColor, highlighted = false, isOrange = false }: CategoryCardProps) {
+  // Generate URL based on section
+  const getUrl = () => {
+    if (section === 'buy') {
+      return `/beli?kategori=${slug}`
+    } else if (section === 'rent') {
+      return `/sewa?kategori=${slug}`
+    }
+    return '#'
+  }
+
   return (
-    <div className="relative flex min-w-[90px] flex-col items-center gap-2 rounded-lg border border-gray-200 bg-white p-3 transition-all hover:shadow-md hover:border-primary/30 cursor-pointer flex-shrink-0">
-      {badge && (
+    <Link href={getUrl()} className="no-underline">
+      <div className="relative flex min-w-[90px] flex-col items-center gap-2 rounded-lg border border-gray-200 bg-white p-3 transition-all hover:shadow-md hover:border-primary/30 cursor-pointer flex-shrink-0">
+        {badge && (
+          <div
+            className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full px-2 py-0.5 text-[10px] font-bold text-white whitespace-nowrap z-10"
+            style={{ backgroundColor: badgeColor || '#ef4444' }}
+          >
+            {badge}
+          </div>
+        )}
         <div
-          className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full px-2 py-0.5 text-[10px] font-bold text-white whitespace-nowrap z-10"
-          style={{ backgroundColor: badgeColor || '#ef4444' }}
-        >
-          {badge}
-        </div>
-      )}
-      <div
-        className={`flex h-10 w-10 items-center justify-center rounded-full ${isOrange
+          className={`flex h-10 w-10 items-center justify-center rounded-full ${isOrange
             ? "bg-gradient-to-br from-orange-500 to-orange-600"
             : highlighted
               ? "bg-gradient-to-br from-[#ECEC5C] to-[#c4a747]"
               : "bg-blue-500"
-          }`}
-      >
-        <div className={isOrange || highlighted ? "text-white" : "text-white"}>{icon}</div>
+            }`}
+        >
+          <div className={isOrange || highlighted ? "text-white" : "text-white"}>{icon}</div>
+        </div>
+        <span className="text-center text-xs font-medium text-gray-800 leading-tight">{label}</span>
       </div>
-      <span className="text-center text-xs font-medium text-gray-800 leading-tight">{label}</span>
-    </div>
+    </Link>
   )
 }
 
@@ -328,37 +343,41 @@ export function PropertyCategories() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12">
-      {/* Beli Properti Section - Full Width */}
-      <div className="mb-12">
-        <h2 className="mb-4 text-xl font-bold text-gray-900">Beli Properti</h2>
-        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
-          {buyCategories.map((category: PropertyCategory) => (
-            <CategoryCard
-              key={category.id}
-              icon={heroiconMap[category.icon] || <Home className="h-5 w-5" />}
-              label={category.name}
-              highlighted={category.is_highlighted}
-              badge={category.has_badge && category.badge_text ? category.badge_text : undefined}
-              badgeColor={category.badge_color || undefined}
-            />
-          ))}
+    <div className="mx-auto max-w-7xl px-4 py-4 sm:py-6">
+      {/* Two Column Section - Beli & Sewa Properti side by side */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+        {/* Beli Properti Section - Left Column */}
+        <div>
+          <h2 className="mb-4 text-xl font-bold text-gray-900">Beli Properti</h2>
+          <div className="flex flex-wrap gap-3">
+            {buyCategories.map((category: PropertyCategory) => (
+              <CategoryCard
+                key={category.id}
+                icon={heroiconMap[category.icon] || <Home className="h-5 w-5" />}
+                label={category.name}
+                slug={category.slug}
+                section="buy"
+                highlighted={category.is_highlighted}
+                badge={category.has_badge && category.badge_text ? category.badge_text : undefined}
+                badgeColor={category.badge_color || undefined}
+              />
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* Two Column Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
-        {/* Sewa Properti Section - Left Column */}
+        {/* Sewa Properti Section - Right Column */}
         <div>
           <div className="flex items-center gap-2 mb-4">
             <h2 className="text-xl font-bold text-gray-900">Sewa Properti</h2>
           </div>
-          <div className="flex gap-3 overflow-x-auto pb-2 pt-3 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
+          <div className="flex flex-wrap gap-3">
             {rentCategories.map((category: PropertyCategory) => (
               <CategoryCard
                 key={category.id}
                 icon={heroiconMap[category.icon] || <Home className="h-5 w-5" />}
                 label={category.name}
+                slug={category.slug}
+                section="rent"
                 badge={category.has_badge && category.badge_text ? category.badge_text : undefined}
                 badgeColor={category.badge_color || undefined}
                 highlighted={category.is_highlighted}
@@ -366,25 +385,6 @@ export function PropertyCategories() {
             ))}
           </div>
         </div>
-
-        {/* Titip Jual & Sewa Properti Section - Right Column */}
-        {/* <div>
-          <div className="flex items-center gap-2 mb-4">
-            <h2 className="text-xl font-bold text-gray-900">Titip Jual & Sewa Properti</h2>
-          </div>
-          <div className="flex gap-3 overflow-x-auto pb-2 pt-3 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
-            {listingCategories.map((category: PropertyCategory) => (
-              <CategoryCard
-                key={category.id}
-                icon={heroiconMap[category.icon] || <PlusCircle className="h-5 w-5" />}
-                label={category.name}
-                badge={category.has_badge && category.badge_text ? category.badge_text : undefined}
-                badgeColor={category.badge_color || undefined}
-                isOrange={true}
-              />
-            ))}
-          </div>
-        </div> */}
       </div>
     </div>
   )

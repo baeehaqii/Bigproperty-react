@@ -8,6 +8,7 @@ import { PropertyCategories } from '@/components/property-categories';
 import { PopularProperties } from '@/components/popular-properties';
 import { VerifiedProjects } from '@/components/verified-projects';
 import { Testimonials } from '@/components/testimonials';
+import Footer from '@/components/footer';
 
 export default function Welcome() {
     const { auth } = usePage<SharedData>().props;
@@ -27,13 +28,13 @@ export default function Welcome() {
                 <main className="w-full flex-1 mt-8">
                     <div className="max-w-[1420px] mx-auto px-6 lg:px-0">
                         <Hero />
-                        <div className="mt-12 w-full">
+                        <div className="mt-4 w-full">
                             <PropertyCategories />
                         </div>
                         <div className="mt-8 w-full">
                             <GoldenDeals />
                         </div>
-                        <div className="mt-8 w-full">
+                        <div className="mt-2 w-full">
                             <PopularProperties />
                         </div>
                         <div className="mt-8 w-full">
@@ -45,7 +46,8 @@ export default function Welcome() {
                     </div>
                 </main>
 
-                <div className="h-10" />
+                {/* Footer */}
+                <Footer />
             </div>
         </>
     );

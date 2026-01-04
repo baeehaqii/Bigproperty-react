@@ -25,6 +25,7 @@ interface Lead {
     status_lead: 'cold' | 'warm' | 'hot'
     status_followup: 'belum' | 'sudah'
     tanggal_leads: string
+    contact_source?: 'phone' | 'whatsapp'
     property?: {
         id: number
         name: string

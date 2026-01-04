@@ -20,6 +20,7 @@ class LeadsAgent extends Model
         'status_followup',
         'tanggal_leads',
         'notes',
+        'contact_source', // 'phone' atau 'whatsapp'
     ];
 
     protected $casts = [

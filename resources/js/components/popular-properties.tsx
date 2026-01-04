@@ -160,7 +160,7 @@ export function PopularProperties() {
   }
 
   return (
-    <section className="py-12 px-4 max-w-[1400px] mx-auto">
+    <section className="py-6 px-4 max-w-[1400px] mx-auto">
       {/* Header */}
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Hunian Populer</h2>

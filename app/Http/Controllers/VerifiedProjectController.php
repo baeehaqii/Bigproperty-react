@@ -17,7 +17,8 @@ class VerifiedProjectController extends Controller
         try {
             // Ambil kota yang punya properti dengan developer verified
             $cities = Property::where('is_available', true)
-                ->whereHas('developer', function($query) {
+                ->where('is_verified', true) // Only show admin-approved listings
+                ->whereHas('developer', function ($query) {
                     $query->where('is_verified', true);
                 })
                 ->whereNotNull('city')
@@ -27,7 +28,7 @@ class VerifiedProjectController extends Controller
                 ->sort()
                 ->values()
                 ->toArray();
-                
+
             return response()->json([
                 'success' => true,
                 'data' => $cities
@@ -39,7 +40,7 @@ class VerifiedProjectController extends Controller
                 'line' => $e->getLine(),
                 'file' => $e->getFile()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
@@ -60,8 +61,9 @@ class VerifiedProjectController extends Controller
             // Urutkan berdasarkan count_clicked terbanyak
             $properties = Property::with('developer')
                 ->where('is_available', true)
+                ->where('is_verified', true) // Only show admin-approved listings
                 ->where('city', $city)
-                ->whereHas('developer', function($query) {
+                ->whereHas('developer', function ($query) {
                     $query->where('is_verified', true);
                 })
                 ->orderByDesc('count_clicked')
@@ -117,8 +119,8 @@ class VerifiedProjectController extends Controller
                     'landSize' => $property->land_size_text,
                     'buildingSize' => $property->building_size_text,
                     'additionalInfo' => $property->certificate_type,
-                    'lastUpdated' => $property->last_updated ? 
-                        $property->last_updated->diffForHumans() : 
+                    'lastUpdated' => $property->last_updated ?
+                        $property->last_updated->diffForHumans() :
                         'Diperbarui lebih dari 1 bulan lalu',
                     'countClicked' => $property->count_clicked ?? 0,
                     'isVerified' => true, // Semua properti di sini sudah verified
@@ -139,7 +141,7 @@ class VerifiedProjectController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
@@ -160,7 +162,8 @@ class VerifiedProjectController extends Controller
             // Urutkan berdasarkan count_clicked terbanyak
             $properties = Property::with('developer')
                 ->where('is_available', true)
-                ->whereHas('developer', function($query) {
+                ->where('is_verified', true) // Only show admin-approved listings
+                ->whereHas('developer', function ($query) {
                     $query->where('is_verified', true);
                 })
                 ->orderByDesc('count_clicked')
@@ -212,8 +215,8 @@ class VerifiedProjectController extends Controller
                     'landSize' => $property->land_size_text,
                     'buildingSize' => $property->building_size_text,
                     'additionalInfo' => $property->certificate_type,
-                    'lastUpdated' => $property->last_updated ? 
-                        $property->last_updated->diffForHumans() : 
+                    'lastUpdated' => $property->last_updated ?
+                        $property->last_updated->diffForHumans() :
                         'Diperbarui lebih dari 1 bulan lalu',
                     'countClicked' => $property->count_clicked ?? 0,
                     'isVerified' => true,
@@ -230,7 +233,7 @@ class VerifiedProjectController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan: ' . $e->getMessage(),

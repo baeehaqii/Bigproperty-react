@@ -19,6 +19,16 @@ Route::get('/', function () {
     return Inertia::render('welcome');
 })->name('home');
 
+// Simulasi KPR Routes
+Route::get('/simulasi-kpr/konvensional', function () {
+    return Inertia::render('SimulasiKPR/KPRKonvensional');
+})->name('simulasikpr.konvensional');
+
+Route::get('/simulasi-kpr/syariah', function () {
+    return Inertia::render('SimulasiKPR/KPRSyariah');
+})->name('simulasikpr.syariah');
+
+
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
@@ -27,6 +37,7 @@ Route::middleware(['auth'])->group(function () {
 
 Route::get('/property-categories', [PropertyCategoryController::class, 'index']);
 Route::get('/property/{id}', [PropertyController::class, 'show'])->name('property.show');
+Route::get('/api/property/{id}/similar', [PropertyController::class, 'getSimilarProperties'])->name('api.property.similar');
 Route::get('/property-test/{id}', function ($id) {
     $property = \App\Models\Property::findOrFail($id);
     return Inertia::render('PropertyDetailTest', ['property' => $property]);
@@ -100,6 +111,10 @@ Route::prefix('agent')->name('agent.')->group(function () {
 
         // Dashboard routes - using new folder structure
         Route::get('/dashboard', [AgentDashboardController::class, 'overview'])->name('dashboard');
+        Route::get('/dashboard/listing-saya', [AgentDashboardController::class, 'listingSaya'])->name('dashboard.listing-saya');
+        Route::delete('/dashboard/listing-saya/{id}', [AgentDashboardController::class, 'deleteListing'])->name('dashboard.delete-listing');
+        Route::get('/dashboard/edit-listing/{id}', [AgentDashboardController::class, 'editListingForm'])->name('dashboard.edit-listing');
+        Route::put('/dashboard/edit-listing/{id}', [AgentDashboardController::class, 'updateListing'])->name('dashboard.update-listing');
         Route::get('/dashboard/upload-listing', [AgentDashboardController::class, 'uploadListingForm'])->name('dashboard.upload-listing');
         Route::post('/dashboard/upload-listing', [AgentDashboardController::class, 'storeProperty'])->name('dashboard.store-property');
         Route::get('/dashboard/leads', [AgentDashboardController::class, 'leads'])->name('dashboard.leads');

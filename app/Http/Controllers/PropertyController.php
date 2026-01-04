@@ -208,6 +208,7 @@ class PropertyController extends Controller
         try {
             $cities = Property::where('is_popular', true)
                 ->where('is_available', true)
+                ->where('is_verified', true) // Only show approved listings
                 ->distinct()
                 ->pluck('city')
                 ->filter()
@@ -236,6 +237,7 @@ class PropertyController extends Controller
                 ->where('city', $city)
                 ->where('is_popular', true)
                 ->where('is_available', true)
+                ->where('is_verified', true) // Only show approved listings
                 ->orderBy('count_clicked', 'desc')
                 ->take(10)
                 ->get()
@@ -438,5 +440,102 @@ class PropertyController extends Controller
             return 'Rp ' . number_format($price / 1000000000, 1, ',', '.') . ' M';
         }
         return 'Rp ' . number_format($price / 1000000, 1, ',', '.') . ' Jt';
+    }
+
+    /**
+     * Get similar properties based on same city and similar price range
+     * Similar price = ±15 million from current property price
+     */
+    public function getSimilarProperties($id)
+    {
+        try {
+            $currentProperty = Property::findOrFail($id);
+
+            // Get the minimum price of current property
+            $currentPrice = $currentProperty->price_min ?? 0;
+            $priceVariation = 15000000; // 15 juta
+
+            $minPrice = $currentPrice - $priceVariation;
+            $maxPrice = $currentPrice + $priceVariation;
+
+            // Get city from current property
+            $city = $currentProperty->city;
+
+            // Helper function untuk image URL
+            $getImageUrl = function ($path) {
+                if (!$path)
+                    return null;
+
+                $path = trim($path, " \t\n\r\0\x0B\"'");
+
+                if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+                    return $path;
+                }
+                return '/storage/' . $path;
+            };
+
+            $properties = Property::with(['developer', 'agen'])
+                ->where('id', '!=', $id) // Exclude current property
+                ->where('city', $city) // Same city/kabupaten
+                ->where('is_available', true)
+                ->where('is_verified', true) // Only show approved listings
+                ->where(function ($query) use ($minPrice, $maxPrice) {
+                    $query->whereBetween('price_min', [$minPrice, $maxPrice])
+                        ->orWhereBetween('price_max', [$minPrice, $maxPrice]);
+                })
+                ->orderBy('count_clicked', 'desc')
+                ->take(4) // Limit to 4 properties
+                ->get()
+                ->map(function ($property) use ($getImageUrl) {
+                    return [
+                        'id' => $property->id,
+                        'image' => $getImageUrl($property->main_image),
+                        'images' => array_filter(array_map($getImageUrl, $property->images ?? [])),
+                        'promoText' => $property->promo_text,
+                        'features' => [],
+                        'type' => $this->getPropertyType($property->kategori),
+                        'units' => $property->units_remaining ? $property->units_remaining . ' Unit' : null,
+                        'priceRange' => $property->price_range,
+                        'installment' => $property->installment_text,
+                        'name' => $property->name,
+                        'developer' => $property->agen->name ?? $property->developer->name ?? 'Unknown',
+                        'developerLogo' => $getImageUrl($property->agen->photo ?? null) ?: $getImageUrl($property->developer->logo ?? null),
+                        'agent' => $property->agen ? [
+                            'name' => $property->agen->name,
+                            'photo' => $getImageUrl($property->agen->photo),
+                        ] : null,
+                        'location' => $property->location,
+                        'city' => $property->city,
+                        'province' => $property->provinsi,
+                        'bedrooms' => $property->bedrooms,
+                        'landSize' => $property->land_size_text,
+                        'buildingSize' => $property->building_size_text,
+                        'additionalInfo' => $property->certificate_type,
+                        'lastUpdated' => $property->last_updated->diffForHumans(),
+                        'buttonType' => 'view',
+                        'available' => $property->is_available,
+                        'countClicked' => $property->count_clicked ?? 0,
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'properties' => $properties,
+                    'total' => $properties->count(),
+                    'currentCity' => $city,
+                    'priceRange' => [
+                        'min' => $minPrice,
+                        'max' => $maxPrice,
+                    ],
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memuat properti serupa',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

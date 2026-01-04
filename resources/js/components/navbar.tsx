@@ -2,117 +2,175 @@
 import { ChevronDown, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Link } from "@inertiajs/react"
 
 export function Navbar() {
   return (
-    <nav className="w-full bg-gradient-to-br from-[#ECEC5C] via-[#d4d44a] to-[#c4a747]">
+    <nav className="w-full backdrop-blur-xl" style={{
+      background: 'linear-gradient(135deg, rgba(17, 24, 39, 0.95) 0%, rgba(31, 41, 55, 0.9) 50%, rgba(92, 93, 38, 1) 100%)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+      borderBottom: '1px solid rgba(214, 214, 103, 0.2)',
+    }}>
+      {/* Accent glow effect */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: 'linear-gradient(to right, rgba(214, 214, 103, 0.05), transparent, rgba(214, 214, 103, 0.05))'
+      }} />
+
       {/* Top Navigation */}
-      <div className="border-b-2 border-white/10">
-        <div className="mx-auto max-w-7xl flex items-center justify-end gap-6 px-6 py-3 text-sm text-gray-900">
-          <a href="#" className="hover:underline">
+      <div className="relative border-b border-white/10">
+        <div className="mx-auto max-w-7xl flex items-center justify-end gap-6 px-6 py-3 text-sm text-gray-300">
+          <Link href="/research-insights" className="hover:text-[#D6D667] transition-colors">
             Research Insights
-          </a>
-          <a href="#" className="hover:underline">
+          </Link>
+          <Link href="/agent/register" className="hover:text-[#D6D667] transition-colors">
             Agen
-          </a>
-          <a href="#" className="hover:underline">
+          </Link>
+          <Link href="/developer" className="hover:text-[#D6D667] transition-colors">
             Developer
-          </a>
-          <a href="#" className="hover:underline">
+          </Link>
+          <Link href="/kerja-sama" className="hover:text-[#D6D667] transition-colors">
             Kerja Sama
-          </a>
+          </Link>
           <DropdownMenu>
-            <DropdownMenuTrigger className="flex items-center gap-1 text-gray-900 hover:underline">
+            <DropdownMenuTrigger className="flex items-center gap-1 text-gray-300 hover:text-[#D6D667] transition-colors">
               Berita Properti
               <ChevronDown className="h-4 w-4" />
             </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem>Berita Terbaru</DropdownMenuItem>
-              <DropdownMenuItem>Tips Properti</DropdownMenuItem>
-              <DropdownMenuItem>Panduan</DropdownMenuItem>
+            <DropdownMenuContent className="bg-gray-900/95 backdrop-blur-xl border-gray-700">
+              <DropdownMenuItem asChild className="text-gray-300 hover:text-[#D6D667] focus:text-[#D6D667] focus:bg-gray-800">
+                <Link href="/berita/terbaru">Berita Terbaru</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild className="text-gray-300 hover:text-[#D6D667] focus:text-[#D6D667] focus:bg-gray-800">
+                <Link href="/berita/tips">Tips Properti</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild className="text-gray-300 hover:text-[#D6D667] focus:text-[#D6D667] focus:bg-gray-800">
+                <Link href="/berita/panduan">Panduan</Link>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
 
       {/* Main Navigation */}
-      <div className="mx-auto max-w-7xl">
+      <div className="relative mx-auto max-w-7xl">
         <div className="flex items-center justify-between px-6 py-4">
           {/* Logo */}
           <div className="flex items-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-white p-2">
-              <img
-                src="https://res.cloudinary.com/dx8w9qwl6/image/upload/v1761232717/Logo_Big_t3qpb3.png"
-                alt="Big Property Logo"
-                width={56}
-                height={56}
-                className="object-contain"
-              />
-            </div>
+            <Link href="/">
+              <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm p-2 border border-white/20" style={{
+                boxShadow: '0 8px 32px rgba(214, 214, 103, 0.1)'
+              }}>
+                <img
+                  src="https://res.cloudinary.com/dx8w9qwl6/image/upload/v1761232717/Logo_Big_t3qpb3.png"
+                  alt="Big Property Logo"
+                  width={56}
+                  height={56}
+                  className="object-contain"
+                />
+              </div>
+            </Link>
           </div>
 
           {/* Navigation Items */}
           <div className="hidden md:flex items-center gap-6">
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1 text-gray-900 hover:underline">
+              <DropdownMenuTrigger className="flex items-center gap-1 text-white font-medium hover:text-[#D6D667] transition-colors">
                 Beli
                 <ChevronDown className="h-4 w-4" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem>Rumah Dijual</DropdownMenuItem>
-                <DropdownMenuItem>Apartemen Dijual</DropdownMenuItem>
-                <DropdownMenuItem>Tanah Dijual</DropdownMenuItem>
+              <DropdownMenuContent className="bg-gray-900/95 backdrop-blur-xl border-gray-700">
+                <DropdownMenuItem asChild className="text-gray-300 hover:text-[#D6D667] focus:text-[#D6D667] focus:bg-gray-800">
+                  <Link href="/beli?kategori=beli-rumah">Rumah Dijual</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="text-gray-300 hover:text-[#D6D667] focus:text-[#D6D667] focus:bg-gray-800">
+                  <Link href="/beli?kategori=apartemen">Apartemen Dijual</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="text-gray-300 hover:text-[#D6D667] focus:text-[#D6D667] focus:bg-gray-800">
+                  <Link href="/beli?kategori=tanah">Tanah Dijual</Link>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1 text-gray-900 hover:underline">
+              <DropdownMenuTrigger className="flex items-center gap-1 text-white font-medium hover:text-[#D6D667] transition-colors">
                 Sewa
                 <ChevronDown className="h-4 w-4" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem>Rumah Disewa</DropdownMenuItem>
-                <DropdownMenuItem>Apartemen Disewa</DropdownMenuItem>
-                <DropdownMenuItem>Kost</DropdownMenuItem>
+              <DropdownMenuContent className="bg-gray-900/95 backdrop-blur-xl border-gray-700">
+                <DropdownMenuItem asChild className="text-gray-300 hover:text-[#D6D667] focus:text-[#D6D667] focus:bg-gray-800">
+                  <Link href="/sewa?kategori=sewa-rumah">Rumah Disewa</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="text-gray-300 hover:text-[#D6D667] focus:text-[#D6D667] focus:bg-gray-800">
+                  <Link href="/sewa?kategori=sewa-apartemen">Apartemen Disewa</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="text-gray-300 hover:text-[#D6D667] focus:text-[#D6D667] focus:bg-gray-800">
+                  <Link href="/sewa?kategori=kost">Kost</Link>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1 text-gray-900 hover:underline">
+              <DropdownMenuTrigger className="flex items-center gap-1 text-white font-medium hover:text-[#D6D667] transition-colors">
                 KPR & Take Over
                 <ChevronDown className="h-4 w-4" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem>Simulasi KPR</DropdownMenuItem>
-                <DropdownMenuItem>Take Over KPR</DropdownMenuItem>
+              <DropdownMenuContent className="bg-gray-900/95 backdrop-blur-xl border-gray-700">
+                <DropdownMenuItem asChild className="text-gray-300 hover:text-[#D6D667] focus:text-[#D6D667] focus:bg-gray-800">
+                  <Link href="/simulasi-kpr/konvensional">Simulasi KPR Konvensional</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="text-gray-300 hover:text-[#D6D667] focus:text-[#D6D667] focus:bg-gray-800">
+                  <Link href="/simulasi-kpr/syariah">Simulasi KPR Syariah</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="text-gray-300 hover:text-[#D6D667] focus:text-[#D6D667] focus:bg-gray-800">
+                  <Link href="/kpr/take-over">Take Over KPR</Link>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <a href="#" className="text-gray-900 hover:underline">
+            <Link href="/estimasi-nilai" className="text-white font-medium hover:text-[#D6D667] transition-colors">
               Estimasi Nilai Properti
-            </a>
+            </Link>
 
-            <a href="#" className="text-gray-900 hover:underline">
+            <Link href="/jasa" className="text-white font-medium hover:text-[#D6D667] transition-colors">
               Jasa
-            </a>
+            </Link>
 
-            <button className="text-gray-900 hover:opacity-80">
+            <button className="text-white hover:text-[#D6D667] transition-colors">
               <Search className="h-5 w-5" />
             </button>
 
-            <Button
-              variant="outline"
-              className="border-gray-900 bg-transparent text-gray-900 hover:bg-white hover:text-[#c4a747]"
-            >
-              Pasang Iklan Gratis
-            </Button>
+            <Link href="/agent/register">
+              <Button
+                variant="outline"
+                className="backdrop-blur-sm transition-all"
+                style={{
+                  borderColor: 'rgba(214, 214, 103, 0.5)',
+                  backgroundColor: 'rgba(214, 214, 103, 0.1)',
+                  color: '#D6D667',
+                }}
+              >
+                Pasang Iklan Gratis
+              </Button>
+            </Link>
 
-            <Button className="bg-white text-[#c4a747] hover:bg-gray-50">Daftar / Masuk</Button>
+            <Link href="/agent/login">
+              <Button
+                className="font-semibold transition-all"
+                style={{
+                  background: 'linear-gradient(to right, #D6D667, #c4c45a)',
+                  color: '#1f2937',
+                  boxShadow: '0 8px 24px rgba(214, 214, 103, 0.25)',
+                }}
+              >
+                Daftar / Masuk
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile menu placeholder */}
           <div className="md:hidden">
-            <button className="text-gray-900">Menu</button>
+            <button className="text-white">Menu</button>
           </div>
         </div>
       </div>

@@ -10,6 +10,8 @@ import {
     Award, Star, Heart, Gift, Sparkles, CheckCircle, XCircle,
     Circle, Square, Triangle, Hexagon, Octagon
 } from "lucide-react"
+import { SimilarProperties } from "@/components/similar-properties"
+import Footer from "@/components/footer"
 
 interface PropertyDetailProps {
     property: any  // Using any for now due to component type mismatches
@@ -137,7 +139,8 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                 },
                 body: JSON.stringify({
                     ...leadFormData,
-                    property_id: property.id
+                    property_id: property.id,
+                    contact_source: contactType
                 })
             })
 
@@ -633,8 +636,14 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                             </div>
 
                         </section>
+
+                        {/* Similar Properties Section */}
+                        <SimilarProperties propertyId={property.id} />
                     </div>
                 </main>
+
+                {/* Footer */}
+                <Footer />
             </div>
 
             {/* Modal Gallery */}
@@ -677,7 +686,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                     >
                         {/* Header */}
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="font-bold text-xl">Kontak Agen</h2>
+                            <h2 className="font-bold text-xl text-gray-900">Kontak Agen</h2>
                             <button
                                 onClick={() => setLeadModalOpen(false)}
                                 className="p-1 hover:bg-gray-100 rounded-full transition-colors"
@@ -688,10 +697,10 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                             </button>
                         </div>
 
-                        <hr className="border-border mb-4" />
+                        <hr className="border-gray-200 mb-4" />
 
                         <p className="text-gray-600 mb-6">
-                            Untuk dapat melakukan komunikasi dengan agen silakan login terlebih dahulu
+                            Isi data di bawah ini untuk menghubungi agen properti. Data Anda akan digunakan untuk komunikasi lebih lanjut.
                         </p>
 
                         {leadSuccess ? (
@@ -699,7 +708,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                 <svg className="size-16 text-green-500 mx-auto mb-4" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                                 </svg>
-                                <p className="font-semibold text-lg text-gray-800">Lead berhasil disimpan!</p>
+                                <p className="font-semibold text-lg text-gray-900">Lead berhasil disimpan!</p>
                                 <p className="text-gray-600 mt-2">Menghubungkan ke agent...</p>
                             </div>
                         ) : (
@@ -712,7 +721,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                         value={leadFormData.nama_lengkap}
                                         onChange={(e) => setLeadFormData({ ...leadFormData, nama_lengkap: e.target.value })}
                                         required
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     />
                                 </div>
 
@@ -730,7 +739,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                         value={leadFormData.no_whatsapp}
                                         onChange={(e) => setLeadFormData({ ...leadFormData, no_whatsapp: e.target.value })}
                                         required
-                                        className="flex-1 px-4 py-3 border border-gray-300 rounded-r-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        className="flex-1 px-4 py-3 border border-gray-300 rounded-r-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     />
                                 </div>
 
@@ -741,7 +750,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                         placeholder="Email (opsional)"
                                         value={leadFormData.email}
                                         onChange={(e) => setLeadFormData({ ...leadFormData, email: e.target.value })}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     />
                                 </div>
 
@@ -758,7 +767,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                     disabled={leadSubmitting}
                                     className="w-full py-3 px-4 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    {leadSubmitting ? 'Mengirim...' : 'Verifikasi Nomor Telepon'}
+                                    {leadSubmitting ? 'Mengirim...' : 'Hubungi Agen'}
                                 </button>
                             </form>
                         )}
