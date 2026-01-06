@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Properties\Schemas;
 
+use App\Models\Promo;
 use App\Models\PropertyCategory;
 use App\Models\Nearest_place_category;
 use App\Models\Property;
@@ -165,27 +166,26 @@ class PropertyForm
                     ->columns(2)
                     ->schema([
                         TextInput::make('price_min')
-                            ->label('Minimum Price')
+                            ->label('Price')
                             ->required()
                             ->numeric()
-                            ->prefix('Rp')
-                            ->placeholder('732200000')
-                            ->helperText('Enter in Rupiah (e.g., 732200000 for 732.2 Jt)'),
-
-                        TextInput::make('price_max')
-                            ->label('Maximum Price')
+                            ->prefix('Rp'),
+                        TextInput::make('pajak')
+                            ->label('Biaya Pajak')
                             ->numeric()
                             ->prefix('Rp')
-                            ->placeholder('1800000000')
-                            ->helperText('Leave empty if same as minimum'),
-
+                            ->helperText('Estimasi biaya pajak (BPHTB dll)'),
+                        TextInput::make('notaris')
+                            ->label('Biaya Notaris')
+                            ->numeric()
+                            ->prefix('Rp')
+                            ->helperText('Estimasi biaya balik nama / notaris'),
                         TextInput::make('installment_start')
                             ->label('Starting Installment')
                             ->required()
                             ->numeric()
                             ->prefix('Rp')
                             ->suffix('/month')
-                            ->columnSpanFull()
                             ->placeholder('5000000')
                             ->helperText('Monthly payment amount'),
                     ]),
@@ -241,12 +241,43 @@ class PropertyForm
                                     ->suffix('m²')
                                     ->placeholder('70'),
                             ]),
+                        Select::make('listrik')
+                            ->label('Daya Listrik (VA)')
+                            ->options([
+                                450 => '450 VA',
+                                900 => '900 VA',
+                                1300 => '1300 VA',
+                                2200 => '2200 VA',
+                                3500 => '3500 VA',
+                                5500 => '5500 VA',
+                                6600 => '6600 VA',
+                            ])
+                            ->searchable(),
+
+                        // JENIS AIR SELECT
+                        Select::make('jenis_air')
+                            ->label('Sumber Air')
+                            ->options([
+                                'PDAM' => 'PDAM',
+                                'Sumur Bor' => 'Sumur Bor',
+                                'Sumur Tanah' => 'Sumur Tanah',
+                            ]),
+
+                        // KONDISI BARANG
+                        Select::make('condition')
+                            ->label('Kondisi Properti')
+                            ->options([
+                                'Baru' => 'Baru (Gress)',
+                                'Bekas' => 'Bekas / Second',
+                            ])
+                            ->required(),
                     ]),
 
                 
                 Section::make('Keunggulan')
                     ->schema([
-                        Repeater::make('keunggulanPivot') // Pakai relasi HasMany ke pivot
+                        Repeater::make('keunggulanPivot')
+                            ->label("Keunggulan")
                             ->relationship()
                             ->schema([
                                 Select::make('keunggulan_id') // Foreign key di tabel keunggulan_properties
@@ -263,8 +294,11 @@ class PropertyForm
 
                 // Fasilitas Section
                 Section::make('Fasilitas')
+                    
                     ->schema([
-                        Repeater::make('fasilitasPivot') // Pakai relasi HasMany ke pivot
+                        Repeater::make('fasilitasPivot')
+                            ->label("Fasilitas")
+
                             ->relationship()
                             ->schema([
                                 Select::make('fasilitas_id') // Foreign key di tabel fasilitas_properties
@@ -285,13 +319,13 @@ class PropertyForm
                     ->icon('heroicon-o-map-pin')
                     ->collapsible()
                     ->schema([
-                        // GANTI ke nama relasi HasMany tadi
                         Repeater::make('nearbyPlacePivot') 
+                            ->label("Nearby Places")
+                        
                             ->relationship() 
                             ->schema([
                                 Select::make('nearby_place_id') 
                                     ->label('Tempat / Lokasi')
-                                    // Ambil ID dari master, tapi simpan ke kolom nearby_place_id di PIVOT
                                     ->options(\App\Models\NearbyPlace::pluck('nama', 'id'))
                                     ->required()
                                     ->searchable()
@@ -299,9 +333,9 @@ class PropertyForm
                                     ->columnSpan(2),
 
                                 TextInput::make('jarak') 
-                                    ->label('Jarak / Waktu')
+                                    ->label('Waktu ( Menit ')
                                     ->required()
-                                    ->placeholder('e.g., 5 Menit, 2 KM')
+                                    ->numeric()
                                     ->columnSpan(1),
                             ])
                             ->columns(3)
@@ -323,6 +357,10 @@ class PropertyForm
                             ->icon('heroicon-o-megaphone')
                             ->collapsible()
                             ->schema([
+                                CheckboxList::make('promos')
+                                    ->relationship(titleAttribute: 'nama')
+                                    ->columns(2)
+                                    ->searchable(),
                                 Textarea::make('promo_text')
                                     ->label('Promo Text')
                                     ->placeholder('e.g., Cuma di Pinhome: Emas Batangan hingga 12gr')

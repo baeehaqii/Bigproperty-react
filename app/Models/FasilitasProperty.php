@@ -8,5 +8,9 @@ class FasilitasProperty extends Pivot
 {
     protected $table = 'fasilitas_properties'; 
     
-    public $timestamps = false; 
+    public $timestamps = false;
+    protected $fillable = [
+        'property_id',
+        'fasilitas_id',
+    ];
 }

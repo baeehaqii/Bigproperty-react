@@ -15,37 +15,12 @@ return new class extends Migration {
             // Additional filter fields
             $table->integer('bathrooms')->nullable()->after('bedrooms');
             $table->integer('carport')->nullable()->after('bathrooms');
-            $table->integer('listrik')->nullable()->after('carport'); // dalam Watt (250, 450, 900, 1300, 2200, 3500)
+            $table->integer('listrik')->nullable()->after('carport');
             $table->enum('market_type', ['baru', 'second', 'lelang'])->default('baru')->after('listrik');
             $table->enum('construction_status', ['dalam_pembangunan', 'siap_huni'])->default('siap_huni')->after('market_type');
             $table->boolean('is_verified')->default(false)->after('is_popular');
             $table->boolean('has_promo')->default(false)->after('is_verified');
             $table->boolean('tanpa_perantara')->default(false)->after('has_promo');
-
-            // Optimized indexes for filter queries
-            $table->index('price_min');
-            $table->index('price_max');
-            $table->index('bedrooms');
-            $table->index('bathrooms');
-            $table->index('land_size_min');
-            $table->index('land_size_max');
-            $table->index('building_size_min');
-            $table->index('building_size_max');
-            $table->index('certificate_type');
-            $table->index('carport');
-            $table->index('listrik');
-            $table->index('market_type');
-            $table->index('construction_status');
-            $table->index('developer_id');
-            $table->index('is_verified');
-            $table->index('has_promo');
-            $table->index('tanpa_perantara');
-
-            // Composite indexes for common filter combinations
-            $table->index(['is_available', 'price_min', 'price_max'], 'idx_available_price');
-            $table->index(['is_available', 'bedrooms', 'bathrooms'], 'idx_available_rooms');
-            $table->index(['is_available', 'market_type'], 'idx_available_market');
-            $table->index(['is_available', 'developer_id'], 'idx_available_developer');
         });
     }
 

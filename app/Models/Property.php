@@ -13,26 +13,71 @@ class Property extends Model
     use HasFactory;
 
     protected $fillable = [
-        'city', 'provinsi', 'name', 'units_remaining', 'price_min', 'price_max',
-        'installment_start', 'location', 'bedrooms', 'land_size_min', 'land_size_max',
-        'building_size_min', 'building_size_max', 'certificate_type', 'promo_text',
-        'images', 'main_image', 'button_type', 'is_available', 'is_popular',
-        'last_updated', 'event_id', 'url_maps', 'kategori', 'developer_id',
-        'count_clicked', 'agen_id'
+        'city',
+        "provinsi",
+        'name',
+        'units_remaining',
+        'price_min',
+        'price_max',
+        'installment_start',
+        'location',
+        'bedrooms',
+        'bathrooms',
+        'carport',
+        'listrik',
+        'market_type',
+        'construction_status',
+        'land_size_min',
+        'land_size_max',
+        'building_size_min',
+        'building_size_max',
+        'certificate_type',
+        'promo_text',
+        'keunggulan',
+        'images',
+        'main_image',
+        'button_type',
+        'is_available',
+        'is_popular',
+        'is_verified',
+        'has_promo',
+        'tanpa_perantara',
+        'last_updated',
+        "event_id",
+        "url_maps",
+        'developer_id',
+        "count_clicked",
+        "agen_id",
+        'jenis_air',
+        'condition',
+        'pajak',
+        'notaris',
+        'promo_list',
+        'listrik',
     ];
 
     protected $casts = [
-        'kategori' => 'array',
+        'promo_list' => 'array',
         'images' => 'array',
         'price_min' => 'decimal:2',
         'price_max' => 'decimal:2',
         'installment_start' => 'decimal:2',
+        'land_size_min' => 'integer',
+        'land_size_max' => 'integer',
+        'building_size_min' => 'integer',
+        'building_size_max' => 'integer',
+        'bedrooms' => 'integer',
+        'bathrooms' => 'integer',
+        'carport' => 'integer',
+        'listrik' => 'integer',
+        'units_remaining' => 'integer',
         'is_available' => 'boolean',
         'is_popular' => 'boolean',
         'is_verified' => 'boolean',
         'has_promo' => 'boolean',
         'tanpa_perantara' => 'boolean',
         'last_updated' => 'datetime',
+
     ];
 
     
@@ -64,6 +109,10 @@ class Property extends Model
     public function keunggulanPivot(): HasMany
     {
         return $this->hasMany(KeunggulanProperty::class);
+    }
+    public function promos(): BelongsToMany
+    {
+        return $this->belongsToMany(Promo::class, 'promo_property');
     }
     
     public function event(): BelongsTo { return $this->belongsTo(Event::class); }
