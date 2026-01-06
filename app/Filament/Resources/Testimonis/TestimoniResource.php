@@ -22,7 +22,8 @@ class TestimoniResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'Testimoni';
     protected static ?string $navigationLabel = 'Testimoni';
-    protected static string|\UnitEnum|null $navigationGroup = 'Main Content';
+    protected static string|\UnitEnum|null $navigationGroup = 'Content';
+    protected static ?int $navigationSort = 3;
     protected static ?string $modelLabel = 'Data Testimoni';
     protected static ?string $pluralModelLabel = 'Testimoni';
 

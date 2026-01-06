@@ -41,28 +41,18 @@ return new class extends Migration
             
             // Marketing
             $table->text('promo_text')->nullable();
-            $table->json('keunggulan')->nullable();
-            $table->json('nearest_place')->nullable();
             $table->json('kategori')->nullable();
             $table->string('url_maps')->nullable();
             
             // Images
             $table->json('images');
             $table->string('main_image')->nullable();
-            
-            // Status
-            $table->enum('button_type', ['view', 'chat'])->default('view');
-            $table->boolean('is_available')->default(true);
             $table->boolean('is_popular')->default(false);
             
 
             $table->integer('count_clicked')->default(0);
             $table->timestamp('last_updated')->nullable();
             $table->timestamps();
-            $table->json('fasilitas')->nullable();
-            // Indexes
-            $table->index(['is_popular']);
-            $table->index('is_available');
         });
     }
 

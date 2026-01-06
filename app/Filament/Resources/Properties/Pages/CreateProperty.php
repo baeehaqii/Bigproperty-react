@@ -43,7 +43,7 @@ class CreateProperty extends CreateRecord
         $kreditUser = KreditUser::where('user_id', $userId)->first();
         
         if (!$kreditUser) {
-            $this->halt();
+            // $this->halt();
             Notification::make()
                 ->danger()
                 ->title('Error')
@@ -58,7 +58,7 @@ class CreateProperty extends CreateRecord
         } elseif ($kreditUser->kredit_listing > 0) {
             $kreditUser->decrement('kredit_listing');
         } else {
-            $this->halt();
+            // $this->halt();
             Notification::make()
                 ->danger()
                 ->title('Kredit Habis!')

@@ -15,12 +15,17 @@ class Hero extends Model
     protected $fillable = [
         'title',
         'subtitle',
-        "deskripsi",
+        'deskripsi',
         'image',
         'is_active',
         'link_url',
         'link_text',
-        "main_color"
+        'main_color',
+        // TAMBAHKAN FIELD BARU INI BRO
+        'site_title',
+        'favicon',
+        'primary_color',
+        'secondary_color',
     ];
 
     protected $casts = [
@@ -28,7 +33,6 @@ class Hero extends Model
         'is_active' => 'boolean',
     ];
 
-    // Scope untuk ambil hero yang aktif aja
     public function scopeActive($query)
     {
         return $query->where('is_active', true);

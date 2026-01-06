@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Models\Hero; 
 use BezhanSalleh\FilamentShield\Resources\Roles\RoleResource;
 use Filament\Http\Middleware\Authenticate;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
@@ -11,6 +12,7 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
+use Filament\Support\Assets\Css;
 use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
@@ -20,23 +22,36 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Illuminate\Support\Facades\Storage; 
 
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        
+        $settings = Hero::first();
+
         return $panel
             ->default()
             ->id('admin')
             ->path('admin')
-            ->resources([
-                RoleResource::class, // Tambah ini
+            
+            ->brandName($settings?->site_title ?? 'Pinhome Admin') 
+            ->favicon($settings?->favicon ? Storage::url($settings->favicon) : null) 
+            ->colors([
+                'primary' => $settings?->primary_color ?? "#DED572", 
+                'secondary' => $settings?->secondary_color ?? "#64748b", 
             ])
+            
+            ->resources([
+                RoleResource::class,
+            ])
+            ->renderHook(
+                'panels::head.done',
+                fn () => view('filament.hooks.flaticon-cdn'),
+            )
             ->authGuard('web')
             ->login()
-            ->colors([
-                'primary' => "#DED572",
-            ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
@@ -59,10 +74,15 @@ class AdminPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->plugins([
-                FilamentShieldPlugin::make(),
+                FilamentShieldPlugin::make()
+                ->navigationGroup('Auth')
+                ->navigationSort(1)
             ])
             ->authMiddleware([
                 Authenticate::class,
+            ])
+            ->assets([
+                Css::make('flaticon-uicons', 'https://cdn-uicons.flaticon.com/2.1.0/uicons-regular-rounded/css/uicons-regular-rounded.css'),
             ]);
     }
 }

@@ -20,7 +20,7 @@ class VisitorResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Eye;
     protected static ?string $navigationLabel = 'Visitor';
-    protected static string|\UnitEnum|null $navigationGroup = '#';
+    protected static string|\UnitEnum|null $navigationGroup = 'User';
     protected static ?int $navigationSort = 3;
 
     protected static ?string $modelLabel = 'Data Visitor';

@@ -8,6 +8,7 @@ use App\Models\Property;
 use App\Models\Developer;
 use App\Models\Agen;
 use Filament\Actions\Action;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
@@ -52,7 +53,7 @@ class PropertyForm
                         })
                         ->dehydrated(),
                         
-                        // Province selector
+                        
                         Select::make('provinsi')
                             ->label('Province')
                             ->options(function () {
@@ -64,7 +65,7 @@ class PropertyForm
                                         return collect($provinces)->pluck('name', 'code')->toArray();
                                     }
                                 } catch (\Exception $e) {
-                                    // Log error if needed
+                                    
                                 }
                                 
                                 return [];
@@ -73,7 +74,7 @@ class PropertyForm
                             ->required()
                             ->placeholder('Select province first'),
                         
-                        // City/Regency selector (depends on province)
+                        
                         Select::make('city')
                             ->label('City / Regency')
                             ->options(function (callable $get) {
@@ -91,7 +92,7 @@ class PropertyForm
                                         return collect($regencies)->pluck('name', 'name')->toArray();
                                     }
                                 } catch (\Exception $e) {
-                                    // Log error if needed
+                                    
                                 }
                                 
                                 return [];
@@ -117,6 +118,9 @@ class PropertyForm
                         TextInput::make('units_remaining')
                             ->label('Units Remaining')
                             ->numeric()
+                            ->visible(function(){
+                                return auth()->user()->hasRole(['super_admin','developer']);
+                            })
                             ->placeholder('e.g., 16')
                             ->suffix('units'),
                             
@@ -124,7 +128,7 @@ class PropertyForm
                             ->afterstateHydrated(function(callable $set, $state){
                                 if(auth()->user()->hasRole('Agen')){
                                     $agen = Agen::where("user_id",'=',auth()->user()->id)->first();
-                                    // dd($agen);
+                                    
                                     if($agen->developer_id){
                                         $set($state,$agen->developer_id);
                                     }
@@ -153,7 +157,7 @@ class PropertyForm
                             ->columnSpanFull(),
                     ]),
 
-                // Price & Financing Section
+                
                 Section::make('Price & Financing')
                     ->description('Pricing and installment information')
                     ->icon('heroicon-o-currency-dollar')
@@ -185,7 +189,7 @@ class PropertyForm
                             ->helperText('Monthly payment amount'),
                     ]),
 
-                // Property Details Section
+                
                 Section::make('Property Specifications')
                     ->description('Detailed property specifications')
                     ->icon('heroicon-o-home')
@@ -238,214 +242,82 @@ class PropertyForm
                             ]),
                     ]),
 
-                // Keunggulan Section
+                
                 Section::make('Keunggulan')
-                    ->description('Property advantages and unique selling points')
-                    ->icon('heroicon-o-star')
-                    ->collapsible()
                     ->schema([
-                        Repeater::make('keunggulan')
-                            ->label('')
+                        Repeater::make('keunggulanPivot') // Pakai relasi HasMany ke pivot
+                            ->relationship()
                             ->schema([
-                                Select::make('icon')
-                                    ->label('Icon')
+                                Select::make('keunggulan_id') // Foreign key di tabel keunggulan_properties
+                                    ->label('Pilih Keunggulan')
+                                    ->options(\App\Models\Keunggulan::pluck('nama', 'id'))
                                     ->required()
                                     ->searchable()
-                                    ->options(self::getHeroiconOptions())
-                                    ->default('heroicon-o-home')
-                                    ->helperText('Pilih icon dari Heroicons')
-                                    ->native(false)
-                                    ->allowHtml()
-                                    ->live()
-                                    ->suffixIcon(fn ($state) => $state),
-                                
-                                TextInput::make('nama')
-                                    ->label('Nama')
-                                    ->required()
-                                    ->placeholder('e.g., Lokasi Strategis')
-                                    ->maxLength(255),
-                                
-                                Textarea::make('keterangan')
-                                    ->label('Keterangan')
-                                    ->required()
-                                    ->placeholder('Dekat dengan pusat kota dan akses tol')
-                                    ->rows(2)
-                                    ->columnSpanFull(),
+                                    ->columnSpanFull()
+                                    ->preload()
                             ])
-                            ->columns(2)
-                            ->defaultItems(1)
-                            ->reorderable()
-                            ->collapsible()
-                            ->itemLabel(fn (array $state): ?string => $state['nama'] ?? null)
-                            ->columnSpanFull(),
+                            
+                            ->addActionLabel('Tambah Keunggulan'),
                     ]),
 
                 // Fasilitas Section
                 Section::make('Fasilitas')
-                    ->description('Property facilities and amenities')
-                    ->icon('heroicon-o-building-library')
-                    ->collapsible()
-                    ->columnSpanFull()
                     ->schema([
-                        Repeater::make('fasilitas')
-                            ->label('')
+                        Repeater::make('fasilitasPivot') // Pakai relasi HasMany ke pivot
+                            ->relationship()
                             ->schema([
-                                Select::make('icon')
-                                    ->label('Icon')
+                                Select::make('fasilitas_id') // Foreign key di tabel fasilitas_properties
+                                    ->label('Pilih Fasilitas')
+                                    ->options(\App\Models\Fasilitas::pluck('nama', 'id'))
                                     ->required()
+                                    ->columnSpanFull()
+
                                     ->searchable()
-                                    ->options(self::getHeroiconOptions())
-                                    ->default('heroicon-o-home')
-                                    ->helperText('Pilih icon dari Heroicons')
-                                    ->native(false)
-                                    ->allowHtml()
-                                    ->live()
-                                    ->suffixIcon(fn ($state) => $state),
-                                
-                                TextInput::make('nama')
-                                    ->label('Nama Fasilitas')
-                                    ->required()
-                                    ->placeholder('e.g., Kolam Renang')
-                                    ->maxLength(255),
+                                    ->preload()
                             ])
-                            ->columns(2)
-                            ->defaultItems(1)
-                            ->reorderable()
-                            ->collapsible()
-                            ->itemLabel(fn (array $state): ?string => $state['nama'] ?? null)
-                            ->columnSpanFull(),
+                            
+                            ->addActionLabel('Tambah Fasilitas'),
                     ]),
 
-                // Nearest Places Section
-                Section::make('Nearest Places')
-                    ->description('Nearby locations and distances')
+                
+                Section::make('Nearby Places')
+                    ->description('Lokasi terdekat dan jarak tempuh')
                     ->icon('heroicon-o-map-pin')
                     ->collapsible()
-                    ->columnSpanFull()
-
                     ->schema([
-                        Repeater::make('nearest_place')
-                            ->label('')
+                        // GANTI ke nama relasi HasMany tadi
+                        Repeater::make('nearbyPlacePivot') 
+                            ->relationship() 
                             ->schema([
-                                Select::make('kategori')
-                                    ->label('Kategori')
+                                Select::make('nearby_place_id') 
+                                    ->label('Tempat / Lokasi')
+                                    // Ambil ID dari master, tapi simpan ke kolom nearby_place_id di PIVOT
+                                    ->options(\App\Models\NearbyPlace::pluck('nama', 'id'))
                                     ->required()
-                                    ->options(function () {
-                                        return Nearest_place_category::pluck('name', 'name')->toArray();
-                                    })
                                     ->searchable()
-                                    ->placeholder('Pilih kategori tempat')
-                                    ->suffixAction(
-                                        Action::make('addCategory')
-                                            ->icon('heroicon-o-plus-circle')
-                                            ->color('success')
-                                            ->form([
-                                                TextInput::make('category_name')
-                                                    ->label('Nama Kategori')
-                                                    ->required()
-                                                    ->maxLength(255)
-                                                    ->placeholder('e.g., Rumah Sakit, Sekolah, Mall')
-                                            ])
-                                            ->action(function (array $data, $set, $get) {
-                                                // Check if category already exists
-                                                $exists = Nearest_place_category::where('name', $data['category_name'])->exists();
-                                                
-                                                if ($exists) {
-                                                    Notification::make()
-                                                        ->title('Kategori sudah ada')
-                                                        ->warning()
-                                                        ->send();
-                                                    return;
-                                                }
-                                                
-                                                // Create new category
-                                                Nearest_place_category::create([
-                                                    'name' => $data['category_name']
-                                                ]);
-                                                
-                                                Notification::make()
-                                                    ->title('Kategori berhasil ditambahkan')
-                                                    ->success()
-                                                    ->send();
-                                                
-                                                // Set the newly created category
-                                                $set('kategori', $data['category_name']);
-                                            })
-                                    )
-                                    ->prefixAction(
-                                        Action::make('deleteCategory')
-                                            ->icon('heroicon-o-trash')
-                                            ->color('danger')
-                                            ->requiresConfirmation()
-                                            ->modalHeading('Hapus Kategori')
-                                            ->modalDescription(fn ($get) => 
-                                                'Apakah Anda yakin ingin menghapus kategori "' . $get('kategori') . '"? Kategori yang sudah digunakan tidak dapat dihapus.'
-                                            )
-                                            ->modalSubmitActionLabel('Hapus')
-                                            ->action(function ($get, $set) {
-                                                $categoryName = $get('kategori');
-                                                
-                                                if (!$categoryName) {
-                                                    Notification::make()
-                                                        ->title('Pilih kategori terlebih dahulu')
-                                                        ->warning()
-                                                        ->send();
-                                                    return;
-                                                }
-                                                
-                                                // Check if category is being used
-                                                $isUsed = Property::whereJsonContains('nearest_place', [['kategori' => $categoryName]])
-                                                    ->exists();
-                                                
-                                                if ($isUsed) {
-                                                    Notification::make()
-                                                        ->title('Kategori tidak dapat dihapus')
-                                                        ->body('Kategori ini sedang digunakan oleh property lain.')
-                                                        ->danger()
-                                                        ->send();
-                                                    return;
-                                                }
-                                                
-                                                // Delete category
-                                                $deleted = Nearest_place_category::where('name', $categoryName)->delete();
-                                                
-                                                if ($deleted) {
-                                                    Notification::make()
-                                                        ->title('Kategori berhasil dihapus')
-                                                        ->success()
-                                                        ->send();
-                                                    
-                                                    // Clear the select field
-                                                    $set('kategori', null);
-                                                }
-                                            })
-                                            ->hidden(fn ($get) => !$get('kategori'))
-                                    ),
-                                
-                                TextInput::make('nama')
-                                    ->label('Nama Tempat')
+                                    ->preload()
+                                    ->columnSpan(2),
+
+                                TextInput::make('jarak') 
+                                    ->label('Jarak / Waktu')
                                     ->required()
-                                    ->placeholder('e.g., Transmart')
-                                    ->maxLength(255),
-                                
-                                TextInput::make('jarak')
-                                    ->label('Jarak')
-                                    ->required()
-                                    ->placeholder('e.g., 2.5 km atau 15 menit')
-                                    ->maxLength(100),
+                                    ->placeholder('e.g., 5 Menit, 2 KM')
+                                    ->columnSpan(1),
                             ])
                             ->columns(3)
                             ->defaultItems(1)
                             ->reorderable()
-                            ->collapsible()
-                            ->itemLabel(fn (array $state): ?string => $state['nama'] ?? null)
-                            ->columnSpanFull(),
+                            ->itemLabel(fn (array $state): ?string => 
+                                !empty($state['nearby_place_id']) 
+                                ? \App\Models\NearbyPlace::find($state['nearby_place_id'])?->nama 
+                                : 'Tambah Tempat Terdekat'
+                            ),
                     ]),
 
                 Section::make('Media Assets')
                     ->columnspanFull()
                     ->schema([
-                        // Marketing Section
+                        
                         Section::make('Marketing & Promotion')
                             ->description('Promotional content and features')
                             ->icon('heroicon-o-megaphone')
@@ -458,7 +330,7 @@ class PropertyForm
                                     ->columnSpanFull(),
                             ]),
 
-                        // Images Section
+                        
                         Section::make('Images')
                             ->description('Property images and gallery')
                             ->icon('heroicon-o-photo')
@@ -478,50 +350,13 @@ class PropertyForm
                                     ->label('Gallery Images')
                                     ->image()
                                     ->multiple()
+                                    ->required()
                                     ->directory('properties/gallery')
                                     ->imageEditor()
                                     ->reorderable()
                                     ->maxFiles(10)
                                     ->helperText('Upload up to 10 images')
                                     ->columnSpanFull(),
-                            ]),
-
-                        // Status & Settings Section
-                        Section::make('Status & Settings')
-                            ->description('Property status and display settings')
-                            ->icon('heroicon-o-cog-6-tooth')
-                            ->columns(2)
-                            ->schema([
-                                Select::make('button_type')
-                                    ->label('Button Type')
-                                    ->options([
-                                        'view' => 'View Details',
-                                        'chat' => 'Chat Now',
-                                    ])
-                                    ->default('view')
-                                    ->required()
-                                    ->helperText('Button action on property card'),
-                                
-                                Toggle::make('is_available')
-                                    ->label('Available')
-                                    ->default(true)
-                                    ->inline(false)
-                                    ->helperText('Is this property available for sale?'),
-                                
-                                Toggle::make('is_popular')
-                                    ->label('Popular')
-                                    ->default(false)
-                                    ->inline(false)
-                                    ->helperText('Show in "Popular Properties" section'),
-                                
-                                DateTimePicker::make('last_updated')
-                                    ->disabled()
-                                    ->dehydrated(true)
-                                    ->label('Last Updated')
-                                    ->afterStateHydrated(function ($set) {
-                                        $set('last_updated', now()->format('Y-m-d H:i:s'));
-                                    })
-                                    ->helperText('When was this property last updated?')
                             ]),
                     ]),
             ]);
@@ -530,7 +365,7 @@ class PropertyForm
 protected static function getHeroiconOptions(): array
 {
     $icons = [
-        // Property & Real Estate
+        
         'heroicon-o-home' => 'Home',
         'heroicon-o-home-modern' => 'Home Modern',
         'heroicon-o-building-office' => 'Building Office',
@@ -538,7 +373,7 @@ protected static function getHeroiconOptions(): array
         'heroicon-o-building-storefront' => 'Building Storefront',
         'heroicon-o-building-library' => 'Building Library',
         
-        // Location & Maps
+        
         'heroicon-o-map-pin' => 'Map Pin',
         'heroicon-o-map' => 'Map',
         'heroicon-o-globe-alt' => 'Globe Alt',
@@ -546,7 +381,7 @@ protected static function getHeroiconOptions(): array
         'heroicon-o-globe-asia-australia' => 'Globe Asia Australia',
         'heroicon-o-globe-europe-africa' => 'Globe Europe Africa',
         
-        // Business & Finance
+        
         'heroicon-o-briefcase' => 'Briefcase',
         'heroicon-o-banknotes' => 'Banknotes',
         'heroicon-o-currency-dollar' => 'Currency Dollar',
@@ -561,7 +396,7 @@ protected static function getHeroiconOptions(): array
         'heroicon-o-receipt-refund' => 'Receipt Refund',
         'heroicon-o-scale' => 'Scale',
         
-        // Shopping & Commerce
+        
         'heroicon-o-shopping-cart' => 'Shopping Cart',
         'heroicon-o-shopping-bag' => 'Shopping Bag',
         'heroicon-o-gift' => 'Gift',
@@ -569,7 +404,7 @@ protected static function getHeroiconOptions(): array
         'heroicon-o-ticket' => 'Ticket',
         'heroicon-o-tag' => 'Tag',
         
-        // Categories & Organization
+        
         'heroicon-o-squares-2x2' => 'Squares 2x2',
         'heroicon-o-squares-plus' => 'Squares Plus',
         'heroicon-o-rectangle-group' => 'Rectangle Group',
@@ -581,7 +416,7 @@ protected static function getHeroiconOptions(): array
         'heroicon-o-list-bullet' => 'List Bullet',
         'heroicon-o-numbered-list' => 'Numbered List',
         
-        // Rating & Quality
+        
         'heroicon-o-star' => 'Star',
         'heroicon-o-heart' => 'Heart',
         'heroicon-o-fire' => 'Fire',
@@ -593,14 +428,14 @@ protected static function getHeroiconOptions(): array
         'heroicon-o-shield-check' => 'Shield Check',
         'heroicon-o-shield-exclamation' => 'Shield Exclamation',
         
-        // Security & Access
+        
         'heroicon-o-key' => 'Key',
         'heroicon-o-lock-closed' => 'Lock Closed',
         'heroicon-o-lock-open' => 'Lock Open',
         'heroicon-o-finger-print' => 'Finger Print',
         'heroicon-o-identification' => 'Identification',
         
-        // Technology & Devices
+        
         'heroicon-o-tv' => 'TV',
         'heroicon-o-wifi' => 'WiFi',
         'heroicon-o-signal' => 'Signal',
@@ -620,12 +455,12 @@ protected static function getHeroiconOptions(): array
         'heroicon-o-radio' => 'Radio',
         'heroicon-o-musical-note' => 'Musical Note',
         
-        // Transportation & Delivery
+        
         'heroicon-o-truck' => 'Truck',
         'heroicon-o-paper-airplane' => 'Paper Airplane',
         'heroicon-o-rocket-launch' => 'Rocket Launch',
         
-        // Tools & Maintenance
+        
         'heroicon-o-wrench-screwdriver' => 'Wrench Screwdriver',
         'heroicon-o-wrench' => 'Wrench',
         'heroicon-o-cog' => 'Cog',
@@ -641,17 +476,17 @@ protected static function getHeroiconOptions(): array
         'heroicon-o-swatch' => 'Swatch',
         'heroicon-o-eye-dropper' => 'Eye Dropper',
         
-        // Nature & Weather
+        
         'heroicon-o-sun' => 'Sun',
         'heroicon-o-moon' => 'Moon',
         'heroicon-o-cloud' => 'Cloud',
         'heroicon-o-cloud-arrow-up' => 'Cloud Arrow Up',
         'heroicon-o-cloud-arrow-down' => 'Cloud Arrow Down',
         
-        // Food & Dining
+        
         'heroicon-o-cake' => 'Cake',
         
-        // Communication
+        
         'heroicon-o-chat-bubble-left' => 'Chat Bubble Left',
         'heroicon-o-chat-bubble-left-right' => 'Chat Bubble Left Right',
         'heroicon-o-chat-bubble-left-ellipsis' => 'Chat Bubble Left Ellipsis',
@@ -676,7 +511,7 @@ protected static function getHeroiconOptions(): array
         'heroicon-o-hashtag' => 'Hashtag',
         'heroicon-o-language' => 'Language',
         
-        // Documents & Files
+        
         'heroicon-o-document' => 'Document',
         'heroicon-o-document-text' => 'Document Text',
         'heroicon-o-document-plus' => 'Document Plus',
@@ -707,7 +542,7 @@ protected static function getHeroiconOptions(): array
         'heroicon-o-bookmark-square' => 'Bookmark Square',
         'heroicon-o-bookmark-slash' => 'Bookmark Slash',
         
-        // Archive & Storage
+        
         'heroicon-o-archive-box' => 'Archive Box',
         'heroicon-o-archive-box-arrow-down' => 'Archive Box Arrow Down',
         'heroicon-o-archive-box-x-mark' => 'Archive Box X Mark',
@@ -719,25 +554,25 @@ protected static function getHeroiconOptions(): array
         'heroicon-o-cube' => 'Cube',
         'heroicon-o-cube-transparent' => 'Cube Transparent',
         
-        // Charts & Analytics
+        
         'heroicon-o-chart-bar' => 'Chart Bar',
         'heroicon-o-chart-bar-square' => 'Chart Bar Square',
         'heroicon-o-chart-pie' => 'Chart Pie',
         'heroicon-o-presentation-chart-bar' => 'Presentation Chart Bar',
         'heroicon-o-presentation-chart-line' => 'Presentation Chart Line',
         
-        // Calendar & Time
+        
         'heroicon-o-calendar' => 'Calendar',
         'heroicon-o-calendar-days' => 'Calendar Days',
         'heroicon-o-calendar-date-range' => 'Calendar Date Range',
         'heroicon-o-clock' => 'Clock',
         
-        // Education
+        
         'heroicon-o-academic-cap' => 'Academic Cap',
         'heroicon-o-puzzle-piece' => 'Puzzle Piece',
         'heroicon-o-light-bulb' => 'Light Bulb',
         
-        // Social & Users
+        
         'heroicon-o-user' => 'User',
         'heroicon-o-user-circle' => 'User Circle',
         'heroicon-o-user-plus' => 'User Plus',
@@ -750,7 +585,7 @@ protected static function getHeroiconOptions(): array
         'heroicon-o-face-smile' => 'Face Smile',
         'heroicon-o-face-frown' => 'Face Frown',
         
-        // Actions & Controls
+        
         'heroicon-o-play' => 'Play',
         'heroicon-o-play-circle' => 'Play Circle',
         'heroicon-o-play-pause' => 'Play Pause',
@@ -762,7 +597,7 @@ protected static function getHeroiconOptions(): array
         'heroicon-o-backward' => 'Backward',
         'heroicon-o-power' => 'Power',
         
-        // Status & Feedback
+        
         'heroicon-o-check' => 'Check',
         'heroicon-o-check-circle' => 'Check Circle',
         'heroicon-o-x-mark' => 'X Mark',
@@ -774,7 +609,7 @@ protected static function getHeroiconOptions(): array
         'heroicon-o-no-symbol' => 'No Symbol',
         'heroicon-o-flag' => 'Flag',
         
-        // Navigation
+        
         'heroicon-o-arrow-up' => 'Arrow Up',
         'heroicon-o-arrow-down' => 'Arrow Down',
         'heroicon-o-arrow-left' => 'Arrow Left',
@@ -815,7 +650,7 @@ protected static function getHeroiconOptions(): array
         'heroicon-o-chevron-double-left' => 'Chevron Double Left',
         'heroicon-o-chevron-double-right' => 'Chevron Double Right',
         
-        // Upload/Download
+        
         'heroicon-o-arrow-up-tray' => 'Arrow Up Tray',
         'heroicon-o-arrow-down-tray' => 'Arrow Down Tray',
         'heroicon-o-arrow-up-on-square' => 'Arrow Up On Square',
@@ -824,13 +659,13 @@ protected static function getHeroiconOptions(): array
         'heroicon-o-arrow-down-on-square-stack' => 'Arrow Down On Square Stack',
         'heroicon-o-arrow-top-right-on-square' => 'Arrow Top Right On Square',
         
-        // Trending & Stats
+        
         'heroicon-o-arrow-trending-up' => 'Arrow Trending Up',
         'heroicon-o-arrow-trending-down' => 'Arrow Trending Down',
         'heroicon-o-bars-arrow-up' => 'Bars Arrow Up',
         'heroicon-o-bars-arrow-down' => 'Bars Arrow Down',
         
-        // View & Display
+        
         'heroicon-o-eye' => 'Eye',
         'heroicon-o-eye-slash' => 'Eye Slash',
         'heroicon-o-window' => 'Window',
@@ -838,14 +673,14 @@ protected static function getHeroiconOptions(): array
         'heroicon-o-viewfinder-circle' => 'Viewfinder Circle',
         'heroicon-o-table-cells' => 'Table Cells',
         
-        // Search & Find
+        
         'heroicon-o-magnifying-glass' => 'Magnifying Glass',
         'heroicon-o-magnifying-glass-circle' => 'Magnifying Glass Circle',
         'heroicon-o-magnifying-glass-plus' => 'Magnifying Glass Plus',
         'heroicon-o-magnifying-glass-minus' => 'Magnifying Glass Minus',
         'heroicon-o-funnel' => 'Funnel',
         
-        // Edit & Input
+        
         'heroicon-o-pencil' => 'Pencil',
         'heroicon-o-pencil-square' => 'Pencil Square',
         'heroicon-o-plus' => 'Plus',
@@ -860,7 +695,7 @@ protected static function getHeroiconOptions(): array
         'heroicon-o-cursor-arrow-rays' => 'Cursor Arrow Rays',
         'heroicon-o-cursor-arrow-ripple' => 'Cursor Arrow Ripple',
         
-        // Text Formatting
+        
         'heroicon-o-bold' => 'Bold',
         'heroicon-o-italic' => 'Italic',
         'heroicon-o-underline' => 'Underline',
@@ -869,27 +704,27 @@ protected static function getHeroiconOptions(): array
         'heroicon-o-h2' => 'H2',
         'heroicon-o-h3' => 'H3',
         
-        // Code & Development
+        
         'heroicon-o-code-bracket' => 'Code Bracket',
         'heroicon-o-code-bracket-square' => 'Code Bracket Square',
         'heroicon-o-command-line' => 'Command Line',
         'heroicon-o-variable' => 'Variable',
         
-        // Sharing & Links
+        
         'heroicon-o-share' => 'Share',
         'heroicon-o-link' => 'Link',
         'heroicon-o-link-slash' => 'Link Slash',
         'heroicon-o-qr-code' => 'QR Code',
         
-        // Printer & Output
+        
         'heroicon-o-printer' => 'Printer',
         
-        // Battery & Power
+        
         'heroicon-o-battery-0' => 'Battery 0',
         'heroicon-o-battery-50' => 'Battery 50',
         'heroicon-o-battery-100' => 'Battery 100',
         
-        // Menu & Navigation
+        
         'heroicon-o-bars-2' => 'Bars 2',
         'heroicon-o-bars-3' => 'Bars 3',
         'heroicon-o-bars-4' => 'Bars 4',
@@ -900,7 +735,7 @@ protected static function getHeroiconOptions(): array
         'heroicon-o-ellipsis-horizontal-circle' => 'Ellipsis Horizontal Circle',
         'heroicon-o-ellipsis-vertical' => 'Ellipsis Vertical',
         
-        // Special Icons
+        
         'heroicon-o-lifebuoy' => 'Lifebuoy',
         'heroicon-o-gif' => 'GIF',
         'heroicon-o-slash' => 'Slash',
@@ -908,7 +743,7 @@ protected static function getHeroiconOptions(): array
         'heroicon-o-divide' => 'Divide',
         'heroicon-o-percent-badge' => 'Percent Badge',
         
-        // Login/Logout
+        
         'heroicon-o-arrow-left-on-rectangle' => 'Arrow Left On Rectangle',
         'heroicon-o-arrow-right-on-rectangle' => 'Arrow Right On Rectangle',
         'heroicon-o-arrow-left-start-on-rectangle' => 'Arrow Left Start On Rectangle',
@@ -916,7 +751,7 @@ protected static function getHeroiconOptions(): array
         'heroicon-o-arrow-right-start-on-rectangle' => 'Arrow Right Start On Rectangle',
         'heroicon-o-arrow-right-end-on-rectangle' => 'Arrow Right End On Rectangle',
         
-        // Arrow Turns
+        
         'heroicon-o-arrow-turn-down-left' => 'Arrow Turn Down Left',
         'heroicon-o-arrow-turn-down-right' => 'Arrow Turn Down Right',
         'heroicon-o-arrow-turn-up-left' => 'Arrow Turn Up Left',
@@ -927,7 +762,7 @@ protected static function getHeroiconOptions(): array
         'heroicon-o-arrow-turn-right-up' => 'Arrow Turn Right Up',
     ];
 
-    // Format dengan HTML untuk menampilkan icon preview
+    
     return collect($icons)->mapWithKeys(function ($label, $icon) {
         $svg = \Filament\Support\Facades\FilamentIcon::resolve($icon);
         return [

@@ -20,7 +20,9 @@ class EventResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Calendar;
     protected static ?string $navigationLabel = 'Event';
-    protected static string|\UnitEnum|null $navigationGroup = 'Main Content';
+    protected static string|\UnitEnum|null $navigationGroup = 'Master Data';
+    protected static ?int $navigationSort = 5;
+    
     protected static ?string $modelLabel = 'Data Event';
     protected static ?string $pluralModelLabel = 'Event';
 
