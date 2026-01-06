@@ -8,6 +8,7 @@ import { PropertyCategories } from '@/components/property-categories';
 import { PopularProperties } from '@/components/popular-properties';
 import { VerifiedProjects } from '@/components/verified-projects';
 import { Testimonials } from '@/components/testimonials';
+import Footer from '@/components/footer';
 
 export default function Welcome() {
     const { auth } = usePage<SharedData>().props;
@@ -23,29 +24,30 @@ export default function Welcome() {
                 <Navbar />
             </div>
 
-            <div className="flex min-h-screen flex-col items-center bg-white p-6 text-gray-900 lg:justify-center lg:p-8 w-full">
+            <div className="flex min-h-screen flex-col items-center bg-white text-gray-900 w-full">
                 <main className="w-full flex-1 mt-8">
-                    <div className="w-full">
+                    <div className="max-w-[1420px] mx-auto px-6 lg:px-0">
                         <Hero />
-                        <div className="mt-12 w-full">
+                        <div className="mt-4 w-full">
                             <PropertyCategories />
                         </div>
                         <div className="mt-8 w-full">
                             <GoldenDeals />
                         </div>
-                        <div className="mt-8 w-full">
+                        <div className="mt-2 w-full">
                             <PopularProperties />
                         </div>
                         <div className="mt-8 w-full">
                             <VerifiedProjects />
                         </div>
-                        <div className="mt-8 w-full">
-                            <Testimonials />
-                        </div>
+                    </div>
+                    <div className="mt-8 w-full">
+                        <Testimonials />
                     </div>
                 </main>
 
-                <div className="h-10" />
+                {/* Footer */}
+                <Footer />
             </div>
         </>
     );

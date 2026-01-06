@@ -45,8 +45,13 @@ return [
             'provider' => 'users',
         ],
         'api' => [
-            'driver' => 'jwt', // Tambahkan ini
+            'driver' => 'jwt',
             'provider' => 'users',
+        ],
+        // Guard untuk Agent - terpisah dari Admin/User
+        'agent' => [
+            'driver' => 'session',
+            'provider' => 'agents',
         ],
     ],
 
@@ -73,10 +78,11 @@ return [
             'model' => env('AUTH_MODEL', App\Models\User::class),
         ],
 
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        // Provider untuk Agent - menggunakan model Agen
+        'agents' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Agen::class,
+        ],
     ],
 
 ];

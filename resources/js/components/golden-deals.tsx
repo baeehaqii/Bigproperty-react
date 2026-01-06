@@ -9,6 +9,7 @@ import { Button } from "./ui/button"
 interface Property {
   id: string
   image: string | null
+  images: string[]
   promo_text: string | null
   kategori: string[]
   units_remaining: number | null
@@ -24,8 +25,9 @@ interface Property {
   certificate_type: string | null
   is_popular: boolean
   last_updated: string | null
-  developer_name: string  // Tambah ini
-  developer_logo: string | null  // Tambah ini
+  posted_by_name: string
+  posted_by_logo: string | null
+  count_clicked: number
 }
 
 interface GoldenDealsData {
@@ -51,21 +53,21 @@ export function GoldenDeals() {
       try {
         setLoading(true)
         console.log('Fetching from:', window.location.origin + '/golden-deals')
-        
+
         const response = await fetch('/golden-deals')
-        
+
         console.log('Response status:', response.status)
         console.log('Response ok:', response.ok)
-        
+
         if (!response.ok) {
           const errorText = await response.text()
           console.error('Response error:', errorText)
           throw new Error(`HTTP ${response.status}: ${errorText}`)
         }
-        
+
         const result = await response.json()
         console.log('Golden Deals data:', result)
-        
+
         if (result.success && result.data) {
           setGoldenDeals(result.data)
         } else {
@@ -191,25 +193,27 @@ export function GoldenDeals() {
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {goldenDeals.properties.map((property) => (
-              <GoldenDealsCard 
-                key={property.id} 
+              <GoldenDealsCard
+                key={property.id}
                 id={property.id}
-                image={property.image || '/placeholder.svg?height=160&width=280'}
+                image={property.image || '/placeholder.svg'}
+                images={property.images || []}
                 badge={property.promo_text || undefined}
                 type={property.kategori?.[0] || 'Properti'}
                 typeExtra={property.units_remaining ? `Sisa ${property.units_remaining} Unit` : undefined}
                 priceRange={property.price_range}
                 installment={property.installment}
                 propertyName={property.property_name}
-                developer={property.developer_name}
+                developer={property.posted_by_name}
                 promoText={property.promo_text}
-                developerLogo={property.developer_logo || '/placeholder.svg?height=20&width=20'}  // Update ini
+                developerLogo={property.posted_by_logo || undefined}
                 location={property.location}
                 bedrooms={property.bedrooms}
                 landSize={property.land_size}
                 buildingSize={property.building_size}
                 shm={property.certificate_type === 'SHM'}
                 updatedAt={property.last_updated || 'Baru diperbarui'}
+                countClicked={property.count_clicked || 0}
               />
             ))}
           </div>

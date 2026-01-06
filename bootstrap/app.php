@@ -9,9 +9,9 @@ use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        web: __DIR__.'/../routes/web.php',
-        api: __DIR__.'/../routes/api.php',
-        commands: __DIR__.'/../routes/console.php',
+        web: __DIR__ . '/../routes/web.php',
+        api: __DIR__ . '/../routes/api.php',
+        commands: __DIR__ . '/../routes/console.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
@@ -25,7 +25,29 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'api/*',
         ]);
+
+        // Konfigurasi redirect untuk guest middleware pada guard agent
+        $middleware->redirectGuestsTo(function ($request) {
+            // Jika mengakses route agent, redirect ke agent login
+            if ($request->routeIs('agent.*')) {
+                return route('agent.login');
+            }
+            // Default redirect ke login biasa
+            return route('login');
+        });
+
+        // Konfigurasi redirect untuk authenticated users yang akses guest pages
+        $middleware->redirectUsersTo(function ($request) {
+            // Jika mengakses route agent, redirect ke agent dashboard
+            if ($request->routeIs('agent.*')) {
+                return route('agent.dashboard');
+            }
+            // Default redirect ke dashboard biasa
+            return route('dashboard');
+        });
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e, $request) {
+            return inertia('errors/404')->toResponse($request)->setStatusCode(404);
+        });
     })->create();
