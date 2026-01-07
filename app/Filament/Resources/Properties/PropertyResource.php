@@ -20,7 +20,8 @@ class PropertyResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::BuildingOffice;
     protected static ?string $navigationLabel = 'Property';
-    protected static string|\UnitEnum|null $navigationGroup = 'Main Content';
+    protected static string|\UnitEnum|null $navigationGroup = 'Content';
+    protected static ?int $navigationSort = 1;
     protected static ?string $modelLabel = 'Data Property';
     protected static ?string $pluralModelLabel = 'Property';
     protected static ?string $recordTitleAttribute = 'Property';

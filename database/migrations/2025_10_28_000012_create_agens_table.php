@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('email')->nullable();
             $table->string('phone');
             $table->string('photo')->nullable();
-            $table->string('license_number')->nullable(); // nomor izin
+            $table->string('license_number')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();

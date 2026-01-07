@@ -26,17 +26,12 @@ class PropertiesTable
         return $table
             ->modifyQueryUsing(function ($query) {
                 $user = auth()->user();
-
-                // Jika bukan super_admin, filter berdasarkan agen
                 if (!$user->hasRole('super_admin')) {
                     $agen = Agen::where('user_id', $user->id)->first();
-
                     if ($agen) {
                         $query->where('agen_id', $agen->id);
                     }
                 }
-
-                // Jika super_admin, tampilkan semua (no filter)
                 return $query;
             })
             ->columns([
@@ -52,29 +47,37 @@ class PropertiesTable
                     ->wrap()
                     ->limit(40),
 
-                TextColumn::make('agen.name')
-                    ->label('Agent')
-                    ->searchable()
-                    ->sortable()
+                // MENAMPILKAN KONDISI (BARU/BEKAS) DENGAN BADGE
+                TextColumn::make('condition')
+                    ->label('Kondisi')
                     ->badge()
-                    ->color('purple')
-                    ->placeholder('No Agent'),
+                    ->color(fn (string $state): string => match ($state) {
+                        'Baru' => 'success',
+                        'Bekas' => 'warning',
+                        default => 'gray',
+                    }),
 
                 TextColumn::make('city')
-                    ->label('City')
-                    ->searchable()
-                    ->sortable()
+                    ->label('Kota')
                     ->badge()
                     ->color('info'),
 
-                TextColumn::make('location')
-                    ->searchable()
-                    ->limit(30),
+                // MENAMPILKAN PROMO DARI RELASI (MANY TO MANY)
+                TextColumn::make('promos.nama')
+                    ->label('Promo Aktif')
+                    ->badge()
+                    ->color('danger')
+                    ->separator(',')
+                    ->limitList(2),
 
                 TextColumn::make('price_min')
-                    ->label('Price')
+                    ->label('Harga')
                     ->money('IDR')
-                    ->sortable()
+                    ->description(fn ($record) => 
+                        $record->pajak || $record->notaris 
+                        ? "Exc. Pajak & Notaris" 
+                        : null
+                    )
                     ->formatStateUsing(function ($record) {
                         if ($record->price_max && $record->price_min !== $record->price_max) {
                             return 'Rp ' . number_format($record->price_min / 1000000, 1) . ' Jt - Rp ' .
@@ -83,94 +86,74 @@ class PropertiesTable
                         return 'Rp ' . number_format($record->price_min / 1000000, 1) . ' Jt';
                     }),
 
-                TextColumn::make('bedrooms')
-                    ->label('Bedrooms')
-                    ->badge()
-                    ->color('success'),
+                // INFO LISTRIK & AIR
+                TextColumn::make('listrik')
+                    ->label('Listrik')
+                    ->formatStateUsing(fn ($state) => $state . ' VA')
+                    ->description(fn ($record) => "Air: " . $record->jenis_air)
+                    ->toggleable(),
 
                 TextColumn::make('count_clicked')
                     ->label('Views')
                     ->sortable()
                     ->badge()
-                    ->color('info')
-                    ->formatStateUsing(fn($state) => number_format($state ?? 0)),
+                    ->color('info'),
 
-                // Verification Status - for moderation
                 IconColumn::make('is_verified')
-                    ->label('Verified')
+                    ->label('Status')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-badge')
                     ->falseIcon('heroicon-o-clock')
-                    ->trueColor('success')
-                    ->falseColor('warning')
-                    ->sortable(),
-
-                IconColumn::make('is_popular')
-                    ->label('Popular')
-                    ->boolean()
-                    ->trueIcon('heroicon-o-star')
-                    ->falseIcon('heroicon-o-star')
-                    ->trueColor('warning')
-                    ->falseColor('gray'),
-
-                IconColumn::make('is_available')
-                    ->label('Available')
-                    ->boolean()
-                    ->trueIcon('heroicon-o-check-circle')
-                    ->falseIcon('heroicon-o-x-circle')
-                    ->trueColor('success')
-                    ->falseColor('danger'),
-
-                TextColumn::make('last_updated')
-                    ->label('Last Updated')
-                    ->dateTime('d M Y, H:i')
                     ->sortable(),
 
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->dateTime('d M Y')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                // Verification status filter (for moderation)
-                TernaryFilter::make('is_verified')
-                    ->label('Verification Status')
-                    ->placeholder('All Listings')
-                    ->trueLabel('Verified Only')
-                    ->falseLabel('Pending Verification'),
-
-                SelectFilter::make('City')
-                    ->label('City')
+                // FILTER BERDASARKAN PROMO (RELASI)
+                SelectFilter::make('promos')
+                    ->label('Berdasarkan Promo')
+                    ->relationship('promos', 'nama')
                     ->multiple()
                     ->preload(),
+
+                SelectFilter::make('condition')
+                    ->label('Kondisi Properti')
+                    ->options([
+                        'Baru' => 'Baru',
+                        'Bekas' => 'Bekas',
+                    ]),
+                    
+                SelectFilter::make('listrik')
+                    ->label('Daya Listrik')
+                    ->options([
+                        450 => '450 VA',
+                        900 => '900 VA',
+                        1300 => '1300 VA',
+                        2200 => '2200 VA',
+                        3500 => '3500 VA',
+                        5500 => '5500 VA',
+                        6600 => '6600 VA',
+                    ]),
+
+                SelectFilter::make('jenis_air')
+                    ->label('Sumber Air')
+                    ->options([
+                        'PDAM' => 'PDAM',
+                        'Sumur Bor' => 'Sumur Bor',
+                        'Sumur Tanah' => 'Sumur Tanah',
+                    ]),
+
+                TernaryFilter::make('is_verified')
+                    ->label('Verifikasi'),
 
                 SelectFilter::make('agen_id')
                     ->label('Agent')
                     ->relationship('agen', 'name')
                     ->searchable()
                     ->preload(),
-
-                SelectFilter::make('type')
-                    ->options([
-                        'Rumah Baru' => 'Rumah Baru',
-                        'Rumah Second' => 'Rumah Second',
-                        'Apartemen' => 'Apartemen',
-                        'Ruko' => 'Ruko',
-                        'Tanah' => 'Tanah',
-                    ])
-                    ->multiple(),
-
-                TernaryFilter::make('is_popular')
-                    ->label('Popular Properties')
-                    ->placeholder('All Properties')
-                    ->trueLabel('Popular Only')
-                    ->falseLabel('Not Popular'),
-
-                TernaryFilter::make('is_available')
-                    ->label('Availability')
-                    ->placeholder('All')
-                    ->trueLabel('Available Only')
-                    ->falseLabel('Not Available'),
             ])
             ->defaultSort('created_at', 'desc')
             ->recordActions([

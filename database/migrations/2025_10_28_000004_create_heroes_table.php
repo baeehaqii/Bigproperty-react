@@ -13,8 +13,14 @@ return new class extends Migration
             $table->string('title')->nullable();
             $table->string('subtitle')->nullable();
             $table->text('deskripsi')->nullable();
-
             $table->json('image');
+            
+            // KOLOM BARU UNTUK SETTINGAN BRANDING
+            $table->string('site_title')->nullable();
+            $table->string('favicon')->nullable();
+            $table->string('primary_color')->nullable();
+            $table->string('secondary_color')->nullable();
+            
             $table->integer('order')->default(0);
             $table->boolean('is_active')->default(true);
             $table->string('link_url')->nullable();

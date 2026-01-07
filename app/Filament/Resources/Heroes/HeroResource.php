@@ -22,9 +22,9 @@ class HeroResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Cog;
 
-    protected static ?string $navigationLabel = 'Hero';
-    protected static string|\UnitEnum|null $navigationGroup = '#';
-    protected static ?int $navigationSort = 5;
+    protected static ?string $navigationLabel = 'Settings';
+    protected static string|\UnitEnum|null $navigationGroup = 'Settings';
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $modelLabel = 'Data Hero';
     protected static ?string $pluralModelLabel = 'Hero';

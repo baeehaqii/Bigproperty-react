@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Property extends Model
 {
@@ -42,20 +44,20 @@ class Property extends Model
         'tanpa_perantara',
         'last_updated',
         "event_id",
-        "fasilitas",
         "url_maps",
-        "nearest_place",
-        "kategori",
         'developer_id',
         "count_clicked",
-        "agen_id"
+        "agen_id",
+        'jenis_air',
+        'condition',
+        'pajak',
+        'notaris',
+        'promo_list',
+        'listrik',
     ];
 
     protected $casts = [
-        'nearest_place' => 'array',
-        'kategori' => 'array',
-        'keunggulan' => 'array',
-        'fasilitas' => 'array',
+        'promo_list' => 'array',
         'images' => 'array',
         'price_min' => 'decimal:2',
         'price_max' => 'decimal:2',
@@ -78,19 +80,45 @@ class Property extends Model
 
     ];
 
-    public function event(): BelongsTo
+    
+    public function fasilitas(): BelongsToMany
     {
-        return $this->belongsTo(Event::class);
+        return $this->belongsToMany(Fasilitas::class, 'fasilitas_properties');
     }
-    public function agen()
+
+    public function keunggulan(): BelongsToMany
     {
-        return $this->belongsTo(Agen::class);
+        return $this->belongsToMany(Keunggulan::class, 'keunggulan_properties');
     }
-    public function developer()
+
+    public function NearbyPlace(): BelongsToMany
     {
-        return $this->belongsTo(Developer::class);
+        return $this->belongsToMany(NearbyPlace::class, 'nearby_place_properties')
+            ->withPivot('jarak')
+            ->withTimestamps();
     }
-    // Accessor untuk format harga
+
+    public function nearbyPlacePivot(): HasMany
+    {
+        return $this->hasMany(NearbyPlaceProperty::class);
+    }
+    public function fasilitasPivot(): HasMany
+    {
+        return $this->hasMany(FasilitasProperty::class);
+    }
+    public function keunggulanPivot(): HasMany
+    {
+        return $this->hasMany(KeunggulanProperty::class);
+    }
+    public function promos(): BelongsToMany
+    {
+        return $this->belongsToMany(Promo::class, 'promo_property');
+    }
+    
+    public function event(): BelongsTo { return $this->belongsTo(Event::class); }
+    public function agen(): BelongsTo { return $this->belongsTo(Agen::class); }
+    public function developer(): BelongsTo { return $this->belongsTo(Developer::class); }
+    
     public function getPriceRangeAttribute(): string
     {
         $formatPrice = function ($price) {
@@ -111,7 +139,7 @@ class Property extends Model
         return $formatPrice($this->price_min) . ' - ' . $formatPrice($this->price_max);
     }
 
-    // Accessor untuk format cicilan
+    
     public function getInstallmentTextAttribute(): string
     {
         $value = $this->installment_start / 1000000;
@@ -119,7 +147,7 @@ class Property extends Model
         return 'Angsuran mulai dari Rp' . $formatted . ' Jt/bln';
     }
 
-    // Accessor untuk ukuran tanah
+    
     public function getLandSizeTextAttribute(): string
     {
         if ($this->land_size_min === $this->land_size_max) {
@@ -128,7 +156,7 @@ class Property extends Model
         return $this->land_size_min . '-' . $this->land_size_max . 'm²';
     }
 
-    // Accessor untuk ukuran bangunan
+    
     public function getBuildingSizeTextAttribute(): string
     {
         if (!$this->building_size_max) {

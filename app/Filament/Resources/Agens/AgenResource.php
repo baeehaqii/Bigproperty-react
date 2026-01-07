@@ -22,9 +22,9 @@ class AgenResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::UserGroup;
     protected static ?string $navigationLabel = 'Agen';
-    protected static string|\UnitEnum|null $navigationGroup = '#';
+    protected static string|\UnitEnum|null $navigationGroup = 'User';
     protected static ?string $modelLabel = 'Data Agen';
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $pluralModelLabel = 'Agen';
     protected static ?string $recordTitleAttribute = 'Agen';
