@@ -12,8 +12,10 @@ import {
     LogOut,
     Menu,
     X,
-    BarChart3,
     Building2,
+    UserCircle,
+    Lock,
+    AlertCircle,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -23,13 +25,18 @@ interface Agent {
     email: string
     phone: string
     photo?: string
+    display_name?: string
+    display_photo?: string
+    is_profile_complete?: boolean
+    jenis_akun?: string
+    jenis_akun_label?: string
 }
 
 interface DashboardAgentLayoutProps {
     agent: Agent
     children: ReactNode
     title?: string
-    activeMenu?: 'overview' | 'listing-saya' | 'upload-listing' | 'leads' | 'report' | 'beli-credit' | 'history-credit'
+    activeMenu?: 'overview' | 'listing-saya' | 'upload-listing' | 'leads' | 'report' | 'beli-credit' | 'history-credit' | 'profile'
 }
 
 interface NavItem {
@@ -38,20 +45,24 @@ interface NavItem {
     icon: typeof TrendingUp
     href: string
     section: string
+    requiresProfile?: boolean // Menu requires complete profile
 }
 
 const navItems: NavItem[] = [
-    { id: 'overview', label: 'Overview', icon: TrendingUp, href: '/agent/dashboard', section: 'AGENT AREA' },
-    { id: 'listing-saya', label: 'Listing Saya', icon: Building2, href: '/agent/dashboard/listing-saya', section: 'AGENT AREA' },
-    { id: 'upload-listing', label: 'Upload Listing', icon: Upload, href: '/agent/dashboard/upload-listing', section: 'AGENT AREA' },
-    { id: 'leads', label: 'Leads', icon: Users, href: '/agent/dashboard/leads', section: 'AGENT AREA' },
-    { id: 'report', label: 'Report', icon: Globe, href: '/agent/dashboard/report', section: 'AGENT AREA' },
-    { id: 'beli-credit', label: 'Beli Credit', icon: CreditCard, href: '/agent/dashboard/beli-credit', section: 'CREDIT' },
-    { id: 'history-credit', label: 'History Credit', icon: History, href: '/agent/dashboard/history-credit', section: 'CREDIT' },
+    { id: 'overview', label: 'Overview', icon: TrendingUp, href: '/agent/dashboard', section: 'AGENT AREA', requiresProfile: true },
+    { id: 'listing-saya', label: 'Listing Saya', icon: Building2, href: '/agent/dashboard/listing-saya', section: 'AGENT AREA', requiresProfile: true },
+    { id: 'upload-listing', label: 'Upload Listing', icon: Upload, href: '/agent/dashboard/upload-listing', section: 'AGENT AREA', requiresProfile: true },
+    { id: 'leads', label: 'Leads', icon: Users, href: '/agent/dashboard/leads', section: 'AGENT AREA', requiresProfile: true },
+    { id: 'report', label: 'Report', icon: Globe, href: '/agent/dashboard/report', section: 'AGENT AREA', requiresProfile: true },
+    { id: 'beli-credit', label: 'Beli Credit', icon: CreditCard, href: '/agent/dashboard/beli-credit', section: 'CREDIT', requiresProfile: true },
+    { id: 'history-credit', label: 'History Credit', icon: History, href: '/agent/dashboard/history-credit', section: 'CREDIT', requiresProfile: true },
+    { id: 'profile', label: 'Profile', icon: UserCircle, href: '/agent/dashboard/profile', section: 'AKUN', requiresProfile: false },
 ]
 
 export function DashboardAgentLayout({ agent, children, title = 'Dashboard Agent', activeMenu = 'overview' }: DashboardAgentLayoutProps) {
     const [sidebarOpen, setSidebarOpen] = useState(false)
+
+    const isProfileComplete = agent?.is_profile_complete ?? false
 
     const toggleSidebar = () => {
         setSidebarOpen(!sidebarOpen)
@@ -70,6 +81,10 @@ export function DashboardAgentLayout({ agent, children, title = 'Dashboard Agent
         acc[item.section].push(item)
         return acc
     }, {} as Record<string, NavItem[]>)
+
+    // Display name and photo
+    const displayName = agent?.display_name || agent?.name || 'Agent'
+    const displayPhoto = agent?.display_photo || agent?.photo
 
     return (
         <>
@@ -113,8 +128,21 @@ export function DashboardAgentLayout({ agent, children, title = 'Dashboard Agent
                         </div>
                     </div>
 
+                    {/* Profile Incomplete Warning */}
+                    {!isProfileComplete && (
+                        <div className="mx-6 mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                            <div className="flex items-start gap-2">
+                                <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                                <div>
+                                    <p className="text-xs font-medium text-amber-800">Profil Belum Lengkap</p>
+                                    <p className="text-xs text-amber-700 mt-0.5">Lengkapi profil untuk mengakses semua fitur</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Navigation Menu */}
-                    <nav className="flex-1 px-6 py-4 space-y-6 overflow-y-auto">
+                    <nav className="flex-1 px-6 py-4 space-y-6 overflow-y-auto overflow-x-visible">
                         {Object.entries(groupedNavItems).map(([section, items]) => (
                             <div key={section}>
                                 <h3 className="text-[#0C1C3C] text-xs font-semibold uppercase tracking-wider mb-3">{section}</h3>
@@ -122,6 +150,29 @@ export function DashboardAgentLayout({ agent, children, title = 'Dashboard Agent
                                     {items.map((item) => {
                                         const Icon = item.icon
                                         const isActive = activeMenu === item.id
+                                        const isDisabled = item.requiresProfile && !isProfileComplete
+
+                                        // If disabled, show non-clickable version
+                                        if (isDisabled) {
+                                            return (
+                                                <div
+                                                    key={item.id}
+                                                    className="relative group"
+                                                >
+                                                    <div className="flex items-center gap-2.5 px-4 py-3 rounded-[20px] text-gray-400 cursor-not-allowed opacity-60">
+                                                        <Icon className="w-5 h-5" />
+                                                        <span>{item.label}</span>
+                                                        <Lock className="w-3.5 h-3.5 ml-auto" />
+                                                    </div>
+                                                    {/* Tooltip - appears below the item */}
+                                                    <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 hidden group-hover:block z-[100] pointer-events-none">
+                                                        <div className="bg-gray-800 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap shadow-lg">
+                                                            Lengkapi profil terlebih dahulu
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )
+                                        }
 
                                         return (
                                             <Link
@@ -146,25 +197,30 @@ export function DashboardAgentLayout({ agent, children, title = 'Dashboard Agent
 
                     {/* User Profile at Bottom */}
                     <div className="px-6 pb-6 mt-auto">
-                        <div className="flex items-center gap-3 mb-4">
-                            {agent?.photo ? (
+                        <Link
+                            href="/agent/dashboard/profile"
+                            className="flex items-center gap-3 mb-4 p-2 -mx-2 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
+                        >
+                            {displayPhoto ? (
                                 <img
-                                    src={agent.photo}
-                                    alt={`${agent?.name || 'Agent'} profile photo`}
+                                    src={displayPhoto}
+                                    alt={`${displayName} profile photo`}
                                     className="w-12 h-12 rounded-full object-cover flex-shrink-0"
                                 />
                             ) : (
                                 <div className="w-12 h-12 rounded-full bg-[#D6D667] flex items-center justify-center flex-shrink-0">
                                     <span className="text-white font-semibold text-lg">
-                                        {agent?.name?.charAt(0) || 'A'}
+                                        {displayName.charAt(0)}
                                     </span>
                                 </div>
                             )}
                             <div className="min-w-0 flex-1">
-                                <p className="text-[#0C1C3C] text-base font-semibold truncate">{agent?.name || 'Agent'}</p>
-                                <p className="text-[#0C1C3C] text-sm font-normal truncate">{agent?.email || 'agent@email.com'}</p>
+                                <p className="text-[#0C1C3C] text-base font-semibold truncate">{displayName}</p>
+                                <p className="text-gray-500 text-xs truncate">
+                                    {agent?.jenis_akun_label || agent?.email || 'agent@email.com'}
+                                </p>
                             </div>
-                        </div>
+                        </Link>
                         <form onSubmit={handleLogout}>
                             <Button
                                 type="submit"
@@ -202,3 +258,4 @@ export function DashboardAgentLayout({ agent, children, title = 'Dashboard Agent
 }
 
 export default DashboardAgentLayout
+

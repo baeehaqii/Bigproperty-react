@@ -123,6 +123,8 @@ Route::prefix('agent')->name('agent.')->group(function () {
         Route::get('/dashboard/report', [AgentDashboardController::class, 'report'])->name('dashboard.report');
         Route::get('/dashboard/beli-credit', [AgentDashboardController::class, 'beliCredit'])->name('dashboard.beli-credit');
         Route::get('/dashboard/history-credit', [AgentDashboardController::class, 'historyCredit'])->name('dashboard.history-credit');
+        Route::get('/dashboard/profile', [AgentDashboardController::class, 'profileForm'])->name('dashboard.profile');
+        Route::post('/dashboard/profile', [AgentDashboardController::class, 'updateProfile'])->name('dashboard.update-profile');
     });
 });
 

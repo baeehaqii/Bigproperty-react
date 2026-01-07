@@ -38,7 +38,36 @@ class AgentDashboardController extends Controller
             'email' => $agent->email,
             'phone' => $agent->phone,
             'photo' => $agent->photo,
+            'ktp' => $agent->ktp,
+            'license_number' => $agent->license_number,
             'developer_id' => $agent->developer_id,
+            'is_active' => $agent->is_active,
+            'sumber' => $agent->sumber,
+
+            // Jenis akun
+            'jenis_akun' => $agent->jenis_akun,
+            'jenis_akun_label' => $agent->jenis_akun_label,
+
+            // Agensi/Broker fields
+            'nama_agensi' => $agent->nama_agensi,
+            'logo_agensi' => $agent->logo_agensi,
+            'email_agensi' => $agent->email_agensi,
+            'website_agensi' => $agent->website_agensi,
+
+            // PIC fields
+            'nama_pic' => $agent->nama_pic,
+            'foto_pic' => $agent->foto_pic,
+            'ktp_pic' => $agent->ktp_pic,
+            'email_pic' => $agent->email_pic,
+            'wa_pic' => $agent->wa_pic,
+
+            // Computed fields
+            'display_name' => $agent->display_name,
+            'display_photo' => $agent->display_photo,
+            'contact_email' => $agent->contact_email,
+            'contact_phone' => $agent->contact_phone,
+            'is_profile_complete' => $agent->isProfileComplete(),
+            'is_agensi_broker' => $agent->isAgensiBroker(),
         ];
     }
 
@@ -661,4 +690,177 @@ class AgentDashboardController extends Controller
             'midtransConfig' => $midtransConfig,
         ]);
     }
+
+    /**
+     * Show profile page
+     */
+    public function profileForm()
+    {
+        $agent = $this->guard()->user();
+
+        if (!$agent) {
+            return redirect()->route('agent.login')
+                ->with('error', 'Akun agent tidak ditemukan.');
+        }
+
+        return Inertia::render('DashboardAgent/Profile/index', [
+            'agent' => $this->getAgentData(),
+        ]);
+    }
+
+    /**
+     * Update profile
+     */
+    public function updateProfile(Request $request)
+    {
+        $agent = $this->guard()->user();
+
+        if (!$agent) {
+            return redirect()->route('agent.login')
+                ->with('error', 'Akun agent tidak ditemukan.');
+        }
+
+        $jenisAkun = $request->input('jenis_akun', $agent->jenis_akun);
+        $isAgensiBroker = $jenisAkun === 'agensi_broker';
+
+        // Base validation rules
+        $rules = [
+            'jenis_akun' => ['required', 'in:agensi_broker,agent_perorangan'],
+        ];
+
+        $messages = [
+            'jenis_akun.required' => 'Jenis akun wajib dipilih.',
+        ];
+
+        // Validation rules based on account type
+        if ($isAgensiBroker) {
+            // Agensi/Broker validation
+            $rules = array_merge($rules, [
+                'nama_agensi' => ['required', 'string', 'max:255'],
+                'email_agensi' => ['required', 'email', 'max:255'],
+                'website_agensi' => ['nullable', 'url', 'max:500'],
+                'logo_agensi' => ['nullable', 'file', 'mimes:jpeg,jpg,png,webp', 'max:1024'],
+                'nama_pic' => ['required', 'string', 'max:255'],
+                'email_pic' => ['required', 'email', 'max:255'],
+                'wa_pic' => ['required', 'string', 'max:20'],
+                'foto_pic' => ['nullable', 'file', 'mimes:jpeg,jpg,png,webp', 'max:1024'],
+                'ktp_pic' => ['nullable', 'file', 'mimes:jpeg,jpg,png,webp', 'max:1024'],
+            ]);
+
+            $messages = array_merge($messages, [
+                'nama_agensi.required' => 'Nama agensi wajib diisi.',
+                'email_agensi.required' => 'Email agensi wajib diisi.',
+                'email_agensi.email' => 'Format email agensi tidak valid.',
+                'logo_agensi.max' => 'Ukuran logo maksimal 1MB.',
+                'nama_pic.required' => 'Nama PIC wajib diisi.',
+                'email_pic.required' => 'Email PIC wajib diisi.',
+                'wa_pic.required' => 'No. WhatsApp PIC wajib diisi.',
+                'foto_pic.max' => 'Ukuran foto PIC maksimal 1MB.',
+                'ktp_pic.max' => 'Ukuran foto KTP PIC maksimal 1MB.',
+            ]);
+        } else {
+            // Agent Perorangan / Developer validation
+            $rules = array_merge($rules, [
+                'name' => ['required', 'string', 'max:255'],
+                'phone' => ['nullable', 'string', 'max:20'],
+                'license_number' => ['nullable', 'string', 'max:100'],
+                'photo' => ['nullable', 'file', 'mimes:jpeg,jpg,png,webp', 'max:1024'],
+                'ktp' => ['nullable', 'file', 'mimes:jpeg,jpg,png,webp', 'max:1024'],
+            ]);
+
+            $messages = array_merge($messages, [
+                'name.required' => 'Nama lengkap wajib diisi.',
+                'photo.max' => 'Ukuran foto profil maksimal 1MB.',
+                'ktp.max' => 'Ukuran foto KTP maksimal 1MB.',
+            ]);
+        }
+
+        $validated = $request->validate($rules, $messages);
+
+        try {
+            // Initialize Cloudinary service
+            $cloudinaryService = new CloudinaryService();
+
+            // Base update data
+            $updateData = [
+                'jenis_akun' => $validated['jenis_akun'],
+            ];
+
+            if ($isAgensiBroker) {
+                // Agensi/Broker fields
+                $updateData['nama_agensi'] = $validated['nama_agensi'];
+                $updateData['email_agensi'] = $validated['email_agensi'];
+                $updateData['website_agensi'] = $validated['website_agensi'] ?? null;
+                $updateData['nama_pic'] = $validated['nama_pic'];
+                $updateData['email_pic'] = $validated['email_pic'];
+                $updateData['wa_pic'] = $validated['wa_pic'];
+
+                // Handle logo upload
+                if ($request->hasFile('logo_agensi')) {
+                    $result = $cloudinaryService->uploadPropertyImage(
+                        $request->file('logo_agensi'),
+                        'big-property/agents/logos'
+                    );
+                    $updateData['logo_agensi'] = $result['url'];
+                }
+
+                // Handle foto PIC upload
+                if ($request->hasFile('foto_pic')) {
+                    $result = $cloudinaryService->uploadPropertyImage(
+                        $request->file('foto_pic'),
+                        'big-property/agents/photos'
+                    );
+                    $updateData['foto_pic'] = $result['url'];
+                }
+
+                // Handle KTP PIC upload
+                if ($request->hasFile('ktp_pic')) {
+                    $result = $cloudinaryService->uploadPropertyImage(
+                        $request->file('ktp_pic'),
+                        'big-property/agents/ktp'
+                    );
+                    $updateData['ktp_pic'] = $result['url'];
+                }
+            } else {
+                // Agent Perorangan / Developer fields
+                $updateData['name'] = $validated['name'];
+                $updateData['phone'] = $validated['phone'] ?? null;
+                $updateData['license_number'] = $validated['license_number'] ?? null;
+
+                // Handle photo upload
+                if ($request->hasFile('photo')) {
+                    $result = $cloudinaryService->uploadPropertyImage(
+                        $request->file('photo'),
+                        'big-property/agents/photos'
+                    );
+                    $updateData['photo'] = $result['url'];
+                }
+
+                // Handle KTP upload
+                if ($request->hasFile('ktp')) {
+                    $result = $cloudinaryService->uploadPropertyImage(
+                        $request->file('ktp'),
+                        'big-property/agents/ktp'
+                    );
+                    $updateData['ktp'] = $result['url'];
+                }
+            }
+
+            $agent->update($updateData);
+
+            // Check if profile is now complete
+            if ($agent->isProfileComplete()) {
+                return redirect()->route('agent.dashboard')
+                    ->with('success', 'Profil berhasil dilengkapi! Selamat datang di Agent Hub.');
+            }
+
+            return back()->with('success', 'Profil berhasil diperbarui!');
+
+        } catch (\Exception $e) {
+            \Log::error('Profile update error: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
 }
+

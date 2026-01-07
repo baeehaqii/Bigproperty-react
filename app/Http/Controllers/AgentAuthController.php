@@ -101,6 +101,14 @@ class AgentAuthController extends Controller
         if ($this->guard()->attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
 
+            $agent = $this->guard()->user();
+
+            // Check if profile is incomplete using model method
+            if (!$agent->isProfileComplete()) {
+                return redirect()->route('agent.dashboard.profile')
+                    ->with('warning', 'Silakan lengkapi profil Anda terlebih dahulu untuk mengaktifkan akun.');
+            }
+
             // Redirect to agent dashboard
             return redirect()->intended('/agent/dashboard');
         }

@@ -12,18 +12,52 @@ class Agen extends Authenticatable
 
     protected $table = 'agens';
 
+    /**
+     * Konstanta untuk jenis akun
+     */
+    const JENIS_AGENSI_BROKER = 'agensi_broker';
+    const JENIS_AGENT_PERORANGAN = 'agent_perorangan';
+
+    /**
+     * List jenis akun dengan label
+     */
+    public static function jenisAkunOptions(): array
+    {
+        return [
+            self::JENIS_AGENSI_BROKER => 'Agensi / Broker',
+            self::JENIS_AGENT_PERORANGAN => 'Agent Perorangan',
+        ];
+    }
+
     protected $fillable = [
+        // Existing fields
         'developer_id',
-        "ktp",
+        'user_id',
         'name',
         'email',
         'password',
         'phone',
         'photo',
+        'ktp',
         'license_number',
         'is_active',
-        "user_id",
-        "sumber",
+        'sumber', // Tau dari mana (instagram, facebook, whatsapp, email, google, lainnya)
+
+        // New fields - Jenis akun
+        'jenis_akun',
+
+        // Agensi/Broker fields
+        'nama_agensi',
+        'logo_agensi',
+        'email_agensi',
+        'website_agensi',
+
+        // PIC (Person In Charge) fields - untuk agensi/broker
+        'nama_pic',
+        'foto_pic',
+        'ktp_pic',
+        'email_pic',
+        'wa_pic',
     ];
 
     protected $hidden = [
@@ -31,7 +65,17 @@ class Agen extends Authenticatable
         'remember_token',
     ];
 
-    // Relasi ke Developer
+    protected $casts = [
+        'is_active' => 'boolean',
+        'email_verified_at' => 'datetime',
+    ];
+
+    protected $attributes = [
+        'jenis_akun' => self::JENIS_AGENT_PERORANGAN,
+    ];
+
+    // === Relationships ===
+
     public function developer()
     {
         return $this->belongsTo(Developer::class);
@@ -41,73 +85,164 @@ class Agen extends Authenticatable
     {
         return $this->belongsTo(User::class);
     }
-    // Relasi ke Property (agen yang upload property)
+
     public function properties()
     {
         return $this->hasMany(Property::class);
     }
 
-    // Relasi ke Credit
     public function credits()
     {
         return $this->hasMany(AgenCredit::class);
     }
 
-    // Relasi ke Transaksi Membership
     public function membershipTransactions()
     {
         return $this->hasMany(MembershipTransaction::class);
     }
 
-    // Get active credits (belum expired)
+    // === Credits ===
+
     public function activeCredits()
     {
         return $this->credits()->active();
     }
 
-    /**
-     * Get total remaining highlight dari semua credit aktif
-     */
     public function getTotalRemainingHighlightAttribute(): int
     {
         return $this->activeCredits()->sum('remaining_highlight');
     }
 
-    /**
-     * Get total remaining listing dari semua credit aktif
-     */
     public function getTotalRemainingListingAttribute(): int
     {
         return $this->activeCredits()->sum('remaining_listing');
     }
 
-    /**
-     * Cek apakah agen punya highlight credit yang tersisa
-     */
     public function hasHighlightCredit(): bool
     {
         return $this->activeCredits()->where('remaining_highlight', '>', 0)->exists();
     }
 
-    /**
-     * Cek apakah agen punya listing credit yang tersisa
-     */
     public function hasListingCredit(): bool
     {
         return $this->activeCredits()->where('remaining_listing', '>', 0)->exists();
     }
 
-    // Scope untuk agen yang aktif
+    // === Scopes ===
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
     }
 
-    // Accessor untuk WhatsApp link
-    public function getWhatsappLinkAttribute()
+    public function scopeAgensiBroker($query)
     {
-        if ($this->whatsapp) {
-            $number = preg_replace('/[^0-9]/', '', $this->whatsapp);
+        return $query->where('jenis_akun', self::JENIS_AGENSI_BROKER);
+    }
+
+    public function scopeAgentPerorangan($query)
+    {
+        return $query->where('jenis_akun', self::JENIS_AGENT_PERORANGAN);
+    }
+
+    // === Helper Methods ===
+
+    /**
+     * Check if agent is agensi/broker type
+     */
+    public function isAgensiBroker(): bool
+    {
+        return $this->jenis_akun === self::JENIS_AGENSI_BROKER;
+    }
+
+    /**
+     * Check if agent is perorangan type
+     */
+    public function isAgentPerorangan(): bool
+    {
+        return $this->jenis_akun === self::JENIS_AGENT_PERORANGAN;
+    }
+
+    /**
+     * Get display name (for agensi = nama_agensi, for perorangan = name)
+     */
+    public function getDisplayNameAttribute(): string
+    {
+        if ($this->isAgensiBroker() && $this->nama_agensi) {
+            return $this->nama_agensi;
+        }
+        return $this->name ?? 'Agent';
+    }
+
+    /**
+     * Get display photo (for agensi = logo_agensi, for perorangan = photo)
+     */
+    public function getDisplayPhotoAttribute(): ?string
+    {
+        if ($this->isAgensiBroker() && $this->logo_agensi) {
+            return $this->logo_agensi;
+        }
+        return $this->photo ?? $this->foto_pic;
+    }
+
+    /**
+     * Get contact email based on account type
+     */
+    public function getContactEmailAttribute(): string
+    {
+        if ($this->isAgensiBroker()) {
+            return $this->email_agensi ?? $this->email_pic ?? $this->email;
+        }
+        return $this->email;
+    }
+
+    /**
+     * Get contact phone based on account type
+     */
+    public function getContactPhoneAttribute(): string
+    {
+        if ($this->isAgensiBroker()) {
+            return $this->wa_pic ?? $this->phone;
+        }
+        return $this->phone;
+    }
+
+    /**
+     * Get jenis akun label
+     */
+    public function getJenisAkunLabelAttribute(): string
+    {
+        return self::jenisAkunOptions()[$this->jenis_akun] ?? $this->jenis_akun;
+    }
+
+    /**
+     * Check if profile is complete based on account type
+     */
+    public function isProfileComplete(): bool
+    {
+        if ($this->isAgensiBroker()) {
+            return !empty($this->nama_agensi)
+                && !empty($this->nama_pic)
+                && !empty($this->foto_pic)
+                && !empty($this->ktp_pic)
+                && !empty($this->email_pic)
+                && !empty($this->wa_pic)
+                && !empty($this->logo_agensi);
+        }
+
+        // Agent perorangan atau agent developer
+        return !empty($this->photo) && !empty($this->ktp);
+    }
+
+    /**
+     * Get WhatsApp link
+     */
+    public function getWhatsappLinkAttribute(): ?string
+    {
+        $number = $this->isAgensiBroker() ? ($this->wa_pic ?? $this->phone) : $this->phone;
+
+        if ($number) {
+            $number = preg_replace('/[^0-9]/', '', $number);
             if (substr($number, 0, 1) === '0') {
                 $number = '62' . substr($number, 1);
             }
