@@ -74,6 +74,7 @@ Route::get('/popular-properties/cities', [PopularPropertyController::class, 'get
 Route::get('/popular-properties/city/{city}', [PopularPropertyController::class, 'getByCity']);
 Route::get('/popular-properties/all', [PopularPropertyController::class, 'getAll']);
 Route::get('/popular-properties', [PopularPropertyController::class, 'index']);
+Route::get('/latest-properties', [PopularPropertyController::class, 'getLatest']);
 Route::get('/verified-projects', [VerifiedProjectController::class, 'index']);
 
 Route::get('/testimonials', [TestimoniController::class, 'index']);

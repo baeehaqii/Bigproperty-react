@@ -353,6 +353,149 @@ class PopularPropertyController extends Controller
     }
 
     /**
+     * Get latest approved properties with pagination (12 per page for 4-column grid)
+     * Sorted by last_updated (newest first)
+     * Avoids N+1 by eager loading developer and agen relationships
+     */
+    public function getLatest(): JsonResponse
+    {
+        try {
+            $perPage = 12; // 4 columns x 3 rows
+            $page = request()->input('page', 1);
+
+            Log::info('Fetching latest properties', ['page' => $page, 'perPage' => $perPage]);
+
+            // Eager load relationships to avoid N+1
+            // Load categories once for mapping
+            $categories = \App\Models\PropertyCategory::pluck('name', 'id')->toArray();
+
+            // Query with pagination - sorted by last_updated DESC (newest first)
+            $query = Property::with(['developer', 'agen'])
+                ->where('is_available', true)
+                ->where('is_verified', true)
+                ->where(function ($q) {
+                    $q->whereNull('is_draft')
+                        ->orWhere('is_draft', false);
+                })
+                ->orderByDesc('last_updated')
+                ->orderByDesc('created_at');
+
+            $paginatedProperties = $query->paginate($perPage);
+
+            // Helper function for image URL (supports Cloudinary)
+            $getImageUrl = function ($path) {
+                if (!$path)
+                    return null;
+                // If it's already a full URL (Cloudinary), return as is
+                if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+                    return $path;
+                }
+                // Local path
+                $imagePath = str_replace('private/', '', $path);
+                return url('/storage/' . $imagePath);
+            };
+
+            $mappedProperties = $paginatedProperties->getCollection()->map(function ($property) use ($getImageUrl, $categories) {
+                // Main image URL
+                $mainImageUrl = $getImageUrl($property->main_image);
+
+                // Fallback to images array
+                if (!$mainImageUrl && !empty($property->images)) {
+                    $mainImageUrl = $getImageUrl($property->images[0]);
+                }
+
+                // Map all images
+                $imagesUrls = [];
+                if (!empty($property->images)) {
+                    foreach ($property->images as $image) {
+                        $url = $getImageUrl($image);
+                        if ($url)
+                            $imagesUrls[] = $url;
+                    }
+                }
+
+                // Agent photo URL
+                $agentPhotoUrl = $property->agen ? $getImageUrl($property->agen->photo) : null;
+
+                // Developer logo URL
+                $developerLogoUrl = $property->developer ? $getImageUrl($property->developer->logo) : null;
+
+                // Determine type
+                $type = 'Rumah Baru';
+                if (!empty($property->kategori) && isset($property->kategori[0])) {
+                    $catId = $property->kategori[0];
+                    if (isset($categories[$catId])) {
+                        $type = $categories[$catId];
+                    }
+                }
+
+                return [
+                    'id' => $property->id,
+                    'image' => $mainImageUrl,
+                    'images' => $imagesUrls,
+                    'promoText' => $property->promo_text,
+                    'features' => $property->keunggulan ?? [],
+                    'type' => $type,
+                    'units' => $property->units_remaining ? "Sisa {$property->units_remaining} Unit" : null,
+                    'priceRange' => $property->price_range,
+                    'installment' => $property->installment_text,
+                    'name' => $property->name,
+                    // Use agent name, fallback to developer name
+                    'developer' => $property->agen?->name ?? $property->developer?->name ?? 'Developer',
+                    'developerLogo' => $agentPhotoUrl ?: $developerLogoUrl,
+                    // Agent data for avatar fallback
+                    'agent' => $property->agen ? [
+                        'name' => $property->agen->name,
+                        'photo' => $agentPhotoUrl,
+                    ] : null,
+                    // Location - just the address
+                    'location' => $property->location,
+                    'city' => $property->city,
+                    'province' => $property->provinsi,
+                    'bedrooms' => $property->bedrooms,
+                    'landSize' => $property->land_size_text,
+                    'buildingSize' => $property->building_size_text,
+                    'additionalInfo' => $property->certificate_type,
+                    'lastUpdated' => $property->last_updated ?
+                        $property->last_updated->diffForHumans() :
+                        'Baru ditambahkan',
+                    'buttonType' => $property->button_type ?? 'view',
+                    'available' => $property->is_available,
+                    'countClicked' => $property->count_clicked ?? 0,
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'properties' => $mappedProperties,
+                    'pagination' => [
+                        'current_page' => $paginatedProperties->currentPage(),
+                        'last_page' => $paginatedProperties->lastPage(),
+                        'per_page' => $paginatedProperties->perPage(),
+                        'total' => $paginatedProperties->total(),
+                        'has_more_pages' => $paginatedProperties->hasMorePages(),
+                        'from' => $paginatedProperties->firstItem(),
+                        'to' => $paginatedProperties->lastItem(),
+                    ],
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Get latest properties error:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                'data' => null
+            ], 500);
+        }
+    }
+
+    /**
      * Get all properties grouped by city (alternative endpoint)
      */
     public function index(): JsonResponse

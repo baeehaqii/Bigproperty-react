@@ -4,8 +4,10 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import Navbar from '@/components/navbar';
 import Hero from '@/components/hero';
 import { GoldenDeals } from '@/components/golden-deals';
+import { LatestProperties } from '@/components/latest-properties';
 import { PropertyCategories } from '@/components/property-categories';
 import { PopularProperties } from '@/components/popular-properties';
+import { PartnershipSection } from '@/components/partnership-section';
 import { VerifiedProjects } from '@/components/verified-projects';
 import { Testimonials } from '@/components/testimonials';
 import Footer from '@/components/footer';
@@ -34,12 +36,21 @@ export default function Welcome() {
                         <div className="mt-8 w-full">
                             <GoldenDeals />
                         </div>
+                        <div className="mt-8 w-full">
+                            <LatestProperties />
+                        </div>
                         <div className="mt-2 w-full">
                             <PopularProperties />
                         </div>
+                        {/* Temporarily hidden - Proyek Terverifikasi
                         <div className="mt-8 w-full">
                             <VerifiedProjects />
                         </div>
+                        */}
+                    </div>
+                    {/* Partnership & Property Links Section */}
+                    <div className="mt-8 w-full">
+                        <PartnershipSection />
                     </div>
                     <div className="mt-8 w-full">
                         <Testimonials />

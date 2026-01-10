@@ -173,7 +173,8 @@ class AgentDashboardController extends Controller
         $stats = [
             'total' => $listings->count(),
             'active' => $listings->where('is_available', true)->where('is_verified', true)->count(),
-            'pending' => $listings->where('is_verified', false)->count(),
+            'pending' => $listings->where('is_verified', false)->where('is_draft', false)->count(),
+            'draft' => $listings->where('is_draft', true)->count(),
             'totalViews' => $listings->sum('count_clicked') ?? 0,
         ];
 
@@ -291,29 +292,64 @@ class AgentDashboardController extends Controller
             'developer_id' => ['nullable', 'exists:developers,id'],
             'kategori' => ['nullable', 'string'],
 
-            'price_min' => ['required', 'numeric', 'min:0'],
+            'price_min' => ['nullable', 'numeric', 'min:0'],
             'price_max' => ['nullable', 'numeric', 'min:0'],
-            'installment_start' => ['required', 'numeric', 'min:0'],
+            'pajak' => ['nullable', 'numeric', 'min:0'],
+            'notaris' => ['nullable', 'numeric', 'min:0'],
+            'installment_start' => ['nullable', 'numeric', 'min:0'],
 
-            'bedrooms' => ['required', 'integer', 'min:0'],
+            'bedrooms' => ['nullable', 'integer', 'min:0'],
             'bathrooms' => ['nullable', 'integer', 'min:0'],
             'carport' => ['nullable', 'integer', 'min:0'],
             'listrik' => ['nullable', 'integer', 'min:0'],
+            'jenis_air' => ['nullable', 'string', 'max:50'],
+            'condition' => ['nullable', 'string', 'in:Baru,Bekas'],
             'certificate_type' => ['nullable', 'string', 'max:50'],
-            'land_size_min' => ['required', 'integer', 'min:0'],
+            'land_size_min' => ['nullable', 'integer', 'min:0'],
             'land_size_max' => ['nullable', 'integer', 'min:0'],
-            'building_size_min' => ['required', 'integer', 'min:0'],
+            'building_size_min' => ['nullable', 'integer', 'min:0'],
             'building_size_max' => ['nullable', 'integer', 'min:0'],
 
             'keunggulan' => ['nullable', 'string'],
             'fasilitas' => ['nullable', 'string'],
-            'nearest_place' => ['nullable', 'string'],
+            'nearby_places' => ['nullable', 'string'],
+            'promos' => ['nullable', 'string'],
 
             'promo_text' => ['nullable', 'string', 'max:2000'],
             'is_available' => ['nullable', 'boolean'],
+            'is_draft' => ['nullable', 'boolean'],
+            'main_image' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:5120'], // 5MB max
+            'images.*' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:5120'], // 5MB max
         ]);
 
         try {
+            // Increase execution time and memory for image processing
+            set_time_limit(120); // 2 minutes for multiple image uploads
+            ini_set('memory_limit', '256M');
+
+            // Initialize Cloudinary service
+            $cloudinaryService = new CloudinaryService();
+
+            // Handle main image upload to Cloudinary
+            $mainImageUrl = null;
+            if ($request->hasFile('main_image')) {
+                $result = $cloudinaryService->uploadPropertyImage(
+                    $request->file('main_image'),
+                    'big-property/properties'
+                );
+                $mainImageUrl = $result['url'];
+            }
+
+            // Handle gallery images upload to Cloudinary
+            $galleryImages = [];
+            if ($request->hasFile('images')) {
+                $results = $cloudinaryService->uploadMultiplePropertyImages(
+                    $request->file('images'),
+                    'big-property/properties'
+                );
+                $galleryImages = array_map(fn($r) => $r['url'], $results);
+            }
+
             $property->update([
                 'name' => $validated['name'],
                 'provinsi' => $validated['provinsi'],
@@ -324,30 +360,48 @@ class AgentDashboardController extends Controller
                 'developer_id' => $validated['developer_id'] ?? $property->developer_id,
                 'kategori' => json_decode($validated['kategori'] ?? '[]', true),
 
-                'price_min' => $validated['price_min'],
-                'price_max' => $validated['price_max'] ?? $validated['price_min'],
-                'installment_start' => $validated['installment_start'],
+                'price_min' => $validated['price_min'] ?? $property->price_min,
+                'price_max' => $validated['price_max'] ?? ($validated['price_min'] ?? $property->price_max),
+                'pajak' => $validated['pajak'] ?? $property->pajak,
+                'notaris' => $validated['notaris'] ?? $property->notaris,
+                'installment_start' => $validated['installment_start'] ?? $property->installment_start,
 
-                'bedrooms' => $validated['bedrooms'],
+                'bedrooms' => $validated['bedrooms'] ?? $property->bedrooms,
                 'bathrooms' => $validated['bathrooms'] ?? $property->bathrooms,
                 'carport' => $validated['carport'] ?? $property->carport,
                 'listrik' => $validated['listrik'] ?? $property->listrik,
+                'jenis_air' => $validated['jenis_air'] ?? $property->jenis_air,
+                'condition' => $validated['condition'] ?? $property->condition,
                 'certificate_type' => $validated['certificate_type'] ?? $property->certificate_type,
-                'land_size_min' => $validated['land_size_min'],
-                'land_size_max' => $validated['land_size_max'] ?? $validated['land_size_min'],
-                'building_size_min' => $validated['building_size_min'],
+                'land_size_min' => $validated['land_size_min'] ?? $property->land_size_min,
+                'land_size_max' => $validated['land_size_max'] ?? ($validated['land_size_min'] ?? $property->land_size_max),
+                'building_size_min' => $validated['building_size_min'] ?? $property->building_size_min,
                 'building_size_max' => $validated['building_size_max'] ?? $property->building_size_max,
 
                 'keunggulan' => json_decode($validated['keunggulan'] ?? '[]', true),
                 'fasilitas' => json_decode($validated['fasilitas'] ?? '[]', true),
-                'nearest_place' => json_decode($validated['nearest_place'] ?? '[]', true),
+                'nearby_places' => json_decode($validated['nearby_places'] ?? '[]', true),
 
                 'promo_text' => $validated['promo_text'] ?? $property->promo_text,
-                'has_promo' => !empty($validated['promo_text']),
+                'has_promo' => !empty($validated['promo_text'] ?? $property->promo_text) || (isset($validated['promos']) ? !empty(json_decode($validated['promos'], true)) : $property->promos()->exists()),
                 'is_available' => $validated['is_available'] ?? $property->is_available,
                 'is_verified' => false, // Need re-verification after edit
+                'is_draft' => $validated['is_draft'] ?? $property->is_draft,
+                'main_image' => $mainImageUrl ?? $property->main_image,
+                'images' => !empty($galleryImages) ? array_merge($property->images ?? [], $galleryImages) : $property->images,
                 'last_updated' => now(),
             ]);
+
+            if (isset($validated['promos'])) {
+                $property->promos()->sync(json_decode($validated['promos'], true));
+            }
+
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'message' => 'Step saved successfully',
+                    'id' => $property->id,
+                ]);
+            }
 
             return redirect()->route('agent.dashboard.listing-saya')
                 ->with('success', 'Properti berhasil diperbarui! Menunggu verifikasi ulang.');
@@ -381,10 +435,34 @@ class AgentDashboardController extends Controller
             ->orderBy('order')
             ->get();
 
+        // Get keunggulan list from database
+        $keunggulanList = \App\Models\Keunggulan::select('id', 'nama', 'icon', 'keterangan')
+            ->orderBy('nama')
+            ->get();
+
+        // Get fasilitas list from database
+        $fasilitasList = \App\Models\Fasilitas::select('id', 'nama', 'icon')
+            ->orderBy('nama')
+            ->get();
+
+        // Get kategori places list from database
+        $kategoriPlacesList = \App\Models\KategoriPlace::select('id', 'nama')
+            ->orderBy('nama')
+            ->get();
+
+        // Get active promos
+        $promosList = \App\Models\Promo::where('is_active', true)
+            ->select('id', 'nama')
+            ->get();
+
         return Inertia::render('DashboardAgent/UploadListing/index', [
             'agent' => $this->getAgentData(),
             'developers' => $developers,
             'categories' => $categories,
+            'keunggulanList' => $keunggulanList,
+            'fasilitasList' => $fasilitasList,
+            'kategoriPlacesList' => $kategoriPlacesList,
+            'promosList' => $promosList,
         ]);
     }
 
@@ -410,29 +488,33 @@ class AgentDashboardController extends Controller
             'developer_id' => ['nullable', 'exists:developers,id'],
             'kategori' => ['nullable', 'string'], // JSON string
 
-            'price_min' => ['required', 'numeric', 'min:0'],
-            'price_max' => ['nullable', 'numeric', 'min:0'],
-            'installment_start' => ['required', 'numeric', 'min:0'],
+            'price_min' => ['nullable', 'numeric', 'min:0'],
+            'pajak' => ['nullable', 'numeric', 'min:0'],
+            'notaris' => ['nullable', 'numeric', 'min:0'],
+            'installment_start' => ['nullable', 'numeric', 'min:0'],
 
-            'bedrooms' => ['required', 'integer', 'min:0'],
+            'bedrooms' => ['nullable', 'integer', 'min:0'],
             'bathrooms' => ['nullable', 'integer', 'min:0'],
             'carport' => ['nullable', 'integer', 'min:0'],
-            'listrik' => ['nullable', 'integer', 'min:0'],
             'certificate_type' => ['nullable', 'string', 'max:50'],
-            'land_size_min' => ['required', 'integer', 'min:0'],
+            'land_size_min' => ['nullable', 'integer', 'min:0'],
             'land_size_max' => ['nullable', 'integer', 'min:0'],
-            'building_size_min' => ['required', 'integer', 'min:0'],
+            'building_size_min' => ['nullable', 'integer', 'min:0'],
             'building_size_max' => ['nullable', 'integer', 'min:0'],
+            'listrik' => ['nullable', 'integer', 'min:0'],
+            'jenis_air' => ['nullable', 'string', 'max:50'],
+            'condition' => ['nullable', 'string', 'in:Baru,Bekas'],
 
-            'keunggulan' => ['nullable', 'string'], // JSON string
-            'fasilitas' => ['nullable', 'string'], // JSON string
-            'nearest_place' => ['nullable', 'string'], // JSON string
+            'keunggulan' => ['nullable', 'string'], // JSON string - array of IDs
+            'fasilitas' => ['nullable', 'string'], // JSON string - array of IDs
+            'nearby_places' => ['nullable', 'string'], // JSON string - array of IDs
+            'promos' => ['nullable', 'string'], // JSON string - array of IDs
 
             'promo_text' => ['nullable', 'string', 'max:2000'],
 
             'main_image' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:5120'], // 5MB max
             'images.*' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:5120'], // 5MB max
-
+            'is_draft' => ['nullable', 'boolean'],
         ]);
 
         try {
@@ -474,26 +556,30 @@ class AgentDashboardController extends Controller
                 'developer_id' => $validated['developer_id'] ?? null,
                 'kategori' => json_decode($validated['kategori'] ?? '[]', true),
 
-                'price_min' => $validated['price_min'],
-                'price_max' => $validated['price_max'] ?? $validated['price_min'],
-                'installment_start' => $validated['installment_start'],
+                'price_min' => $validated['price_min'] ?? 0,
+                'price_max' => $validated['price_min'] ?? 0, // Same as price_min since we removed max
+                'pajak' => $validated['pajak'] ?? null,
+                'notaris' => $validated['notaris'] ?? null,
+                'installment_start' => $validated['installment_start'] ?? 0,
 
-                'bedrooms' => $validated['bedrooms'],
+                'bedrooms' => $validated['bedrooms'] ?? 0,
                 'bathrooms' => $validated['bathrooms'] ?? null,
                 'carport' => $validated['carport'] ?? null,
-                'listrik' => $validated['listrik'] ?? null,
                 'certificate_type' => $validated['certificate_type'] ?? null,
-                'land_size_min' => $validated['land_size_min'],
-                'land_size_max' => $validated['land_size_max'] ?? $validated['land_size_min'],
-                'building_size_min' => $validated['building_size_min'],
+                'land_size_min' => $validated['land_size_min'] ?? 0,
+                'land_size_max' => $validated['land_size_max'] ?? ($validated['land_size_min'] ?? 0),
+                'building_size_min' => $validated['building_size_min'] ?? 0,
                 'building_size_max' => $validated['building_size_max'] ?? null,
+                'listrik' => $validated['listrik'] ?? null,
+                'jenis_air' => $validated['jenis_air'] ?? null,
+                'condition' => $validated['condition'] ?? null,
 
                 'keunggulan' => json_decode($validated['keunggulan'] ?? '[]', true),
                 'fasilitas' => json_decode($validated['fasilitas'] ?? '[]', true),
-                'nearest_place' => json_decode($validated['nearest_place'] ?? '[]', true),
+                'nearby_places' => json_decode($validated['nearby_places'] ?? '[]', true),
 
                 'promo_text' => $validated['promo_text'] ?? null,
-                'has_promo' => !empty($validated['promo_text']),
+                'has_promo' => !empty($validated['promo_text']) || !empty(json_decode($validated['promos'] ?? '[]', true)),
 
                 'main_image' => $mainImageUrl,
                 'images' => $galleryImages,
@@ -502,11 +588,21 @@ class AgentDashboardController extends Controller
                 'is_available' => true,
                 'is_popular' => false,
                 'is_verified' => false, // Needs admin verification
-
+                'is_draft' => $validated['is_draft'] ?? true,
                 'agen_id' => $agent->id,
                 'last_updated' => now(),
                 'count_clicked' => 0,
             ]);
+
+            // Sync promos
+            $property->promos()->sync(json_decode($validated['promos'] ?? '[]', true));
+
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'message' => 'Step saved successfully',
+                    'id' => $property->id,
+                ]);
+            }
 
             return redirect()->route('agent.dashboard')
                 ->with('success', 'Properti berhasil ditambahkan!');

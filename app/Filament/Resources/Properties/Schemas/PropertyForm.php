@@ -67,7 +67,7 @@ class PropertyForm
                                         return collect($provinces)->pluck('name', 'code')->toArray();
                                     }
                                 } catch (\Exception $e) {
-                                    
+
                                 }
 
                                 return [];
@@ -75,8 +75,8 @@ class PropertyForm
                             ->searchable()
                             ->required()
                             ->placeholder('Select province first'),
-                        
-                        
+
+
                         Select::make('city')
                             ->label('City / Regency')
                             ->options(function (callable $get) {
@@ -94,7 +94,7 @@ class PropertyForm
                                         return collect($regencies)->pluck('name', 'code')->toArray();
                                     }
                                 } catch (\Exception $e) {
-                                    
+
                                 }
 
                                 return [];
@@ -120,19 +120,19 @@ class PropertyForm
                         TextInput::make('units_remaining')
                             ->label('Units Remaining')
                             ->numeric()
-                            ->visible(function(){
-                                return auth()->user()->hasRole(['super_admin','developer']);
+                            ->visible(function () {
+                                return auth()->user()->hasRole(['super_admin', 'developer']);
                             })
                             ->placeholder('e.g., 16')
                             ->suffix('units'),
 
                         Select::make('developer_id')
-                            ->afterstateHydrated(function(callable $set, $state){
-                                if(auth()->user()->hasRole('Agen')){
-                                    $agen = Agen::where("user_id",'=',auth()->user()->id)->first();
-                                    
-                                    if($agen->developer_id){
-                                        $set($state,$agen->developer_id);
+                            ->afterstateHydrated(function (callable $set, $state) {
+                                if (auth()->user()->hasRole('Agen')) {
+                                    $agen = Agen::where("user_id", '=', auth()->user()->id)->first();
+
+                                    if ($agen->developer_id) {
+                                        $set($state, $agen->developer_id);
                                     }
                                 }
                             })
@@ -159,7 +159,7 @@ class PropertyForm
                             ->columnSpanFull(),
                     ]),
 
-                
+
                 Section::make('Price & Financing')
                     ->description('Pricing and installment information')
                     ->icon('heroicon-o-currency-dollar')
@@ -190,16 +190,31 @@ class PropertyForm
                             ->helperText('Monthly payment amount'),
                     ]),
 
-                
+
                 Section::make('Property Specifications')
                     ->description('Detailed property specifications')
                     ->icon('heroicon-o-home')
                     ->schema([
-                        TextInput::make('bedrooms')
-                            ->label('Bedrooms')
-                            ->suffix('KT')
-                            ->required()
-                            ->placeholder('2'),
+                        Grid::make(3)
+                            ->schema([
+                                TextInput::make('bedrooms')
+                                    ->label('Bedrooms')
+                                    ->suffix('KT')
+                                    ->required()
+                                    ->placeholder('2'),
+
+                                TextInput::make('bathrooms')
+                                    ->label('Bathrooms')
+                                    ->suffix('KM')
+                                    ->numeric()
+                                    ->placeholder('1'),
+
+                                TextInput::make('carport')
+                                    ->label('Carport')
+                                    ->suffix('Unit')
+                                    ->numeric()
+                                    ->placeholder('1'),
+                            ]),
 
                         Select::make('certificate_type')
                             ->label('Certificate Type')
@@ -273,7 +288,7 @@ class PropertyForm
                             ->required(),
                     ]),
 
-                
+
                 Section::make('Keunggulan')
                     ->schema([
                         Repeater::make('keunggulanPivot')
@@ -288,13 +303,13 @@ class PropertyForm
                                     ->columnSpanFull()
                                     ->preload()
                             ])
-                            
+
                             ->addActionLabel('Tambah Keunggulan'),
                     ]),
 
                 // Fasilitas Section
                 Section::make('Fasilitas')
-                    
+
                     ->schema([
                         Repeater::make('fasilitasPivot')
                             ->label("Fasilitas")
@@ -313,18 +328,18 @@ class PropertyForm
                             ->addActionLabel('Tambah Fasilitas'),
                     ]),
 
-                
+
                 Section::make('Nearby Places')
                     ->description('Lokasi terdekat dan jarak tempuh')
                     ->icon('heroicon-o-map-pin')
                     ->collapsible()
                     ->schema([
-                        Repeater::make('nearbyPlacePivot') 
+                        Repeater::make('nearbyPlacePivot')
                             ->label("Nearby Places")
-                        
-                            ->relationship() 
+
+                            ->relationship()
                             ->schema([
-                                Select::make('nearby_place_id') 
+                                Select::make('nearby_place_id')
                                     ->label('Tempat / Lokasi')
                                     ->options(\App\Models\NearbyPlace::pluck('nama', 'id'))
                                     ->required()
@@ -332,7 +347,7 @@ class PropertyForm
                                     ->preload()
                                     ->columnSpan(2),
 
-                                TextInput::make('jarak') 
+                                TextInput::make('jarak')
                                     ->label('Waktu ( Menit ')
                                     ->required()
                                     ->numeric()
@@ -341,9 +356,10 @@ class PropertyForm
                             ->columns(3)
                             ->defaultItems(1)
                             ->reorderable()
-                            ->itemLabel(fn (array $state): ?string => 
-                                !empty($state['nearby_place_id']) 
-                                ? \App\Models\NearbyPlace::find($state['nearby_place_id'])?->nama 
+                            ->itemLabel(
+                                fn(array $state): ?string =>
+                                !empty($state['nearby_place_id'])
+                                ? \App\Models\NearbyPlace::find($state['nearby_place_id'])?->nama
                                 : 'Tambah Tempat Terdekat'
                             ),
                     ]),
@@ -351,16 +367,18 @@ class PropertyForm
                 Section::make('Media Assets')
                     ->columnspanFull()
                     ->schema([
-                        
+
                         Section::make('Marketing & Promotion')
                             ->description('Promotional content and features')
                             ->icon('heroicon-o-megaphone')
                             ->collapsible()
                             ->schema([
-                                CheckboxList::make('promos')
-                                    ->relationship(titleAttribute: 'nama')
-                                    ->columns(2)
-                                    ->searchable(),
+                                Select::make('promos')
+                                    ->relationship('promos', 'nama')
+                                    ->multiple()
+                                    ->searchable()
+                                    ->preload()
+                                    ->placeholder('Ketik untuk mencari...'),
                                 Textarea::make('promo_text')
                                     ->label('Promo Text')
                                     ->placeholder('e.g., Cuma di Pinhome: Emas Batangan hingga 12gr')
@@ -368,7 +386,7 @@ class PropertyForm
                                     ->columnSpanFull(),
                             ]),
 
-                        
+
                         Section::make('Images')
                             ->description('Property images and gallery')
                             ->icon('heroicon-o-photo')
@@ -445,23 +463,23 @@ class PropertyForm
     protected static function getHeroiconOptions(): array
     {
         $icons = [
-            
+
             'heroicon-o-home' => 'Home',
             'heroicon-o-home-modern' => 'Home Modern',
             'heroicon-o-building-office' => 'Building Office',
             'heroicon-o-building-office-2' => 'Building Office 2',
             'heroicon-o-building-storefront' => 'Building Storefront',
             'heroicon-o-building-library' => 'Building Library',
-            
-            
+
+
             'heroicon-o-map-pin' => 'Map Pin',
             'heroicon-o-map' => 'Map',
             'heroicon-o-globe-alt' => 'Globe Alt',
             'heroicon-o-globe-americas' => 'Globe Americas',
             'heroicon-o-globe-asia-australia' => 'Globe Asia Australia',
             'heroicon-o-globe-europe-africa' => 'Globe Europe Africa',
-            
-            
+
+
             'heroicon-o-briefcase' => 'Briefcase',
             'heroicon-o-banknotes' => 'Banknotes',
             'heroicon-o-currency-dollar' => 'Currency Dollar',
@@ -475,16 +493,16 @@ class PropertyForm
             'heroicon-o-receipt-percent' => 'Receipt Percent',
             'heroicon-o-receipt-refund' => 'Receipt Refund',
             'heroicon-o-scale' => 'Scale',
-            
-            
+
+
             'heroicon-o-shopping-cart' => 'Shopping Cart',
             'heroicon-o-shopping-bag' => 'Shopping Bag',
             'heroicon-o-gift' => 'Gift',
             'heroicon-o-gift-top' => 'Gift Top',
             'heroicon-o-ticket' => 'Ticket',
             'heroicon-o-tag' => 'Tag',
-            
-            
+
+
             'heroicon-o-squares-2x2' => 'Squares 2x2',
             'heroicon-o-squares-plus' => 'Squares Plus',
             'heroicon-o-rectangle-group' => 'Rectangle Group',
@@ -495,8 +513,8 @@ class PropertyForm
             'heroicon-o-queue-list' => 'Queue List',
             'heroicon-o-list-bullet' => 'List Bullet',
             'heroicon-o-numbered-list' => 'Numbered List',
-            
-            
+
+
             'heroicon-o-star' => 'Star',
             'heroicon-o-heart' => 'Heart',
             'heroicon-o-fire' => 'Fire',
@@ -507,15 +525,15 @@ class PropertyForm
             'heroicon-o-check-badge' => 'Check Badge',
             'heroicon-o-shield-check' => 'Shield Check',
             'heroicon-o-shield-exclamation' => 'Shield Exclamation',
-            
-            
+
+
             'heroicon-o-key' => 'Key',
             'heroicon-o-lock-closed' => 'Lock Closed',
             'heroicon-o-lock-open' => 'Lock Open',
             'heroicon-o-finger-print' => 'Finger Print',
             'heroicon-o-identification' => 'Identification',
-            
-            
+
+
             'heroicon-o-tv' => 'TV',
             'heroicon-o-wifi' => 'WiFi',
             'heroicon-o-signal' => 'Signal',
@@ -534,13 +552,13 @@ class PropertyForm
             'heroicon-o-speaker-x-mark' => 'Speaker X Mark',
             'heroicon-o-radio' => 'Radio',
             'heroicon-o-musical-note' => 'Musical Note',
-            
-            
+
+
             'heroicon-o-truck' => 'Truck',
             'heroicon-o-paper-airplane' => 'Paper Airplane',
             'heroicon-o-rocket-launch' => 'Rocket Launch',
-            
-            
+
+
             'heroicon-o-wrench-screwdriver' => 'Wrench Screwdriver',
             'heroicon-o-wrench' => 'Wrench',
             'heroicon-o-cog' => 'Cog',
@@ -555,18 +573,18 @@ class PropertyForm
             'heroicon-o-paint-brush' => 'Paint Brush',
             'heroicon-o-swatch' => 'Swatch',
             'heroicon-o-eye-dropper' => 'Eye Dropper',
-            
-            
+
+
             'heroicon-o-sun' => 'Sun',
             'heroicon-o-moon' => 'Moon',
             'heroicon-o-cloud' => 'Cloud',
             'heroicon-o-cloud-arrow-up' => 'Cloud Arrow Up',
             'heroicon-o-cloud-arrow-down' => 'Cloud Arrow Down',
-            
-            
+
+
             'heroicon-o-cake' => 'Cake',
-            
-            
+
+
             'heroicon-o-chat-bubble-left' => 'Chat Bubble Left',
             'heroicon-o-chat-bubble-left-right' => 'Chat Bubble Left Right',
             'heroicon-o-chat-bubble-left-ellipsis' => 'Chat Bubble Left Ellipsis',
@@ -590,8 +608,8 @@ class PropertyForm
             'heroicon-o-at-symbol' => 'At Symbol',
             'heroicon-o-hashtag' => 'Hashtag',
             'heroicon-o-language' => 'Language',
-            
-            
+
+
             'heroicon-o-document' => 'Document',
             'heroicon-o-document-text' => 'Document Text',
             'heroicon-o-document-plus' => 'Document Plus',
@@ -621,8 +639,8 @@ class PropertyForm
             'heroicon-o-bookmark' => 'Bookmark',
             'heroicon-o-bookmark-square' => 'Bookmark Square',
             'heroicon-o-bookmark-slash' => 'Bookmark Slash',
-            
-            
+
+
             'heroicon-o-archive-box' => 'Archive Box',
             'heroicon-o-archive-box-arrow-down' => 'Archive Box Arrow Down',
             'heroicon-o-archive-box-x-mark' => 'Archive Box X Mark',
@@ -633,26 +651,26 @@ class PropertyForm
             'heroicon-o-server-stack' => 'Server Stack',
             'heroicon-o-cube' => 'Cube',
             'heroicon-o-cube-transparent' => 'Cube Transparent',
-            
-            
+
+
             'heroicon-o-chart-bar' => 'Chart Bar',
             'heroicon-o-chart-bar-square' => 'Chart Bar Square',
             'heroicon-o-chart-pie' => 'Chart Pie',
             'heroicon-o-presentation-chart-bar' => 'Presentation Chart Bar',
             'heroicon-o-presentation-chart-line' => 'Presentation Chart Line',
-            
-            
+
+
             'heroicon-o-calendar' => 'Calendar',
             'heroicon-o-calendar-days' => 'Calendar Days',
             'heroicon-o-calendar-date-range' => 'Calendar Date Range',
             'heroicon-o-clock' => 'Clock',
-            
-            
+
+
             'heroicon-o-academic-cap' => 'Academic Cap',
             'heroicon-o-puzzle-piece' => 'Puzzle Piece',
             'heroicon-o-light-bulb' => 'Light Bulb',
-            
-            
+
+
             'heroicon-o-user' => 'User',
             'heroicon-o-user-circle' => 'User Circle',
             'heroicon-o-user-plus' => 'User Plus',
@@ -664,8 +682,8 @@ class PropertyForm
             'heroicon-o-hand-thumb-down' => 'Hand Thumb Down',
             'heroicon-o-face-smile' => 'Face Smile',
             'heroicon-o-face-frown' => 'Face Frown',
-            
-            
+
+
             'heroicon-o-play' => 'Play',
             'heroicon-o-play-circle' => 'Play Circle',
             'heroicon-o-play-pause' => 'Play Pause',
@@ -676,8 +694,8 @@ class PropertyForm
             'heroicon-o-forward' => 'Forward',
             'heroicon-o-backward' => 'Backward',
             'heroicon-o-power' => 'Power',
-            
-            
+
+
             'heroicon-o-check' => 'Check',
             'heroicon-o-check-circle' => 'Check Circle',
             'heroicon-o-x-mark' => 'X Mark',
@@ -688,8 +706,8 @@ class PropertyForm
             'heroicon-o-question-mark-circle' => 'Question Mark Circle',
             'heroicon-o-no-symbol' => 'No Symbol',
             'heroicon-o-flag' => 'Flag',
-            
-            
+
+
             'heroicon-o-arrow-up' => 'Arrow Up',
             'heroicon-o-arrow-down' => 'Arrow Down',
             'heroicon-o-arrow-left' => 'Arrow Left',
@@ -729,8 +747,8 @@ class PropertyForm
             'heroicon-o-chevron-double-down' => 'Chevron Double Down',
             'heroicon-o-chevron-double-left' => 'Chevron Double Left',
             'heroicon-o-chevron-double-right' => 'Chevron Double Right',
-            
-            
+
+
             'heroicon-o-arrow-up-tray' => 'Arrow Up Tray',
             'heroicon-o-arrow-down-tray' => 'Arrow Down Tray',
             'heroicon-o-arrow-up-on-square' => 'Arrow Up On Square',
@@ -738,29 +756,29 @@ class PropertyForm
             'heroicon-o-arrow-up-on-square-stack' => 'Arrow Up On Square Stack',
             'heroicon-o-arrow-down-on-square-stack' => 'Arrow Down On Square Stack',
             'heroicon-o-arrow-top-right-on-square' => 'Arrow Top Right On Square',
-            
-            
+
+
             'heroicon-o-arrow-trending-up' => 'Arrow Trending Up',
             'heroicon-o-arrow-trending-down' => 'Arrow Trending Down',
             'heroicon-o-bars-arrow-up' => 'Bars Arrow Up',
             'heroicon-o-bars-arrow-down' => 'Bars Arrow Down',
-            
-            
+
+
             'heroicon-o-eye' => 'Eye',
             'heroicon-o-eye-slash' => 'Eye Slash',
             'heroicon-o-window' => 'Window',
             'heroicon-o-view-columns' => 'View Columns',
             'heroicon-o-viewfinder-circle' => 'Viewfinder Circle',
             'heroicon-o-table-cells' => 'Table Cells',
-            
-            
+
+
             'heroicon-o-magnifying-glass' => 'Magnifying Glass',
             'heroicon-o-magnifying-glass-circle' => 'Magnifying Glass Circle',
             'heroicon-o-magnifying-glass-plus' => 'Magnifying Glass Plus',
             'heroicon-o-magnifying-glass-minus' => 'Magnifying Glass Minus',
             'heroicon-o-funnel' => 'Funnel',
-            
-            
+
+
             'heroicon-o-pencil' => 'Pencil',
             'heroicon-o-pencil-square' => 'Pencil Square',
             'heroicon-o-plus' => 'Plus',
@@ -774,8 +792,8 @@ class PropertyForm
             'heroicon-o-backspace' => 'Backspace',
             'heroicon-o-cursor-arrow-rays' => 'Cursor Arrow Rays',
             'heroicon-o-cursor-arrow-ripple' => 'Cursor Arrow Ripple',
-            
-            
+
+
             'heroicon-o-bold' => 'Bold',
             'heroicon-o-italic' => 'Italic',
             'heroicon-o-underline' => 'Underline',
@@ -783,28 +801,28 @@ class PropertyForm
             'heroicon-o-h1' => 'H1',
             'heroicon-o-h2' => 'H2',
             'heroicon-o-h3' => 'H3',
-            
-            
+
+
             'heroicon-o-code-bracket' => 'Code Bracket',
             'heroicon-o-code-bracket-square' => 'Code Bracket Square',
             'heroicon-o-command-line' => 'Command Line',
             'heroicon-o-variable' => 'Variable',
-            
-            
+
+
             'heroicon-o-share' => 'Share',
             'heroicon-o-link' => 'Link',
             'heroicon-o-link-slash' => 'Link Slash',
             'heroicon-o-qr-code' => 'QR Code',
-            
-            
+
+
             'heroicon-o-printer' => 'Printer',
-            
-            
+
+
             'heroicon-o-battery-0' => 'Battery 0',
             'heroicon-o-battery-50' => 'Battery 50',
             'heroicon-o-battery-100' => 'Battery 100',
-            
-            
+
+
             'heroicon-o-bars-2' => 'Bars 2',
             'heroicon-o-bars-3' => 'Bars 3',
             'heroicon-o-bars-4' => 'Bars 4',
@@ -814,24 +832,24 @@ class PropertyForm
             'heroicon-o-ellipsis-horizontal' => 'Ellipsis Horizontal',
             'heroicon-o-ellipsis-horizontal-circle' => 'Ellipsis Horizontal Circle',
             'heroicon-o-ellipsis-vertical' => 'Ellipsis Vertical',
-            
-            
+
+
             'heroicon-o-lifebuoy' => 'Lifebuoy',
             'heroicon-o-gif' => 'GIF',
             'heroicon-o-slash' => 'Slash',
             'heroicon-o-equals' => 'Equals',
             'heroicon-o-divide' => 'Divide',
             'heroicon-o-percent-badge' => 'Percent Badge',
-            
-            
+
+
             'heroicon-o-arrow-left-on-rectangle' => 'Arrow Left On Rectangle',
             'heroicon-o-arrow-right-on-rectangle' => 'Arrow Right On Rectangle',
             'heroicon-o-arrow-left-start-on-rectangle' => 'Arrow Left Start On Rectangle',
             'heroicon-o-arrow-left-end-on-rectangle' => 'Arrow Left End On Rectangle',
             'heroicon-o-arrow-right-start-on-rectangle' => 'Arrow Right Start On Rectangle',
             'heroicon-o-arrow-right-end-on-rectangle' => 'Arrow Right End On Rectangle',
-            
-            
+
+
             'heroicon-o-arrow-turn-down-left' => 'Arrow Turn Down Left',
             'heroicon-o-arrow-turn-down-right' => 'Arrow Turn Down Right',
             'heroicon-o-arrow-turn-up-left' => 'Arrow Turn Up Left',
@@ -842,7 +860,7 @@ class PropertyForm
             'heroicon-o-arrow-turn-right-up' => 'Arrow Turn Right Up',
         ];
 
-        
+
         return collect($icons)->mapWithKeys(function ($label, $icon) {
             $svg = \Filament\Support\Facades\FilamentIcon::resolve($icon);
             return [
@@ -850,7 +868,7 @@ class PropertyForm
                             <span class='w-5 h-5'>{$svg}</span>
                             <span>{$label}</span>
                         </div>"
-                ];
-            })->toArray();
+            ];
+        })->toArray();
     }
 }

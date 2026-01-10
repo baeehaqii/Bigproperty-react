@@ -21,9 +21,83 @@ import {
     ArrowRight,
     ArrowLeft,
     Check,
+    Save,
+    // Additional icons for keunggulan/fasilitas
+    Car,
+    Wifi,
+    Dumbbell,
+    Trees,
+    Shield,
+    Camera,
+    UtensilsCrossed,
+    ShoppingBag,
+    GraduationCap,
+    Stethoscope,
+    Bus,
+    Plane,
+    Train,
+    Church,
+    Landmark,
+    LucideIcon,
+    Percent,
+    Banknote,
+    Leaf,
+    Heart,
+    Zap,
+    Clock,
+    Award,
+    ThumbsUp,
+    Target,
+    TrendingUp,
+    Users,
+    Key,
+    Droplet,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DashboardAgentLayout } from "../components/DashboardAgentLayout"
+
+// Icon mapping for dynamic icon rendering
+const iconMap: Record<string, LucideIcon> = {
+    Home,
+    Building2,
+    Car,
+    Wifi,
+    Dumbbell,
+    Trees,
+    Shield,
+    Camera,
+    UtensilsCrossed,
+    ShoppingBag,
+    GraduationCap,
+    Stethoscope,
+    Bus,
+    Plane,
+    Train,
+    Church,
+    Landmark,
+    MapPin,
+    Star,
+    Percent,
+    Banknote,
+    Leaf,
+    Heart,
+    Zap,
+    Clock,
+    Award,
+    ThumbsUp,
+    Target,
+    TrendingUp,
+    Users,
+    Key,
+    Droplet,
+    Info,
+    DollarSign,
+}
+
+// Helper function to get icon component by name
+const getIconByName = (iconName: string): LucideIcon | null => {
+    return iconMap[iconName] || Home
+}
 
 // Types
 interface Agent {
@@ -61,23 +135,43 @@ interface UploadListingProps {
     developers?: Developer[]
     categories?: PropertyCategory[]
     provinces?: Province[]
+    keunggulanList?: KeunggulanItem[]
+    fasilitasList?: FasilitasItem[]
+    kategoriPlacesList?: KategoriPlaceItem[]
+    promosList?: PromoItem[]
 }
 
-interface Keunggulan {
-    icon: string
+// Database Promo item
+interface PromoItem {
+    id: number
     nama: string
-    keterangan: string
 }
 
-interface Fasilitas {
+// Database Keunggulan item
+interface KeunggulanItem {
+    id: number
+    nama: string
     icon: string
+    keterangan?: string
+}
+
+// Database Fasilitas item
+interface FasilitasItem {
+    id: number
+    nama: string
+    icon: string
+}
+
+// Database KategoriPlace item
+interface KategoriPlaceItem {
+    id: number
     nama: string
 }
 
-interface NearestPlace {
+// NearbyPlace input item
+interface NearbyPlaceInput {
     kategori: string
     nama: string
-    jarak: string
 }
 
 interface FormData {
@@ -93,32 +187,35 @@ interface FormData {
 
     // Price & Financing
     price_min: string
-    price_max: string
+    pajak: string
+    notaris: string
     installment_start: string
 
     // Property Specifications
     bedrooms: string
     bathrooms: string
     carport: string
-    listrik: string
     certificate_type: string
     land_size_min: string
     land_size_max: string
     building_size_min: string
     building_size_max: string
-    market_type: string
-    construction_status: string
+    listrik: string
+    jenis_air: string
+    condition: string
 
-    // Keunggulan
-    keunggulan: Keunggulan[]
+    // Keunggulan (array of IDs)
+    keunggulan: number[]
 
-    // Fasilitas
-    fasilitas: Fasilitas[]
+    // Fasilitas (array of IDs)
+    fasilitas: number[]
 
-    // Nearest Places
-    nearest_place: NearestPlace[]
+    // Nearby Places (array of objects with kategori and nama)
+    nearby_places: NearbyPlaceInput[]
 
     // Marketing & Promotion
+    has_promo_active: boolean
+    promos: number[] // Array of Promo IDs
     promo_text: string
 
     // Images
@@ -138,8 +235,8 @@ const STEPS = [
     { id: 3, title: "Property Specifications", subtitle: "Detailed property specifications", icon: Home },
     { id: 4, title: "Keunggulan", subtitle: "Property advantages and unique selling points", icon: Star },
     { id: 5, title: "Fasilitas", subtitle: "Property facilities and amenities", icon: Building2 },
-    { id: 6, title: "Marketing & Promotion", subtitle: "Promotional content and features", icon: Megaphone },
-    { id: 7, title: "Nearest Places", subtitle: "Nearby locations and distances", icon: MapPin },
+    { id: 6, title: "Nearby Places", subtitle: "Nearby locations and distances", icon: MapPin },
+    { id: 7, title: "Marketing & Promotion", subtitle: "Promotional content and features", icon: Megaphone },
     { id: 8, title: "Images", subtitle: "Property images and gallery", icon: Image },
 ]
 
@@ -153,12 +250,33 @@ const iconOptions = [
 // Certificate type options
 const certificateOptions = [
     { value: 'SHM', label: 'SHM (Sertifikat Hak Milik)' },
-    { value: 'SHGB', label: 'SHGB (Sertifikat Hak Guna Bangunan)' },
     { value: 'HGB', label: 'HGB (Hak Guna Bangunan)' },
-    { value: 'Girik', label: 'Girik' },
-    { value: 'AJB', label: 'AJB (Akta Jual Beli)' },
-    { value: 'PPJB', label: 'PPJB (Perjanjian Pengikatan Jual Beli)' },
+    { value: 'SHGB', label: 'SHGB' },
     { value: 'Strata Title', label: 'Strata Title' },
+]
+
+// Daya Listrik options (VA)
+const listrikOptions = [
+    { value: '450', label: '450 VA' },
+    { value: '900', label: '900 VA' },
+    { value: '1300', label: '1300 VA' },
+    { value: '2200', label: '2200 VA' },
+    { value: '3500', label: '3500 VA' },
+    { value: '5500', label: '5500 VA' },
+    { value: '6600', label: '6600 VA' },
+]
+
+// Sumber Air options
+const jenisAirOptions = [
+    { value: 'PDAM', label: 'PDAM' },
+    { value: 'Sumur Bor', label: 'Sumur Bor' },
+    { value: 'Sumur Tanah', label: 'Sumur Tanah' },
+]
+
+// Kondisi Properti options
+const conditionOptions = [
+    { value: 'Baru', label: 'Baru (Gress)' },
+    { value: 'Bekas', label: 'Bekas / Second' },
 ]
 
 // Nearest place categories
@@ -174,23 +292,34 @@ const nearestPlaceCategories = [
     { value: 'lainnya', label: 'Lainnya', icon: 'MapPin' },
 ]
 
-// Step Indicator Component
-function StepIndicator({ currentStep, totalSteps }: { currentStep: number; totalSteps: number }) {
+// Step Indicator Component with clickable steps
+function StepIndicator({
+    currentStep,
+    completedSteps,
+    onStepClick
+}: {
+    currentStep: number
+    completedSteps: Set<number>
+    onStepClick: (stepId: number) => void
+}) {
+    // Calculate progress based on completed steps
+    const progressPercentage = (completedSteps.size / STEPS.length) * 100
+
     return (
         <div className="mb-8">
             {/* Progress Bar */}
             <div className="flex bg-gray-100 h-2 rounded-full overflow-hidden mb-4">
                 <div
                     className="h-full bg-gradient-to-r from-[#C5A847] to-[#E8D677] transition-all duration-500 ease-out"
-                    style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+                    style={{ width: `${progressPercentage}%` }}
                 />
             </div>
 
-            {/* Step Dots */}
+            {/* Step Dots - Clickable */}
             <div className="flex justify-between items-center">
                 {STEPS.map((step, index) => {
                     const StepIcon = step.icon
-                    const isCompleted = currentStep > step.id
+                    const isCompleted = completedSteps.has(step.id)
                     const isCurrent = currentStep === step.id
 
                     return (
@@ -198,12 +327,14 @@ function StepIndicator({ currentStep, totalSteps }: { currentStep: number; total
                             key={step.id}
                             className={`flex flex-col items-center ${index === 0 ? '' : 'flex-1 ml-[-24px]'}`}
                         >
-                            <div
-                                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${isCompleted
-                                    ? 'bg-[#276874] text-white'
+                            <button
+                                type="button"
+                                onClick={() => onStepClick(step.id)}
+                                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer hover:scale-110 ${isCompleted
+                                    ? 'bg-[#C5A847] text-white shadow-lg shadow-[#C5A847]/30'
                                     : isCurrent
-                                        ? 'bg-[#C5A847] text-white shadow-lg shadow-[#C5A847]/30'
-                                        : 'bg-gray-200 text-gray-500'
+                                        ? 'bg-[#0C1C3C] text-white ring-2 ring-[#C5A847] ring-offset-2'
+                                        : 'bg-gray-200 text-gray-500 hover:bg-gray-300'
                                     }`}
                             >
                                 {isCompleted ? (
@@ -211,10 +342,11 @@ function StepIndicator({ currentStep, totalSteps }: { currentStep: number; total
                                 ) : (
                                     <StepIcon className="w-5 h-5" />
                                 )}
-                            </div>
+                            </button>
                             <span
-                                className={`mt-2 text-xs font-medium text-center hidden md:block ${isCurrent ? 'text-[#0C1C3C]' : 'text-gray-500'
+                                className={`mt-2 text-xs font-medium text-center hidden md:block cursor-pointer ${isCurrent ? 'text-[#0C1C3C] font-semibold' : isCompleted ? 'text-[#C5A847]' : 'text-gray-500'
                                     }`}
+                                onClick={() => onStepClick(step.id)}
                             >
                                 {step.title}
                             </span>
@@ -488,10 +620,13 @@ function FileUpload({
 }
 
 // Main Component
-export default function UploadListing({ agent, developers = [], categories = [] }: UploadListingProps) {
+export default function UploadListing({ agent, developers = [], categories = [], keunggulanList = [], fasilitasList = [], kategoriPlacesList = [], promosList = [] }: UploadListingProps) {
     const [currentStep, setCurrentStep] = useState(1)
+    const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set())
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [isSavingStep, setIsSavingStep] = useState(false)
     const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
+    const [saveMessage, setSaveMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
     const [cities, setCities] = useState<{ value: string, label: string }[]>([])
     const [loadingCities, setLoadingCities] = useState(false)
     const [provinceOptions, setProvinceOptions] = useState<{ value: string, label: string }[]>([])
@@ -530,21 +665,22 @@ export default function UploadListing({ agent, developers = [], categories = [] 
 
         // Price & Financing
         price_min: '',
-        price_max: '',
+        pajak: '',
+        notaris: '',
         installment_start: '',
 
         // Property Specifications
         bedrooms: '',
         bathrooms: '',
         carport: '',
-        listrik: '',
         certificate_type: '',
         land_size_min: '',
         land_size_max: '',
         building_size_min: '',
         building_size_max: '',
-        market_type: 'primary',
-        construction_status: 'ready',
+        listrik: '',
+        jenis_air: '',
+        condition: '',
 
         // Keunggulan
         keunggulan: [],
@@ -552,10 +688,12 @@ export default function UploadListing({ agent, developers = [], categories = [] 
         // Fasilitas
         fasilitas: [],
 
-        // Nearest Places
-        nearest_place: [],
+        // Nearby Places
+        nearby_places: [],
 
         // Marketing & Promotion
+        has_promo_active: false,
+        promos: [],
         promo_text: '',
 
         // Images
@@ -610,72 +748,58 @@ export default function UploadListing({ agent, developers = [], categories = [] 
         }
     }
 
-    // Handle keunggulan (advantages)
-    const addKeunggulan = () => {
+    // Handle keunggulan (advantages) - toggle selection
+    const toggleKeunggulan = (id: number) => {
         setFormData(prev => ({
             ...prev,
-            keunggulan: [...prev.keunggulan, { icon: 'Home', nama: '', keterangan: '' }]
+            keunggulan: prev.keunggulan.includes(id)
+                ? prev.keunggulan.filter(k => k !== id)
+                : [...prev.keunggulan, id]
         }))
     }
 
-    const updateKeunggulan = (index: number, field: keyof Keunggulan, value: string) => {
+    // Handle fasilitas (facilities) - toggle selection
+    const toggleFasilitas = (id: number) => {
+        setFormData(prev => ({
+            ...prev,
+            fasilitas: prev.fasilitas.includes(id)
+                ? prev.fasilitas.filter(f => f !== id)
+                : [...prev.fasilitas, id]
+        }))
+    }
+
+    // Helper function to capitalize first letter of each word
+    const capitalizeWords = (str: string): string => {
+        return str
+            .toLowerCase()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ')
+    }
+
+    // Handle nearby places - add new entry
+    const addNearbyPlace = () => {
+        setFormData(prev => ({
+            ...prev,
+            nearby_places: [...prev.nearby_places, { kategori: '', nama: '' }]
+        }))
+    }
+
+    // Handle nearby places - update entry
+    const updateNearbyPlace = (index: number, field: keyof NearbyPlaceInput, value: string) => {
         setFormData(prev => {
-            const updated = [...prev.keunggulan]
-            updated[index] = { ...updated[index], [field]: value }
-            return { ...prev, keunggulan: updated }
+            const updated = [...prev.nearby_places]
+            // Capitalize words for 'nama' field when updating
+            updated[index] = { ...updated[index], [field]: field === 'nama' ? capitalizeWords(value) : value }
+            return { ...prev, nearby_places: updated }
         })
     }
 
-    const removeKeunggulan = (index: number) => {
+    // Handle nearby places - remove entry
+    const removeNearbyPlace = (index: number) => {
         setFormData(prev => ({
             ...prev,
-            keunggulan: prev.keunggulan.filter((_, i) => i !== index)
-        }))
-    }
-
-    // Handle fasilitas (facilities)
-    const addFasilitas = () => {
-        setFormData(prev => ({
-            ...prev,
-            fasilitas: [...prev.fasilitas, { icon: 'Home', nama: '' }]
-        }))
-    }
-
-    const updateFasilitas = (index: number, field: keyof Fasilitas, value: string) => {
-        setFormData(prev => {
-            const updated = [...prev.fasilitas]
-            updated[index] = { ...updated[index], [field]: value }
-            return { ...prev, fasilitas: updated }
-        })
-    }
-
-    const removeFasilitas = (index: number) => {
-        setFormData(prev => ({
-            ...prev,
-            fasilitas: prev.fasilitas.filter((_, i) => i !== index)
-        }))
-    }
-
-    // Handle nearest places
-    const addNearestPlace = () => {
-        setFormData(prev => ({
-            ...prev,
-            nearest_place: [...prev.nearest_place, { kategori: '', nama: '', jarak: '' }]
-        }))
-    }
-
-    const updateNearestPlace = (index: number, field: keyof NearestPlace, value: string) => {
-        setFormData(prev => {
-            const updated = [...prev.nearest_place]
-            updated[index] = { ...updated[index], [field]: value }
-            return { ...prev, nearest_place: updated }
-        })
-    }
-
-    const removeNearestPlace = (index: number) => {
-        setFormData(prev => ({
-            ...prev,
-            nearest_place: prev.nearest_place.filter((_, i) => i !== index)
+            nearby_places: prev.nearby_places.filter((_, i) => i !== index)
         }))
     }
 
@@ -712,9 +836,10 @@ export default function UploadListing({ agent, developers = [], categories = [] 
                 if (!formData.land_size_min) newErrors.land_size_min = 'Luas tanah minimum wajib diisi'
                 if (!formData.building_size_min) newErrors.building_size_min = 'Luas bangunan minimum wajib diisi'
                 break
-            // Steps 4-7 are optional, no required validation
-            case 8: // Images
-                // Optional: validate main image if required
+            case 7: // Marketing
+                if (formData.has_promo_active && formData.promos.length === 0) {
+                    newErrors.promos = 'Pilih minimal satu promo jika status promo aktif'
+                }
                 break
         }
 
@@ -722,15 +847,68 @@ export default function UploadListing({ agent, developers = [], categories = [] 
         return Object.keys(newErrors).length === 0
     }
 
-    // Navigation handlers
-    const handleNext = () => {
-        if (validateStep(currentStep)) {
-            if (currentStep < STEPS.length) {
-                setCurrentStep(currentStep + 1)
-                window.scrollTo({ top: 0, behavior: 'smooth' })
-            }
+    // Check if step has any data filled
+    const isStepFilled = (step: number): boolean => {
+        switch (step) {
+            case 1:
+                return !!(formData.name && formData.provinsi && formData.city && formData.location)
+            case 2:
+                return !!(formData.price_min && formData.installment_start)
+            case 3:
+                return !!(formData.bedrooms && formData.land_size_min && formData.building_size_min)
+            case 4:
+                return true // Keunggulan is optional
+            case 5:
+                return true // Fasilitas is optional
+            case 6:
+                return true // Nearby Places is optional
+            case 7:
+                return true // Marketing is optional
+            case 8:
+                return !!(formData.main_image || formData.images.length > 0)
+            default:
+                return false
         }
     }
+
+    // Handle step click - allow skipping to any step
+    const handleStepClick = (stepId: number) => {
+        setCurrentStep(stepId)
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+
+    // Handle save step - save data for current step
+    const handleSaveStep = async () => {
+        // Validate current step before saving
+        if (!validateStep(currentStep)) {
+            setSaveMessage({ type: 'error', text: 'Mohon lengkapi field yang wajib diisi' })
+            setTimeout(() => setSaveMessage(null), 3000)
+            return
+        }
+
+        setIsSavingStep(true)
+
+        // Simulate save delay (in real app, you might save to localStorage or API)
+        await new Promise(resolve => setTimeout(resolve, 500))
+
+        // Mark current step as completed
+        setCompletedSteps(prev => new Set([...prev, currentStep]))
+
+        setSaveMessage({ type: 'success', text: `Step ${currentStep} berhasil disimpan!` })
+        setIsSavingStep(false)
+
+        // Clear message after 3 seconds
+        setTimeout(() => setSaveMessage(null), 3000)
+    }
+
+    // Navigation handlers
+    const handleNext = () => {
+        if (currentStep < STEPS.length) {
+            setCurrentStep(currentStep + 1)
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+        }
+    }
+
 
     const handleBack = () => {
         if (currentStep > 1) {
@@ -740,10 +918,36 @@ export default function UploadListing({ agent, developers = [], categories = [] 
     }
 
     // Handle form submission
+    const togglePromoActive = (value: boolean) => {
+        setFormData(prev => ({ ...prev, has_promo_active: value, promos: value ? prev.promos : [] }))
+    }
+
+    const togglePromoId = (id: number) => {
+        setFormData(prev => {
+            const currentPromos = prev.promos
+            if (currentPromos.includes(id)) {
+                return { ...prev, promos: currentPromos.filter(p => p !== id) }
+            } else {
+                return { ...prev, promos: [...currentPromos, id] }
+            }
+        })
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
-        if (!validateStep(currentStep)) return
+        // Check if required steps (1, 2, 3) are completed
+        const requiredSteps = [1, 2, 3]
+        const missingSteps = requiredSteps.filter(step => !completedSteps.has(step))
+
+        if (missingSteps.length > 0) {
+            setSaveMessage({
+                type: 'error',
+                text: `Mohon selesaikan Step ${missingSteps.join(', ')} terlebih dahulu`
+            })
+            setTimeout(() => setSaveMessage(null), 5000)
+            return
+        }
 
         setIsSubmitting(true)
         setSubmitStatus('idle')
@@ -759,7 +963,7 @@ export default function UploadListing({ agent, developers = [], categories = [] 
                     (value as File[]).forEach((file, index) => {
                         formDataToSend.append(`images[${index}]`, file)
                     })
-                } else if (key === 'keunggulan' || key === 'fasilitas' || key === 'nearest_place' || key === 'kategori') {
+                } else if (key === 'promos' || key === 'keunggulan' || key === 'fasilitas' || key === 'nearby_places' || key === 'kategori') {
                     formDataToSend.append(key, JSON.stringify(value))
                 } else if (typeof value === 'boolean') {
                     formDataToSend.append(key, value ? '1' : '0')
@@ -795,16 +999,25 @@ export default function UploadListing({ agent, developers = [], categories = [] 
     // Render current step content
     const renderStepContent = () => {
         const currentStepInfo = STEPS.find(s => s.id === currentStep)
+        const isCurrentStepCompleted = completedSteps.has(currentStep)
 
         return (
             <div className="animate-in fade-in slide-in-from-right-4 duration-300">
                 {/* Step Header */}
-                <div className="mb-6">
-                    <h2 className="text-xl font-bold text-[#0C1C3C] flex items-center gap-2">
-                        {currentStepInfo && <currentStepInfo.icon className="w-6 h-6 text-[#C5A847]" />}
-                        {currentStepInfo?.title}
-                    </h2>
-                    <p className="text-gray-500 mt-1">{currentStepInfo?.subtitle}</p>
+                <div className="mb-6 flex items-start justify-between">
+                    <div>
+                        <h2 className="text-xl font-bold text-[#0C1C3C] flex items-center gap-2">
+                            {currentStepInfo && <currentStepInfo.icon className="w-6 h-6 text-[#C5A847]" />}
+                            {currentStepInfo?.title}
+                            {isCurrentStepCompleted && (
+                                <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <Check className="w-3 h-3 mr-1" />
+                                    Tersimpan
+                                </span>
+                            )}
+                        </h2>
+                        <p className="text-gray-500 mt-1">{currentStepInfo?.subtitle}</p>
+                    </div>
                 </div>
 
                 {/* Step Content */}
@@ -918,50 +1131,62 @@ export default function UploadListing({ agent, developers = [], categories = [] 
                         <>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormInput
-                                    label="Harga Minimum"
+                                    label="Price"
                                     name="price_min"
                                     value={formData.price_min}
                                     onChange={handleInputChange}
                                     type="number"
-                                    placeholder="732200000"
+                                    placeholder="11000000"
                                     prefix="Rp"
                                     required
-                                    helpText="Masukkan dalam Rupiah (e.g., 732200000 untuk 732.2 Jt)"
                                     error={errors.price_min}
                                 />
                                 <FormInput
-                                    label="Harga Maximum"
-                                    name="price_max"
-                                    value={formData.price_max}
+                                    label="Biaya Pajak"
+                                    name="pajak"
+                                    value={formData.pajak}
                                     onChange={handleInputChange}
                                     type="number"
-                                    placeholder="1800000000"
+                                    placeholder="0"
                                     prefix="Rp"
-                                    helpText="Kosongkan jika sama dengan minimum"
+                                    helpText="Estimasi biaya pajak (BPHTB dll)"
                                 />
                             </div>
 
-                            <FormInput
-                                label="Cicilan Mulai Dari"
-                                name="installment_start"
-                                value={formData.installment_start}
-                                onChange={handleInputChange}
-                                type="number"
-                                placeholder="5000000"
-                                prefix="Rp"
-                                suffix="/bulan"
-                                required
-                                helpText="Jumlah cicilan per bulan"
-                                error={errors.installment_start}
-                            />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <FormInput
+                                    label="Biaya Notaris"
+                                    name="notaris"
+                                    value={formData.notaris}
+                                    onChange={handleInputChange}
+                                    type="number"
+                                    placeholder="0"
+                                    prefix="Rp"
+                                    helpText="Estimasi biaya balik nama / notaris"
+                                />
+                                <FormInput
+                                    label="Starting Installment"
+                                    name="installment_start"
+                                    value={formData.installment_start}
+                                    onChange={handleInputChange}
+                                    type="number"
+                                    placeholder="5000000"
+                                    prefix="Rp"
+                                    suffix="/month"
+                                    required
+                                    helpText="Monthly payment amount"
+                                    error={errors.installment_start}
+                                />
+                            </div>
                         </>
                     )}
 
                     {currentStep === 3 && (
                         <>
-                            <div className="grid grid-cols-2 gap-4">
+                            {/* Bedrooms, Bathrooms, Carport - 3 columns */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <FormInput
-                                    label="Kamar Tidur"
+                                    label="Bedrooms"
                                     name="bedrooms"
                                     value={formData.bedrooms}
                                     onChange={handleInputChange}
@@ -972,7 +1197,7 @@ export default function UploadListing({ agent, developers = [], categories = [] 
                                     error={errors.bedrooms}
                                 />
                                 <FormInput
-                                    label="Kamar Mandi"
+                                    label="Bathrooms"
                                     name="bathrooms"
                                     value={formData.bathrooms}
                                     onChange={handleInputChange}
@@ -980,9 +1205,6 @@ export default function UploadListing({ agent, developers = [], categories = [] 
                                     placeholder="1"
                                     suffix="KM"
                                 />
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
                                 <FormInput
                                     label="Carport"
                                     name="carport"
@@ -990,214 +1212,223 @@ export default function UploadListing({ agent, developers = [], categories = [] 
                                     onChange={handleInputChange}
                                     type="number"
                                     placeholder="1"
-                                />
-                                <FormInput
-                                    label="Listrik"
-                                    name="listrik"
-                                    value={formData.listrik}
-                                    onChange={handleInputChange}
-                                    type="number"
-                                    placeholder="1300"
-                                    suffix="watt"
+                                    suffix="Unit"
                                 />
                             </div>
 
+                            {/* Certificate Type */}
                             <FormSelect
-                                label="Jenis Sertifikat"
+                                label="Certificate Type"
                                 name="certificate_type"
                                 value={formData.certificate_type}
                                 onChange={handleInputChange}
                                 options={certificateOptions}
-                                placeholder="Pilih jenis sertifikat"
+                                placeholder="Select certificate type"
                             />
 
-                            <div className="grid grid-cols-2 gap-4">
+                            {/* Land Size */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormInput
-                                    label="Luas Tanah Min"
+                                    label="Land Size Min"
                                     name="land_size_min"
                                     value={formData.land_size_min}
                                     onChange={handleInputChange}
                                     type="number"
-                                    placeholder="60"
+                                    placeholder="120"
                                     suffix="m²"
                                     required
                                     error={errors.land_size_min}
                                 />
                                 <FormInput
-                                    label="Luas Tanah Max"
+                                    label="Land Size Max"
                                     name="land_size_max"
                                     value={formData.land_size_max}
                                     onChange={handleInputChange}
                                     type="number"
-                                    placeholder="155"
+                                    placeholder="123"
                                     suffix="m²"
                                 />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            {/* Building Size */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormInput
-                                    label="Luas Bangunan Min"
+                                    label="Building Size Min"
                                     name="building_size_min"
                                     value={formData.building_size_min}
                                     onChange={handleInputChange}
                                     type="number"
-                                    placeholder="38"
+                                    placeholder="45"
                                     suffix="m²"
                                     required
                                     error={errors.building_size_min}
                                 />
                                 <FormInput
-                                    label="Luas Bangunan Max"
+                                    label="Building Size Max"
                                     name="building_size_max"
                                     value={formData.building_size_max}
                                     onChange={handleInputChange}
                                     type="number"
-                                    placeholder="70"
+                                    placeholder="80"
                                     suffix="m²"
                                 />
                             </div>
+
+                            {/* Daya Listrik */}
+                            <FormSelect
+                                label="Daya Listrik (VA)"
+                                name="listrik"
+                                value={formData.listrik}
+                                onChange={handleInputChange}
+                                options={listrikOptions}
+                                placeholder="Pilih daya listrik"
+                            />
+
+                            {/* Sumber Air */}
+                            <FormSelect
+                                label="Sumber Air"
+                                name="jenis_air"
+                                value={formData.jenis_air}
+                                onChange={handleInputChange}
+                                options={jenisAirOptions}
+                                placeholder="Pilih salah satu opsi"
+                            />
+
+                            {/* Kondisi Properti */}
+                            <FormSelect
+                                label="Kondisi Properti"
+                                name="condition"
+                                value={formData.condition}
+                                onChange={handleInputChange}
+                                options={conditionOptions}
+                                placeholder="Pilih salah satu opsi"
+                                required
+                            />
                         </>
                     )}
 
                     {currentStep === 4 && (
                         <>
                             <p className="text-gray-600 text-sm mb-4">
-                                Tambahkan keunggulan properti Anda untuk menarik calon pembeli.
+                                Pilih keunggulan properti Anda untuk menarik calon pembeli. (Opsional)
                             </p>
 
-                            {formData.keunggulan.map((item, index) => (
-                                <div key={index} className="border border-[#DCDEDD] rounded-[16px] p-4">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className="flex items-center gap-2 text-gray-400">
-                                            <GripVertical className="w-4 h-4" />
-                                            <span className="text-sm font-medium text-[#0C1C3C]">Keunggulan {index + 1}</span>
-                                        </div>
-                                        <button
-                                            type="button"
-                                            onClick={() => removeKeunggulan(index)}
-                                            className="text-red-500 hover:text-red-700"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                    </div>
+                            {keunggulanList.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                    {keunggulanList.map((item) => {
+                                        const isSelected = formData.keunggulan.includes(item.id)
+                                        // Dynamically get icon
+                                        const IconComponent = getIconByName(item.icon)
 
-                                    <div className="grid grid-cols-2 gap-4 mb-4">
-                                        <FormSelect
-                                            label="Icon"
-                                            name={`keunggulan-icon-${index}`}
-                                            value={item.icon}
-                                            onChange={(e) => updateKeunggulan(index, 'icon', e.target.value)}
-                                            options={iconOptions.map(icon => ({ value: icon, label: icon }))}
-                                            required
-                                        />
-                                        <FormInput
-                                            label="Nama"
-                                            name={`keunggulan-nama-${index}`}
-                                            value={item.nama}
-                                            onChange={(e) => updateKeunggulan(index, 'nama', e.target.value)}
-                                            placeholder="e.g., Lokasi Strategis"
-                                            required
-                                        />
-                                    </div>
-
-                                    <FormTextarea
-                                        label="Keterangan"
-                                        name={`keunggulan-keterangan-${index}`}
-                                        value={item.keterangan}
-                                        onChange={(e) => updateKeunggulan(index, 'keterangan', e.target.value)}
-                                        placeholder="Dekat dengan pusat kota dan akses tol"
-                                        rows={2}
-                                    />
+                                        return (
+                                            <button
+                                                key={item.id}
+                                                type="button"
+                                                onClick={() => toggleKeunggulan(item.id)}
+                                                className={`flex items-center gap-3 p-4 rounded-[16px] border-2 transition-all duration-200 text-left ${isSelected
+                                                    ? 'border-[#C5A847] bg-[#C5A847]/10 text-[#0C1C3C]'
+                                                    : 'border-[#DCDEDD] bg-white hover:border-[#C5A847]/50 text-gray-700'
+                                                    }`}
+                                            >
+                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isSelected ? 'bg-[#C5A847] text-white' : 'bg-gray-100 text-gray-500'
+                                                    }`}>
+                                                    {IconComponent && <IconComponent className="w-5 h-5" />}
+                                                </div>
+                                                <div className="flex-1">
+                                                    <span className="font-medium block">{item.nama}</span>
+                                                    {item.keterangan && (
+                                                        <span className="text-xs text-gray-500">{item.keterangan}</span>
+                                                    )}
+                                                </div>
+                                                {isSelected && (
+                                                    <Check className="w-5 h-5 text-[#C5A847]" />
+                                                )}
+                                            </button>
+                                        )
+                                    })}
                                 </div>
-                            ))}
+                            ) : (
+                                <div className="text-center py-8 text-gray-500">
+                                    <Star className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                                    <p>Tidak ada keunggulan tersedia</p>
+                                </div>
+                            )}
 
-                            <button
-                                type="button"
-                                onClick={addKeunggulan}
-                                className="w-full py-3 border-2 border-dashed border-[#DCDEDD] rounded-[16px] text-gray-600 font-medium hover:border-[#C5A847] hover:text-[#C5A847] transition-colors flex items-center justify-center gap-2"
-                            >
-                                <Plus className="w-4 h-4" />
-                                Tambahkan Keunggulan
-                            </button>
+                            {formData.keunggulan.length > 0 && (
+                                <div className="mt-4 p-3 bg-green-50 rounded-lg">
+                                    <p className="text-sm text-green-700">
+                                        <Check className="w-4 h-4 inline mr-1" />
+                                        {formData.keunggulan.length} keunggulan dipilih
+                                    </p>
+                                </div>
+                            )}
                         </>
                     )}
 
                     {currentStep === 5 && (
                         <>
                             <p className="text-gray-600 text-sm mb-4">
-                                Tambahkan fasilitas yang tersedia di properti Anda.
+                                Pilih fasilitas yang tersedia di properti Anda. (Opsional)
                             </p>
 
-                            {formData.fasilitas.map((item, index) => (
-                                <div key={index} className="border border-[#DCDEDD] rounded-[16px] p-4">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className="flex items-center gap-2 text-gray-400">
-                                            <GripVertical className="w-4 h-4" />
-                                            <span className="text-sm font-medium text-[#0C1C3C]">Fasilitas {index + 1}</span>
-                                        </div>
-                                        <button
-                                            type="button"
-                                            onClick={() => removeFasilitas(index)}
-                                            className="text-red-500 hover:text-red-700"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                    </div>
+                            {fasilitasList.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                    {fasilitasList.map((item) => {
+                                        const isSelected = formData.fasilitas.includes(item.id)
+                                        // Dynamically get icon
+                                        const IconComponent = getIconByName(item.icon)
 
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <FormSelect
-                                            label="Icon"
-                                            name={`fasilitas-icon-${index}`}
-                                            value={item.icon}
-                                            onChange={(e) => updateFasilitas(index, 'icon', e.target.value)}
-                                            options={iconOptions.map(icon => ({ value: icon, label: icon }))}
-                                            required
-                                        />
-                                        <FormInput
-                                            label="Nama Fasilitas"
-                                            name={`fasilitas-nama-${index}`}
-                                            value={item.nama}
-                                            onChange={(e) => updateFasilitas(index, 'nama', e.target.value)}
-                                            placeholder="e.g., Kolam Renang"
-                                            required
-                                        />
-                                    </div>
+                                        return (
+                                            <button
+                                                key={item.id}
+                                                type="button"
+                                                onClick={() => toggleFasilitas(item.id)}
+                                                className={`flex items-center gap-3 p-4 rounded-[16px] border-2 transition-all duration-200 text-left ${isSelected
+                                                    ? 'border-[#C5A847] bg-[#C5A847]/10 text-[#0C1C3C]'
+                                                    : 'border-[#DCDEDD] bg-white hover:border-[#C5A847]/50 text-gray-700'
+                                                    }`}
+                                            >
+                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isSelected ? 'bg-[#C5A847] text-white' : 'bg-gray-100 text-gray-500'
+                                                    }`}>
+                                                    {IconComponent && <IconComponent className="w-5 h-5" />}
+                                                </div>
+                                                <span className="font-medium flex-1">{item.nama}</span>
+                                                {isSelected && (
+                                                    <Check className="w-5 h-5 text-[#C5A847]" />
+                                                )}
+                                            </button>
+                                        )
+                                    })}
                                 </div>
-                            ))}
+                            ) : (
+                                <div className="text-center py-8 text-gray-500">
+                                    <Building2 className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                                    <p>Tidak ada fasilitas tersedia</p>
+                                </div>
+                            )}
 
-                            <button
-                                type="button"
-                                onClick={addFasilitas}
-                                className="w-full py-3 border-2 border-dashed border-[#DCDEDD] rounded-[16px] text-gray-600 font-medium hover:border-[#C5A847] hover:text-[#C5A847] transition-colors flex items-center justify-center gap-2"
-                            >
-                                <Plus className="w-4 h-4" />
-                                Tambahkan Fasilitas
-                            </button>
+                            {formData.fasilitas.length > 0 && (
+                                <div className="mt-4 p-3 bg-green-50 rounded-lg">
+                                    <p className="text-sm text-green-700">
+                                        <Check className="w-4 h-4 inline mr-1" />
+                                        {formData.fasilitas.length} fasilitas dipilih
+                                    </p>
+                                </div>
+                            )}
                         </>
                     )}
 
                     {currentStep === 6 && (
                         <>
-                            <FormTextarea
-                                label="Teks Promo"
-                                name="promo_text"
-                                value={formData.promo_text}
-                                onChange={handleInputChange}
-                                placeholder="e.g., Promo Spesial: Diskon 10% untuk pembelian bulan ini!"
-                                rows={4}
-                                helpText="Tambahkan teks promosi untuk menarik calon pembeli"
-                            />
-                        </>
-                    )}
+                            <div className="mb-4">
+                                <h4 className="font-medium text-[#0C1C3C] mb-1">Input Tempat Terdekat</h4>
+                                <p className="text-gray-600 text-sm">
+                                    Masukkan daftar tempat penting di sekitar properti Anda. Kategori diambil dari Master Kategori Place.
+                                </p>
+                            </div>
 
-                    {currentStep === 7 && (
-                        <>
-                            <p className="text-gray-600 text-sm mb-4">
-                                Tambahkan lokasi terdekat dari properti Anda.
-                            </p>
-
-                            {formData.nearest_place.map((item, index) => (
-                                <div key={index} className="border border-[#DCDEDD] rounded-[16px] p-4">
+                            {formData.nearby_places.map((item, index) => (
+                                <div key={index} className="border border-[#DCDEDD] rounded-[16px] p-4 mb-3">
                                     <div className="flex items-center justify-between mb-4">
                                         <div className="flex items-center gap-2 text-gray-400">
                                             <GripVertical className="w-4 h-4" />
@@ -1205,37 +1436,29 @@ export default function UploadListing({ agent, developers = [], categories = [] 
                                         </div>
                                         <button
                                             type="button"
-                                            onClick={() => removeNearestPlace(index)}
+                                            onClick={() => removeNearbyPlace(index)}
                                             className="text-red-500 hover:text-red-700"
                                         >
                                             <Trash2 className="w-4 h-4" />
                                         </button>
                                     </div>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <FormInput
+                                            label="Nama Tempat / Lokasi"
+                                            name={`nearby-nama-${index}`}
+                                            value={item.nama}
+                                            onChange={(e) => updateNearbyPlace(index, 'nama', e.target.value)}
+                                            placeholder="e.g., Gerbang Tol Ciawi"
+                                            required
+                                        />
                                         <FormSelect
                                             label="Kategori"
-                                            name={`nearest-kategori-${index}`}
+                                            name={`nearby-kategori-${index}`}
                                             value={item.kategori}
-                                            onChange={(e) => updateNearestPlace(index, 'kategori', e.target.value)}
-                                            options={nearestPlaceCategories.map(c => ({ value: c.value, label: c.label }))}
-                                            placeholder="Pilih kategori"
-                                            required
-                                        />
-                                        <FormInput
-                                            label="Nama Tempat"
-                                            name={`nearest-nama-${index}`}
-                                            value={item.nama}
-                                            onChange={(e) => updateNearestPlace(index, 'nama', e.target.value)}
-                                            placeholder="e.g., Transmart"
-                                            required
-                                        />
-                                        <FormInput
-                                            label="Jarak"
-                                            name={`nearest-jarak-${index}`}
-                                            value={item.jarak}
-                                            onChange={(e) => updateNearestPlace(index, 'jarak', e.target.value)}
-                                            placeholder="e.g., 2.5 km"
+                                            onChange={(e) => updateNearbyPlace(index, 'kategori', e.target.value)}
+                                            options={kategoriPlacesList.map(k => ({ value: k.nama, label: k.nama }))}
+                                            placeholder="Pilih Kategori"
                                             required
                                         />
                                     </div>
@@ -1244,12 +1467,107 @@ export default function UploadListing({ agent, developers = [], categories = [] 
 
                             <button
                                 type="button"
-                                onClick={addNearestPlace}
+                                onClick={addNearbyPlace}
                                 className="w-full py-3 border-2 border-dashed border-[#DCDEDD] rounded-[16px] text-gray-600 font-medium hover:border-[#C5A847] hover:text-[#C5A847] transition-colors flex items-center justify-center gap-2"
                             >
                                 <Plus className="w-4 h-4" />
                                 Tambahkan Lokasi Terdekat
                             </button>
+
+                            {formData.nearby_places.length > 0 && (
+                                <div className="mt-4 p-3 bg-green-50 rounded-lg">
+                                    <p className="text-sm text-green-700">
+                                        <Check className="w-4 h-4 inline mr-1" />
+                                        {formData.nearby_places.length} lokasi ditambahkan
+                                    </p>
+                                </div>
+                            )}
+                        </>
+                    )}
+
+                    {currentStep === 7 && (
+                        <>
+                            <div className="mb-6">
+                                <h4 className="font-medium text-[#0C1C3C] mb-1">Status Promo</h4>
+                                <label className="block text-gray-500 text-sm mb-3">
+                                    Apakah properti ini memiliki promo aktif?
+                                </label>
+                                <div className="flex gap-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => togglePromoActive(true)}
+                                        className={`flex-1 py-3 px-4 rounded-[12px] border flex items-center justify-center gap-2 transition-all duration-200 ${formData.has_promo_active
+                                            ? 'border-[#C5A847] bg-[#FFF9E6] text-[#C5A847] ring-1 ring-[#C5A847]'
+                                            : 'border-[#DCDEDD] hover:border-gray-400 text-gray-600'
+                                            }`}
+                                    >
+                                        <CheckCircle className={`w-5 h-5 ${formData.has_promo_active ? 'opacity-100' : 'opacity-0'}`} />
+                                        <span className="font-medium">Ya, Ada Promo</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => togglePromoActive(false)}
+                                        className={`flex-1 py-3 px-4 rounded-[12px] border flex items-center justify-center gap-2 transition-all duration-200 ${!formData.has_promo_active
+                                            ? 'border-gray-400 bg-gray-50 text-gray-800 ring-1 ring-gray-400'
+                                            : 'border-[#DCDEDD] hover:border-gray-400 text-gray-600'
+                                            }`}
+                                    >
+                                        <span className="font-medium">Tidak Ada</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {formData.has_promo_active && (
+                                <div className="mb-6 animate-in fade-in slide-in-from-top-2 duration-300">
+                                    <h4 className="font-medium text-[#0C1C3C] mb-3">Pilih Promo Tersedia</h4>
+                                    {promosList && promosList.length > 0 ? (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            {promosList.map((promo) => (
+                                                <div
+                                                    key={promo.id}
+                                                    onClick={() => togglePromoId(promo.id)}
+                                                    className={`cursor-pointer p-4 rounded-[12px] border flex items-center justify-between transition-all duration-200 group ${formData.promos.includes(promo.id)
+                                                        ? 'border-[#C5A847] bg-[#FFF9E6] shadow-sm'
+                                                        : 'border-[#DCDEDD] hover:border-[#C5A847] hover:bg-yellow-50/50'
+                                                        }`}
+                                                >
+                                                    <span className={`font-medium ${formData.promos.includes(promo.id) ? 'text-[#0C1C3C]' : 'text-gray-600 group-hover:text-[#0C1C3C]'}`}>
+                                                        {promo.nama}
+                                                    </span>
+                                                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${formData.promos.includes(promo.id)
+                                                        ? 'border-[#C5A847] bg-[#C5A847]'
+                                                        : 'border-gray-300 group-hover:border-[#C5A847]'
+                                                        }`}>
+                                                        {formData.promos.includes(promo.id) && (
+                                                            <Check className="w-3 h-3 text-white" />
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="text-center py-6 bg-gray-50 rounded-[12px] border border-dashed border-gray-300">
+                                            <p className="text-gray-500 text-sm">Belum ada data promo tersedia.</p>
+                                        </div>
+                                    )}
+                                    {errors.promos && (
+                                        <p className="text-red-500 text-sm mt-2 flex items-center gap-1 animate-in slide-in-from-top-1">
+                                            <AlertCircle className="w-4 h-4" />
+                                            {errors.promos}
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+
+                            <FormTextarea
+                                label="Teks Promo Tambahan"
+                                name="promo_text"
+                                value={formData.promo_text}
+                                onChange={handleInputChange}
+                                placeholder="e.g., Promo Spesial: Diskon 10% untuk pembelian bulan ini!"
+                                rows={4}
+                                helpText="Tambahkan detail promo atau deskripsi tambahan (Opsional)"
+                            />
                         </>
                     )}
 
@@ -1290,6 +1608,9 @@ export default function UploadListing({ agent, developers = [], categories = [] 
                         Tambahkan properti baru untuk dipasarkan
                     </p>
                 </div>
+                <div className="text-sm text-gray-500">
+                    <span className="font-medium text-[#C5A847]">{completedSteps.size}</span> dari {STEPS.length} step selesai
+                </div>
             </div>
 
             {/* Success/Error Alert */}
@@ -1316,10 +1637,31 @@ export default function UploadListing({ agent, developers = [], categories = [] 
                 </div>
             )}
 
+            {/* Save Message Toast */}
+            {saveMessage && (
+                <div className={`mb-6 p-4 rounded-[16px] flex items-center gap-3 transition-all duration-300 ${saveMessage.type === 'success'
+                    ? 'bg-green-50 border border-green-200'
+                    : 'bg-red-50 border border-red-200'
+                    }`}>
+                    {saveMessage.type === 'success' ? (
+                        <CheckCircle className="w-5 h-5 text-green-600" />
+                    ) : (
+                        <AlertCircle className="w-5 h-5 text-red-600" />
+                    )}
+                    <p className={saveMessage.type === 'success' ? 'text-green-800 font-medium' : 'text-red-800 font-medium'}>
+                        {saveMessage.text}
+                    </p>
+                </div>
+            )}
+
             {/* Form Container */}
             <div className="bg-white rounded-[20px] border border-[#DCDEDD] p-6 md:p-8">
-                {/* Step Indicator */}
-                <StepIndicator currentStep={currentStep} totalSteps={STEPS.length} />
+                {/* Step Indicator - Clickable */}
+                <StepIndicator
+                    currentStep={currentStep}
+                    completedSteps={completedSteps}
+                    onStepClick={handleStepClick}
+                />
 
                 <form onSubmit={handleSubmit}>
                     {/* Step Content */}
@@ -1332,7 +1674,7 @@ export default function UploadListing({ agent, developers = [], categories = [] 
                                 type="button"
                                 onClick={handleBack}
                                 variant="outline"
-                                className="flex-1 sm:flex-none h-12 rounded-[16px] border-[#DCDEDD] text-[#0C1C3C] hover:bg-gray-50 flex items-center justify-center gap-2"
+                                className="flex-1 sm:flex-none h-12 rounded-[16px] border-[#DCDEDD] bg-white text-[#0C1C3C] hover:bg-gray-100 hover:text-[#0C1C3C] hover:border-[#DCDEDD] flex items-center justify-center gap-2"
                             >
                                 <ArrowLeft className="w-5 h-5" />
                                 Kembali
@@ -1344,9 +1686,20 @@ export default function UploadListing({ agent, developers = [], categories = [] 
                                 type="button"
                                 onClick={() => router.visit('/agent/dashboard')}
                                 variant="outline"
-                                className="h-12 rounded-[16px] px-6 border-[#DCDEDD] text-gray-600 hover:bg-gray-50"
+                                className="h-12 rounded-[16px] px-6 border-rose-300 bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700 hover:border-rose-400"
                             >
                                 Batal
+                            </Button>
+
+                            {/* Save Step Button */}
+                            <Button
+                                type="button"
+                                onClick={handleSaveStep}
+                                disabled={isSavingStep}
+                                className="h-12 rounded-[16px] px-6 bg-[#276874] text-white hover:bg-[#1e5560] flex items-center gap-2"
+                            >
+                                <Save className="w-5 h-5 text-white" />
+                                {isSavingStep ? 'Menyimpan...' : 'Next Step'}
                             </Button>
 
                             {currentStep < STEPS.length ? (
@@ -1356,7 +1709,7 @@ export default function UploadListing({ agent, developers = [], categories = [] 
                                     className="h-12 rounded-[16px] px-6 bg-[#0C1C3C] text-white hover:bg-[#0a1730] flex items-center gap-2"
                                 >
                                     Lanjut
-                                    <ArrowRight className="w-5 h-5" />
+                                    <ArrowRight className="w-5 h-5 text-white" />
                                 </Button>
                             ) : (
                                 <Button
@@ -1365,7 +1718,7 @@ export default function UploadListing({ agent, developers = [], categories = [] 
                                     className="h-12 rounded-[16px] px-6 bg-[#C5A847] text-white hover:bg-[#B09530] flex items-center gap-2"
                                 >
                                     {isSubmitting ? 'Menyimpan...' : 'Upload Listing'}
-                                    {!isSubmitting && <CheckCircle className="w-5 h-5" />}
+                                    {!isSubmitting && <CheckCircle className="w-5 h-5 text-white" />}
                                 </Button>
                             )}
                         </div>

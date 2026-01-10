@@ -34,6 +34,9 @@ class Property extends Model
         'certificate_type',
         'promo_text',
         'keunggulan',
+        'fasilitas',
+        'nearby_places',
+        'kategori',
         'images',
         'main_image',
         'button_type',
@@ -53,12 +56,16 @@ class Property extends Model
         'pajak',
         'notaris',
         'promo_list',
-        'listrik',
+        'is_draft',
     ];
 
     protected $casts = [
         'promo_list' => 'array',
         'images' => 'array',
+        'keunggulan' => 'array',
+        'fasilitas' => 'array',
+        'nearby_places' => 'array',
+        'kategori' => 'array',
         'price_min' => 'decimal:2',
         'price_max' => 'decimal:2',
         'installment_start' => 'decimal:2',
@@ -76,11 +83,11 @@ class Property extends Model
         'is_verified' => 'boolean',
         'has_promo' => 'boolean',
         'tanpa_perantara' => 'boolean',
+        'is_draft' => 'boolean',
         'last_updated' => 'datetime',
-
     ];
 
-    
+
     public function fasilitas(): BelongsToMany
     {
         return $this->belongsToMany(Fasilitas::class, 'fasilitas_properties');
@@ -114,11 +121,20 @@ class Property extends Model
     {
         return $this->belongsToMany(Promo::class, 'promo_property');
     }
-    
-    public function event(): BelongsTo { return $this->belongsTo(Event::class); }
-    public function agen(): BelongsTo { return $this->belongsTo(Agen::class); }
-    public function developer(): BelongsTo { return $this->belongsTo(Developer::class); }
-    
+
+    public function event(): BelongsTo
+    {
+        return $this->belongsTo(Event::class);
+    }
+    public function agen(): BelongsTo
+    {
+        return $this->belongsTo(Agen::class);
+    }
+    public function developer(): BelongsTo
+    {
+        return $this->belongsTo(Developer::class);
+    }
+
     public function getPriceRangeAttribute(): string
     {
         $formatPrice = function ($price) {
@@ -139,7 +155,7 @@ class Property extends Model
         return $formatPrice($this->price_min) . ' - ' . $formatPrice($this->price_max);
     }
 
-    
+
     public function getInstallmentTextAttribute(): string
     {
         $value = $this->installment_start / 1000000;
@@ -147,7 +163,7 @@ class Property extends Model
         return 'Angsuran mulai dari Rp' . $formatted . ' Jt/bln';
     }
 
-    
+
     public function getLandSizeTextAttribute(): string
     {
         if ($this->land_size_min === $this->land_size_max) {
@@ -156,7 +172,7 @@ class Property extends Model
         return $this->land_size_min . '-' . $this->land_size_max . 'm²';
     }
 
-    
+
     public function getBuildingSizeTextAttribute(): string
     {
         if (!$this->building_size_max) {
