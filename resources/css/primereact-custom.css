@@ -1,0 +1,124 @@
+/* PrimeReact Editor Custom Styles */
+.p-editor-container {
+    border-radius: 16px !important;
+    border: 1px solid #dcdedd !important;
+}
+
+.p-editor-toolbar {
+    background: #f9fafb !important;
+    border-bottom: 1px solid #dcdedd !important;
+    border-radius: 16px 16px 0 0 !important;
+    padding: 8px !important;
+}
+
+.p-editor-content {
+    border-radius: 0 0 16px 16px !important;
+    border: none !important;
+    background: white !important;
+}
+
+/* Quill container must be visible and clickable */
+.p-editor-content .ql-container {
+    border: none !important;
+    font-size: 14px !important;
+}
+
+.p-editor-content .ql-editor {
+    font-family: inherit !important;
+    font-size: 14px !important;
+    color: #0c1c3c !important;
+    min-height: 280px !important;
+    padding: 16px !important;
+    cursor: text !important;
+    background: white !important;
+}
+
+.p-editor-content .ql-editor p,
+.p-editor-content .ql-editor span,
+.p-editor-content .ql-editor li,
+.p-editor-content .ql-editor ol,
+.p-editor-content .ql-editor ul {
+    color: #0c1c3c !important;
+}
+
+/* Force black text color for all editor content */
+.ql-editor,
+.ql-editor *,
+.ql-editor p,
+.ql-editor span:not(.ql-cursor),
+.ql-container .ql-editor {
+    color: #0c1c3c !important;
+}
+
+/* Override any inline white color */
+.ql-editor span[style*='color: rgb(255, 255, 255)'],
+.ql-editor span[style*='color: white'],
+.ql-editor span[style*='color:#fff'],
+.ql-editor span[style*='color: #fff'] {
+    color: #0c1c3c !important;
+}
+
+.p-editor-content .ql-editor.ql-blank::before {
+    color: #9ca3af !important;
+    font-style: normal !important;
+    left: 16px !important;
+    right: 16px !important;
+    pointer-events: none !important;
+}
+
+/* Ensure editor is clickable */
+.p-editor-container,
+.p-editor-content,
+.p-editor-content .ql-container,
+.p-editor-content .ql-editor {
+    pointer-events: auto !important;
+}
+
+/* Focus state */
+.p-editor-container:focus-within {
+    border-color: #c5a847 !important;
+    box-shadow: 0 0 0 2px rgba(197, 168, 71, 0.2) !important;
+}
+
+/* Toolbar buttons */
+.p-editor-toolbar .ql-stroke {
+    stroke: #6b7280 !important;
+}
+
+.p-editor-toolbar .ql-fill {
+    fill: #6b7280 !important;
+}
+
+.p-editor-toolbar button:hover .ql-stroke,
+.p-editor-toolbar button:focus .ql-stroke {
+    stroke: #c5a847 !important;
+}
+
+.p-editor-toolbar button:hover .ql-fill,
+.p-editor-toolbar button:focus .ql-fill {
+    fill: #c5a847 !important;
+}
+
+.p-editor-toolbar button.ql-active .ql-stroke {
+    stroke: #c5a847 !important;
+}
+
+.p-editor-toolbar button.ql-active .ql-fill {
+    fill: #c5a847 !important;
+}
+
+/* Dropdown pickers */
+.p-editor-toolbar .ql-picker-label {
+    color: #6b7280 !important;
+}
+
+.p-editor-toolbar .ql-picker-label:hover {
+    color: #c5a847 !important;
+}
+
+.p-editor-toolbar .ql-picker-options {
+    background-color: white !important;
+    border: 1px solid #dcdedd !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}

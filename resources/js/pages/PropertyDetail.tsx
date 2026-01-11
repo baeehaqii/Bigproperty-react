@@ -389,9 +389,12 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                 {/* About */}
                                 <div id="About" className="flex flex-col gap-4">
                                     <h2 className="font-semibold text-xl">About Project</h2>
-                                    <p className="leading-7 bg-white p-4 rounded-md border border-border text-black">
-                                        {property.description || 'Discover the perfect blend of style, quality, and affordability with this modernize home, designed specifically for the new generation. This property offers contemporary aesthetic, featuring sleek lines, open-concept spaces, and natural lighting that creates warm and inviting atmosphere every corner is thoughtfully crafted to provide function. Built with high-quality materials and a focus onto energy efficiency, this home is designed to last while keeping maintenance utility costs low. Whether you\'re a young professional, a growing family together.'}
-                                    </p>
+                                    <div
+                                        className="leading-7 bg-white p-4 rounded-md border border-border text-black prose prose-sm max-w-none"
+                                        dangerouslySetInnerHTML={{
+                                            __html: property.promo_text || property.description || 'Discover the perfect blend of style, quality, and affordability with this modernize home, designed specifically for the new generation. This property offers contemporary aesthetic, featuring sleek lines, open-concept spaces, and natural lighting that creates warm and inviting atmosphere every corner is thoughtfully crafted to provide function. Built with high-quality materials and a focus onto energy efficiency, this home is designed to last while keeping maintenance utility costs low. Whether you\'re a young professional, a growing family together.'
+                                        }}
+                                    />
                                 </div>
 
                                 {/* Nearby Facilities */}

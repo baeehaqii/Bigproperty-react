@@ -170,16 +170,6 @@ class PropertyForm
                             ->required()
                             ->numeric()
                             ->prefix('Rp'),
-                        TextInput::make('pajak')
-                            ->label('Biaya Pajak')
-                            ->numeric()
-                            ->prefix('Rp')
-                            ->helperText('Estimasi biaya pajak (BPHTB dll)'),
-                        TextInput::make('notaris')
-                            ->label('Biaya Notaris')
-                            ->numeric()
-                            ->prefix('Rp')
-                            ->helperText('Estimasi biaya balik nama / notaris'),
                         TextInput::make('installment_start')
                             ->label('Starting Installment')
                             ->required()
@@ -380,10 +370,22 @@ class PropertyForm
                                     ->preload()
                                     ->placeholder('Ketik untuk mencari...'),
                                 Textarea::make('promo_text')
-                                    ->label('Promo Text')
-                                    ->placeholder('e.g., Cuma di Pinhome: Emas Batangan hingga 12gr')
-                                    ->rows(2)
-                                    ->columnSpanFull(),
+                                    ->label('Tentang Property')
+                                    ->placeholder('Deskripsikan properti secara detail. Ceritakan tentang keunggulan lokasi, fasilitas sekitar, dan hal menarik lainnya...')
+                                    ->rows(5)
+                                    ->maxLength(2000)
+                                    ->helperText('Deskripsi detail tentang properti ini. Maksimal 2000 karakter. HTML dan script tidak diizinkan.')
+                                    ->columnSpanFull()
+                                    ->dehydrateStateUsing(function ($state) {
+                                        // Sanitize input on save
+                                        if (empty($state))
+                                            return null;
+                                        $sanitized = strip_tags($state);
+                                        $sanitized = preg_replace('/javascript:/i', '', $sanitized);
+                                        $sanitized = preg_replace('/on\w+\s*=/i', '', $sanitized);
+                                        $sanitized = trim($sanitized);
+                                        return htmlspecialchars($sanitized, ENT_QUOTES, 'UTF-8');
+                                    }),
                             ]),
 
 

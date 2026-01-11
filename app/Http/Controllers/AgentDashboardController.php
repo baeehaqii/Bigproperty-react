@@ -489,8 +489,6 @@ class AgentDashboardController extends Controller
             'kategori' => ['nullable', 'string'], // JSON string
 
             'price_min' => ['nullable', 'numeric', 'min:0'],
-            'pajak' => ['nullable', 'numeric', 'min:0'],
-            'notaris' => ['nullable', 'numeric', 'min:0'],
             'installment_start' => ['nullable', 'numeric', 'min:0'],
 
             'bedrooms' => ['nullable', 'integer', 'min:0'],
@@ -521,6 +519,20 @@ class AgentDashboardController extends Controller
             // Increase execution time and memory for image processing
             set_time_limit(120); // 2 minutes for multiple image uploads
             ini_set('memory_limit', '256M');
+
+            // Sanitize promo_text to prevent XSS and code injection
+            $sanitizedPromoText = null;
+            if (!empty($validated['promo_text'])) {
+                // Strip all HTML tags
+                $sanitizedPromoText = strip_tags($validated['promo_text']);
+                // Remove any remaining script-like content
+                $sanitizedPromoText = preg_replace('/javascript:/i', '', $sanitizedPromoText);
+                $sanitizedPromoText = preg_replace('/on\w+\s*=/i', '', $sanitizedPromoText);
+                // Trim whitespace
+                $sanitizedPromoText = trim($sanitizedPromoText);
+                // Convert special characters to HTML entities
+                $sanitizedPromoText = htmlspecialchars($sanitizedPromoText, ENT_QUOTES, 'UTF-8');
+            }
 
             // Initialize Cloudinary service
             $cloudinaryService = new CloudinaryService();
@@ -558,8 +570,6 @@ class AgentDashboardController extends Controller
 
                 'price_min' => $validated['price_min'] ?? 0,
                 'price_max' => $validated['price_min'] ?? 0, // Same as price_min since we removed max
-                'pajak' => $validated['pajak'] ?? null,
-                'notaris' => $validated['notaris'] ?? null,
                 'installment_start' => $validated['installment_start'] ?? 0,
 
                 'bedrooms' => $validated['bedrooms'] ?? 0,
@@ -578,8 +588,8 @@ class AgentDashboardController extends Controller
                 'fasilitas' => json_decode($validated['fasilitas'] ?? '[]', true),
                 'nearby_places' => json_decode($validated['nearby_places'] ?? '[]', true),
 
-                'promo_text' => $validated['promo_text'] ?? null,
-                'has_promo' => !empty($validated['promo_text']) || !empty(json_decode($validated['promos'] ?? '[]', true)),
+                'promo_text' => $sanitizedPromoText,
+                'has_promo' => !empty($sanitizedPromoText) || !empty(json_decode($validated['promos'] ?? '[]', true)),
 
                 'main_image' => $mainImageUrl,
                 'images' => $galleryImages,

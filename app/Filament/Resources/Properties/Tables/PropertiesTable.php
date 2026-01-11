@@ -51,7 +51,7 @@ class PropertiesTable
                 TextColumn::make('condition')
                     ->label('Kondisi')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'Baru' => 'success',
                         'Bekas' => 'warning',
                         default => 'gray',
@@ -73,11 +73,6 @@ class PropertiesTable
                 TextColumn::make('price_min')
                     ->label('Harga')
                     ->money('IDR')
-                    ->description(fn ($record) => 
-                        $record->pajak || $record->notaris 
-                        ? "Exc. Pajak & Notaris" 
-                        : null
-                    )
                     ->formatStateUsing(function ($record) {
                         if ($record->price_max && $record->price_min !== $record->price_max) {
                             return 'Rp ' . number_format($record->price_min / 1000000, 1) . ' Jt - Rp ' .
@@ -89,8 +84,8 @@ class PropertiesTable
                 // INFO LISTRIK & AIR
                 TextColumn::make('listrik')
                     ->label('Listrik')
-                    ->formatStateUsing(fn ($state) => $state . ' VA')
-                    ->description(fn ($record) => "Air: " . $record->jenis_air)
+                    ->formatStateUsing(fn($state) => $state . ' VA')
+                    ->description(fn($record) => "Air: " . $record->jenis_air)
                     ->toggleable(),
 
                 TextColumn::make('count_clicked')
@@ -125,7 +120,7 @@ class PropertiesTable
                         'Baru' => 'Baru',
                         'Bekas' => 'Bekas',
                     ]),
-                    
+
                 SelectFilter::make('listrik')
                     ->label('Daya Listrik')
                     ->options([
