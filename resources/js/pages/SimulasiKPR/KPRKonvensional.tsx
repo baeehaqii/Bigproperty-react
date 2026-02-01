@@ -145,7 +145,7 @@ function RangeSlider({
 }
 
 export default function KPRKonvensional() {
-    // Form state - default all to 0
+    // Form state - default all to 0 or from URL
     const [hargaProperti, setHargaProperti] = useState(0)
     const [uangMukaPersen, setUangMukaPersen] = useState(0)
     const [uangMukaRp, setUangMukaRp] = useState(0)
@@ -162,6 +162,16 @@ export default function KPRKonvensional() {
     const [activeTab, setActiveTab] = useState<'ringkasan' | 'tabel'>('ringkasan')
     const [currentPage, setCurrentPage] = useState(1)
     const rowsPerPage = 5
+
+    // Get price from URL query parameter on mount
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search)
+        const priceParam = urlParams.get('harga')
+        if (priceParam) {
+            const price = parseInt(priceParam, 10) || 0
+            setHargaProperti(price)
+        }
+    }, [])
 
     // Initialize berjenjang rates
     useEffect(() => {

@@ -116,6 +116,7 @@ Route::prefix('agent')->name('agent.')->group(function () {
         Route::get('/dashboard', [AgentDashboardController::class, 'overview'])->name('dashboard');
         Route::get('/dashboard/listing-saya', [AgentDashboardController::class, 'listingSaya'])->name('dashboard.listing-saya');
         Route::delete('/dashboard/listing-saya/{id}', [AgentDashboardController::class, 'deleteListing'])->name('dashboard.delete-listing');
+        Route::patch('/dashboard/listing-saya/{id}/status', [AgentDashboardController::class, 'updateListingStatus'])->name('dashboard.update-listing-status');
         Route::get('/dashboard/edit-listing/{id}', [AgentDashboardController::class, 'editListingForm'])->name('dashboard.edit-listing');
         Route::put('/dashboard/edit-listing/{id}', [AgentDashboardController::class, 'updateListing'])->name('dashboard.update-listing');
         Route::get('/dashboard/upload-listing', [AgentDashboardController::class, 'uploadListingForm'])->name('dashboard.upload-listing');

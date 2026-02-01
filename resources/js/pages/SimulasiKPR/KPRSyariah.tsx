@@ -150,7 +150,7 @@ function RangeSlider({
 }
 
 export default function KPRSyariah() {
-    // Form state - default all to 0
+    // Form state - default all to 0 or from URL
     const [hargaProperti, setHargaProperti] = useState(0)
     const [uangMukaPersen, setUangMukaPersen] = useState(0)
     const [uangMukaRp, setUangMukaRp] = useState(0)
@@ -167,6 +167,16 @@ export default function KPRSyariah() {
     const [activeTab, setActiveTab] = useState<'ringkasan' | 'tabel'>('ringkasan')
     const [currentPage, setCurrentPage] = useState(1)
     const rowsPerPage = 5
+
+    // Get price from URL query parameter on mount
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search)
+        const priceParam = urlParams.get('harga')
+        if (priceParam) {
+            const price = parseInt(priceParam, 10) || 0
+            setHargaProperti(price)
+        }
+    }, [])
 
     // Initialize berjenjang rates
     useEffect(() => {
@@ -467,8 +477,8 @@ export default function KPRSyariah() {
                                             type="button"
                                             onClick={() => setActiveProgram('fix-floating')}
                                             className={`flex-1 py-2.5 rounded-lg font-medium transition-colors cursor-pointer ${activeProgram === 'fix-floating'
-                                                    ? 'bg-[#D6D667] text-white'
-                                                    : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
+                                                ? 'bg-[#D6D667] text-white'
+                                                : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
                                                 }`}
                                         >
                                             Fix & Floating
@@ -477,8 +487,8 @@ export default function KPRSyariah() {
                                             type="button"
                                             onClick={() => setActiveProgram('berjenjang')}
                                             className={`flex-1 py-2.5 rounded-lg font-medium transition-colors cursor-pointer ${activeProgram === 'berjenjang'
-                                                    ? 'bg-[#D6D667] text-white'
-                                                    : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
+                                                ? 'bg-[#D6D667] text-white'
+                                                : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
                                                 }`}
                                         >
                                             Berjenjang
@@ -636,8 +646,8 @@ export default function KPRSyariah() {
                                         <button
                                             onClick={() => setActiveTab('ringkasan')}
                                             className={`font-semibold py-2.5 px-6 rounded-xl shadow-sm cursor-pointer transition-colors ${activeTab === 'ringkasan'
-                                                    ? 'bg-[#D6D667] text-white'
-                                                    : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
+                                                ? 'bg-[#D6D667] text-white'
+                                                : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
                                                 }`}
                                         >
                                             Ringkasan Simulasi
@@ -645,8 +655,8 @@ export default function KPRSyariah() {
                                         <button
                                             onClick={() => { setActiveTab('tabel'); setCurrentPage(1); }}
                                             className={`font-semibold py-2.5 px-6 rounded-xl shadow-sm cursor-pointer transition-colors ${activeTab === 'tabel'
-                                                    ? 'bg-[#D6D667] text-white'
-                                                    : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
+                                                ? 'bg-[#D6D667] text-white'
+                                                : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
                                                 }`}
                                         >
                                             Tabel Angsuran
@@ -813,8 +823,8 @@ export default function KPRSyariah() {
                                                             onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                                                             disabled={currentPage === 1}
                                                             className={`p-2 rounded-lg border transition-colors cursor-pointer ${currentPage === 1
-                                                                    ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-                                                                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                                                ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                                                                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                                                                 }`}
                                                         >
                                                             <ChevronLeft className="w-4 h-4" />
@@ -838,8 +848,8 @@ export default function KPRSyariah() {
                                                                         key={pageNum}
                                                                         onClick={() => setCurrentPage(pageNum)}
                                                                         className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors cursor-pointer ${currentPage === pageNum
-                                                                                ? 'bg-[#D6D667] text-white'
-                                                                                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                                                                            ? 'bg-[#D6D667] text-white'
+                                                                            : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
                                                                             }`}
                                                                     >
                                                                         {pageNum}
@@ -852,8 +862,8 @@ export default function KPRSyariah() {
                                                             onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                                                             disabled={currentPage === totalPages}
                                                             className={`p-2 rounded-lg border transition-colors cursor-pointer ${currentPage === totalPages
-                                                                    ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-                                                                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                                                ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                                                                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                                                                 }`}
                                                         >
                                                             <ChevronRight className="w-4 h-4" />

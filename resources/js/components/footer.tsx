@@ -128,16 +128,15 @@ export function Footer() {
                     <div className="lg:col-span-2 space-y-6">
                         {/* Logo */}
                         <div className="flex items-center gap-3">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white p-1.5 shadow-lg">
+                            <div className="flex items-center justify-center">
                                 <img
-                                    src="https://res.cloudinary.com/dx8w9qwl6/image/upload/v1761232717/Logo_Big_t3qpb3.png"
+                                    src="https://res.cloudinary.com/dbr6xazzh/image/upload/v1769962203/Logo_Big_twhwpo.png"
                                     alt="Big Property Logo"
-                                    className="h-full w-full object-contain"
+                                    width={70}
+                                    height={70}
+                                    className="object-contain"
                                 />
                             </div>
-                            <span className="text-white text-xl font-semibold tracking-tight">
-                                Big Property
-                            </span>
                         </div>
 
                         {/* Social Links */}

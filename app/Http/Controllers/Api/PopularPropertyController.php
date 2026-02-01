@@ -176,7 +176,7 @@ class PopularPropertyController extends Controller
                     'features' => $property->keunggulan ?? [],
                     'type' => $type,
                     'units' => $property->units_remaining ? "Sisa {$property->units_remaining} Unit" : null,
-                    'priceRange' => $property->price_range,
+                    'priceRange' => 'Rp ' . number_format($property->price_min ?? 0, 0, ',', '.'),
                     'installment' => $property->installment_text,
                     'name' => $property->name,
                     // Use agent name, fallback to developer name
@@ -193,6 +193,7 @@ class PopularPropertyController extends Controller
                     'landSize' => $property->land_size_text,
                     'buildingSize' => $property->building_size_text,
                     'additionalInfo' => $property->certificate_type,
+                    'condition' => $property->condition,
                     'lastUpdated' => $property->last_updated ?
                         $property->last_updated->diffForHumans() :
                         'Diperbarui lebih dari 1 bulan lalu',
@@ -302,7 +303,7 @@ class PopularPropertyController extends Controller
                     'features' => $property->keunggulan ?? [],
                     'type' => $type,
                     'units' => $property->units_remaining ? "Sisa {$property->units_remaining} Unit" : null,
-                    'priceRange' => $property->price_range,
+                    'priceRange' => 'Rp ' . number_format($property->price_min ?? 0, 0, ',', '.'),
                     'installment' => $property->installment_text,
                     'name' => $property->name,
                     // Use agent name, fallback to developer name
@@ -321,6 +322,7 @@ class PopularPropertyController extends Controller
                     'landSize' => $property->land_size_text,
                     'buildingSize' => $property->building_size_text,
                     'additionalInfo' => $property->certificate_type,
+                    'condition' => $property->condition,
                     'lastUpdated' => $property->last_updated ?
                         $property->last_updated->diffForHumans() :
                         'Diperbarui lebih dari 1 bulan lalu',
@@ -433,11 +435,11 @@ class PopularPropertyController extends Controller
                     'id' => $property->id,
                     'image' => $mainImageUrl,
                     'images' => $imagesUrls,
-                    'promoText' => $property->promo_text,
+                    'promoText' => null, // Remove promo text from card to avoid long text display
                     'features' => $property->keunggulan ?? [],
                     'type' => $type,
                     'units' => $property->units_remaining ? "Sisa {$property->units_remaining} Unit" : null,
-                    'priceRange' => $property->price_range,
+                    'priceRange' => 'Rp ' . number_format($property->price_min ?? 0, 0, ',', '.'),
                     'installment' => $property->installment_text,
                     'name' => $property->name,
                     // Use agent name, fallback to developer name
@@ -456,6 +458,7 @@ class PopularPropertyController extends Controller
                     'landSize' => $property->land_size_text,
                     'buildingSize' => $property->building_size_text,
                     'additionalInfo' => $property->certificate_type,
+                    'condition' => $property->condition,
                     'lastUpdated' => $property->last_updated ?
                         $property->last_updated->diffForHumans() :
                         'Baru ditambahkan',

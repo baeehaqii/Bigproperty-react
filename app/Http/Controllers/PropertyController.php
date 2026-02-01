@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Property;
+use App\Models\Keunggulan;
+use App\Models\Fasilitas;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -92,6 +94,7 @@ class PropertyController extends Controller
             // Features
             'advantages' => $this->formatAdvantages($property->keunggulan),
             'facilities' => $this->formatFacilities($property->fasilitas),
+            'nearbyPlaces' => $this->formatNearbyPlaces($property->nearby_places),
 
             // Description & Details
             'description' => $property->promo_text ?: $property->description ?: $this->generateDescription($property),
@@ -104,10 +107,12 @@ class PropertyController extends Controller
             'priceDetails' => [
                 'min' => $property->price_min,
                 'max' => $property->price_max,
-                'minFormatted' => $this->formatPrice($property->price_min),
-                'maxFormatted' => $this->formatPrice($property->price_max),
+                'minFormatted' => $this->formatPriceFull($property->price_min),
+                'maxFormatted' => $this->formatPriceFull($property->price_max),
+                'minShort' => $this->formatPrice($property->price_min),
+                'maxShort' => $this->formatPrice($property->price_max),
                 'installmentStart' => $property->installment_start,
-                'installmentFormatted' => $this->formatPrice($property->installment_start),
+                'installmentFormatted' => $this->formatPriceFull($property->installment_start),
             ],
 
             // Event
@@ -438,7 +443,9 @@ class PropertyController extends Controller
 
     /**
      * Format keunggulan from database structure
-     * Input: [{"icon":"heroicon-o-home","nama":"Lokasi nyaman","keterangan":"dwad"}]
+     * Input can be:
+     * - Array of IDs: [1, 2, 3]
+     * - Array of objects: [{"icon":"heroicon-o-home","nama":"Lokasi nyaman","keterangan":"dwad"}]
      */
     private function formatAdvantages($keunggulan): array
     {
@@ -446,6 +453,20 @@ class PropertyController extends Controller
             return [];
         }
 
+        // Check if it's an array of IDs (integers)
+        if (!empty($keunggulan) && is_int($keunggulan[0])) {
+            // Lookup from database
+            $keunggulanData = Keunggulan::whereIn('id', $keunggulan)->get();
+            return $keunggulanData->map(function ($item) {
+                return [
+                    'icon' => $item->icon ?? '✓',
+                    'title' => $item->nama ?? '',
+                    'description' => $item->keterangan ?? '',
+                ];
+            })->toArray();
+        }
+
+        // Handle array of objects format
         return array_map(function ($item) {
             // Handle both object and array format
             if (is_array($item)) {
@@ -467,7 +488,9 @@ class PropertyController extends Controller
 
     /**
      * Format fasilitas from database structure
-     * Input: [{"icon":"heroicon-o-home","nama":"kolam renang"}]
+     * Input can be:
+     * - Array of IDs: [1, 2, 3]
+     * - Array of objects: [{"icon":"heroicon-o-home","nama":"kolam renang"}]
      */
     private function formatFacilities($fasilitas): array
     {
@@ -475,6 +498,19 @@ class PropertyController extends Controller
             return [];
         }
 
+        // Check if it's an array of IDs (integers)
+        if (!empty($fasilitas) && is_int($fasilitas[0])) {
+            // Lookup from database
+            $fasilitasData = Fasilitas::whereIn('id', $fasilitas)->get();
+            return $fasilitasData->map(function ($item) {
+                return [
+                    'name' => $item->nama ?? '',
+                    'icon' => $item->icon ?? '',
+                ];
+            })->toArray();
+        }
+
+        // Handle array of objects format
         return array_map(function ($item) {
             if (is_array($item)) {
                 return [
@@ -488,6 +524,67 @@ class PropertyController extends Controller
                 'icon' => $item->icon ?? '',
             ];
         }, $fasilitas);
+    }
+
+    /**
+     * Format nearby places from database structure
+     * Input: [{"kategori":"sekolah","nama":"SMP N 1"}]
+     */
+    private function formatNearbyPlaces($nearbyPlaces): array
+    {
+        if (!$nearbyPlaces || !is_array($nearbyPlaces)) {
+            return [];
+        }
+
+        // Category to icon mapping
+        $categoryIcons = [
+            'sekolah' => 'heroicon-o-academic-cap',
+            'rumah sakit' => 'heroicon-o-building-office',
+            'pasar' => 'heroicon-o-building-storefront',
+            'mall' => 'heroicon-o-building-storefront',
+            'bank' => 'heroicon-o-banknotes',
+            'atm' => 'heroicon-o-credit-card',
+            'stasiun' => 'heroicon-o-ticket',
+            'terminal' => 'heroicon-o-truck',
+            'bandara' => 'heroicon-o-paper-airplane',
+            'masjid' => 'heroicon-o-building-library',
+            'gereja' => 'heroicon-o-building-library',
+            'tempat ibadah' => 'heroicon-o-building-library',
+            'taman' => 'heroicon-o-sparkles',
+            'gym' => 'heroicon-o-bolt',
+            'restoran' => 'heroicon-o-cake',
+            'cafe' => 'heroicon-o-cup-soda',
+            'spbu' => 'heroicon-o-fire',
+            'apotek' => 'heroicon-o-beaker',
+            'minimarket' => 'heroicon-o-shopping-bag',
+            'kantor' => 'heroicon-o-building-office-2',
+        ];
+
+        return array_map(function ($item) use ($categoryIcons) {
+            if (is_array($item)) {
+                $kategori = strtolower($item['kategori'] ?? '');
+                $icon = 'heroicon-o-map-pin'; // default
+
+                foreach ($categoryIcons as $key => $iconName) {
+                    if (str_contains($kategori, $key)) {
+                        $icon = $iconName;
+                        break;
+                    }
+                }
+
+                return [
+                    'category' => $item['kategori'] ?? '',
+                    'name' => $item['nama'] ?? '',
+                    'icon' => $icon,
+                ];
+            }
+
+            return [
+                'category' => $item->kategori ?? '',
+                'name' => $item->nama ?? '',
+                'icon' => 'heroicon-o-map-pin',
+            ];
+        }, $nearbyPlaces);
     }
 
     /**
@@ -551,6 +648,11 @@ class PropertyController extends Controller
             return 'Rp ' . number_format($price / 1000000000, 1, ',', '.') . ' M';
         }
         return 'Rp ' . number_format($price / 1000000, 1, ',', '.') . ' Jt';
+    }
+
+    private function formatPriceFull($price): string
+    {
+        return 'Rp ' . number_format($price, 0, ',', '.');
     }
 
     /**

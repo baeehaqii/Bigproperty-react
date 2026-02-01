@@ -8,7 +8,9 @@ import {
     Home, Building, Car, Dumbbell, ShoppingCart, Wifi, Zap, Wind,
     Sun, Moon, Lock, Bell, Phone, Mail, MapPin, Navigation,
     Award, Star, Heart, Gift, Sparkles, CheckCircle, XCircle,
-    Circle, Square, Triangle, Hexagon, Octagon
+    Circle, Square, Triangle, Hexagon, Octagon,
+    GraduationCap, Church, Hospital, Store, Banknote, CreditCard,
+    Ticket, Truck, Plane, Utensils, Coffee, Fuel, Pill, ShoppingBag, Building2
 } from "lucide-react"
 import { SimilarProperties } from "@/components/similar-properties"
 import Footer from "@/components/footer"
@@ -23,7 +25,9 @@ const getIconComponent = (iconName: string) => {
         // Common facilities
         'heroicon-o-home': Home,
         'heroicon-o-building-office': Building,
+        'heroicon-o-building-office-2': Building2,
         'heroicon-o-building-storefront': ShoppingCart,
+        'heroicon-o-building-library': Church,
         'heroicon-o-squares-2x2': Square,
         'heroicon-o-users': Users,
         'heroicon-o-camera': Camera,
@@ -45,6 +49,17 @@ const getIconComponent = (iconName: string) => {
         'heroicon-o-sun': Sun,
         'heroicon-o-moon': Moon,
         'heroicon-o-trophy': Award,
+        'heroicon-o-academic-cap': GraduationCap,
+        'heroicon-o-banknotes': Banknote,
+        'heroicon-o-credit-card': CreditCard,
+        'heroicon-o-ticket': Ticket,
+        'heroicon-o-truck': Truck,
+        'heroicon-o-paper-airplane': Plane,
+        'heroicon-o-cake': Utensils,
+        'heroicon-o-cup-soda': Coffee,
+        'heroicon-o-fire': Fuel,
+        'heroicon-o-beaker': Pill,
+        'heroicon-o-shopping-bag': ShoppingBag,
 
         // Specific facilities
         'kolam renang': Waves,
@@ -56,6 +71,33 @@ const getIconComponent = (iconName: string) => {
         'keamanan': Shield,
         'security': Shield,
         'cctv': Camera,
+
+        // Nearby places categories
+        'sekolah': GraduationCap,
+        'rumah sakit': Hospital,
+        'rs': Hospital,
+        'hospital': Hospital,
+        'pasar': Store,
+        'mall': ShoppingCart,
+        'bank': Banknote,
+        'atm': CreditCard,
+        'stasiun': Ticket,
+        'terminal': Truck,
+        'bandara': Plane,
+        'masjid': Church,
+        'gereja': Church,
+        'tempat ibadah': Church,
+        'restoran': Utensils,
+        'restaurant': Utensils,
+        'cafe': Coffee,
+        'kafe': Coffee,
+        'spbu': Fuel,
+        'apotek': Pill,
+        'pharmacy': Pill,
+        'minimarket': ShoppingBag,
+        'supermarket': ShoppingCart,
+        'kantor': Building2,
+        'office': Building2,
     }
 
     // Cari exact match dulu
@@ -111,6 +153,9 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
 
     // Share dropdown state
     const [shareOpen, setShareOpen] = useState(false)
+
+    // KPR dropdown state
+    const [kprDropdownOpen, setKprDropdownOpen] = useState(false)
 
     // Lead modal state
     const [leadModalOpen, setLeadModalOpen] = useState(false)
@@ -208,16 +253,19 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
             if (shareOpen && !target.closest('.share-dropdown-container')) {
                 setShareOpen(false)
             }
+            if (kprDropdownOpen && !target.closest('.kpr-dropdown-container')) {
+                setKprDropdownOpen(false)
+            }
         }
 
-        if (shareOpen) {
+        if (shareOpen || kprDropdownOpen) {
             document.addEventListener('mousedown', handleClickOutside)
         }
 
         return () => {
             document.removeEventListener('mousedown', handleClickOutside)
         }
-    }, [shareOpen])
+    }, [shareOpen, kprDropdownOpen])
 
     return (
         <>
@@ -388,36 +436,117 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                             <div className="flex flex-col gap-8 flex-1">
                                 {/* About */}
                                 <div id="About" className="flex flex-col gap-4">
-                                    <h2 className="font-semibold text-xl">About Project</h2>
+                                    <h2 className="font-semibold text-xl">Tentang Properti</h2>
                                     <div
-                                        className="leading-7 bg-white p-4 rounded-md border border-border text-black prose prose-sm max-w-none"
+                                        className="leading-7 bg-white p-4 rounded-md border border-border text-black prose prose-sm max-w-none 
+                                        [&_p]:mb-3 [&_p]:leading-relaxed
+                                        [&_br]:block [&_br]:content-[''] [&_br]:mb-2
+                                        [&_strong]:font-semibold [&_em]:italic
+                                        [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-3
+                                        [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-3
+                                        [&_li]:mb-1"
                                         dangerouslySetInnerHTML={{
-                                            __html: property.promo_text || property.description || 'Discover the perfect blend of style, quality, and affordability with this modernize home, designed specifically for the new generation. This property offers contemporary aesthetic, featuring sleek lines, open-concept spaces, and natural lighting that creates warm and inviting atmosphere every corner is thoughtfully crafted to provide function. Built with high-quality materials and a focus onto energy efficiency, this home is designed to last while keeping maintenance utility costs low. Whether you\'re a young professional, a growing family together.'
+                                            __html: (() => {
+                                                const text = property.promoText || property.description || 'Deskripsi properti belum tersedia.'
+                                                // Check if text already contains HTML tags
+                                                if (/<[a-z][\s\S]*>/i.test(text)) {
+                                                    return text
+                                                }
+                                                // Convert plain text with line breaks to paragraphs
+                                                // Split by double newlines or single newlines
+                                                const paragraphs = text.split(/\n\n|\n/).filter((p: string) => p.trim())
+                                                if (paragraphs.length > 1) {
+                                                    return paragraphs.map((p: string) => `<p>${p.trim()}</p>`).join('')
+                                                }
+                                                // If no newlines, try to split by sentences ending with period
+                                                const sentences = text.split(/(?<=\.)\s+/)
+                                                if (sentences.length > 3) {
+                                                    // Group sentences into paragraphs (3-4 sentences each)
+                                                    const grouped = []
+                                                    for (let i = 0; i < sentences.length; i += 3) {
+                                                        grouped.push(sentences.slice(i, i + 3).join(' '))
+                                                    }
+                                                    return grouped.map((p: string) => `<p>${p.trim()}</p>`).join('')
+                                                }
+                                                return `<p>${text}</p>`
+                                            })()
                                         }}
                                     />
                                 </div>
 
-                                {/* Nearby Facilities */}
-                                <div id="Nearby-Facilities" className="flex flex-col gap-4">
-                                    <h2 className="font-semibold text-xl">Nearby Facilities</h2>
-                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                        {(property.facilities && property.facilities.length > 0
-                                            ? property.facilities.slice(0, 8)
-                                            : nearbyFacilities
-                                        ).map((facility: any, index: number) => {
-                                            const IconComponent = getIconComponent(facility.icon || facility.name || 'default')
-                                            return (
+                                {/* Keunggulan Properti */}
+                                {property.advantages && property.advantages.length > 0 && (
+                                    <div id="Keunggulan" className="flex flex-col gap-4">
+                                        <h2 className="font-semibold text-xl">Keunggulan Properti</h2>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {property.advantages.map((item: any, index: number) => (
                                                 <div
                                                     key={index}
-                                                    className="flex flex-col min-h-[120px] rounded-2xl border border-border p-4 gap-4 bg-white hover:shadow-md transition-shadow"
+                                                    className="flex items-start gap-3 p-4 rounded-xl border border-border bg-white hover:shadow-md transition-shadow"
                                                 >
-                                                    <IconComponent className="size-8 text-gray-700" strokeWidth={1.5} />
-                                                    <p className="font-medium text-sm">{facility.name}</p>
+                                                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                                                        <CheckCircle className="w-5 h-5 text-green-600" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-medium text-gray-900">{item.title || item.nama}</p>
+                                                        {(item.description || item.keterangan) && (
+                                                            <p className="text-sm text-gray-500 mt-1">{item.description || item.keterangan}</p>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                            )
-                                        })}
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
+                                )}
+
+                                {/* Fasilitas Properti */}
+                                {property.facilities && property.facilities.length > 0 && (
+                                    <div id="Fasilitas" className="flex flex-col gap-4">
+                                        <h2 className="font-semibold text-xl">Fasilitas Properti</h2>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                            {property.facilities.map((facility: any, index: number) => {
+                                                const IconComponent = getIconComponent(facility.icon || facility.name || 'default')
+                                                return (
+                                                    <div
+                                                        key={index}
+                                                        className="flex flex-col min-h-[100px] rounded-2xl border border-border p-4 gap-3 bg-white hover:shadow-md transition-shadow"
+                                                    >
+                                                        <IconComponent className="size-7 text-blue-600" strokeWidth={1.5} />
+                                                        <p className="font-medium text-sm text-gray-900">{facility.name || facility.nama}</p>
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Nearby Facilities */}
+                                {property.nearbyPlaces && property.nearbyPlaces.length > 0 && (
+                                    <div id="Nearby-Facilities" className="flex flex-col gap-4">
+                                        <h2 className="font-semibold text-xl">Lokasi Terdekat</h2>
+                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                            {property.nearbyPlaces.map((place: any, index: number) => {
+                                                const IconComponent = getIconComponent(place.icon || place.category || 'default')
+                                                return (
+                                                    <div
+                                                        key={index}
+                                                        className="flex items-start gap-3 p-4 rounded-xl border border-border bg-white hover:shadow-md transition-shadow"
+                                                    >
+                                                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                                                            <IconComponent className="w-5 h-5 text-gray-600" strokeWidth={1.5} />
+                                                        </div>
+                                                        <div>
+                                                            <p className="font-medium text-gray-900 text-sm">{place.name || place.nama}</p>
+                                                            {(place.category || place.kategori) && (
+                                                                <p className="text-xs text-gray-500 mt-0.5">{place.category || place.kategori}</p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* Location Map */}
                                 <div id="Location" className="flex flex-col gap-4">
@@ -453,7 +582,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                             {/* Right Sidebar - Price Card */}
                             <div className="flex flex-col w-full lg:w-[380px] shrink-0 h-fit rounded-3xl border border-border p-6 gap-5 bg-white lg:sticky lg:top-8">
                                 <p className="font-bold text-2xl md:text-3xl text-center text-blue-600">
-                                    {property.priceRange || formatPrice(property.price?.min || 0)}
+                                    {property.priceDetails?.minFormatted || formatPrice(property.priceDetails?.min || 0)}
                                 </p>
                                 <hr className="border-border" />
 
@@ -554,6 +683,66 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                     </svg>
                                     <span className="text-sm">Tambahkan ke Wishlist</span>
                                 </button>
+
+                                {/* Simulasi KPR Button */}
+                                <div className="relative kpr-dropdown-container">
+                                    <button
+                                        onClick={() => setKprDropdownOpen(!kprDropdownOpen)}
+                                        className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-full bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors"
+                                    >
+                                        <svg className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M9 7h6m-6 4h6m-6 4h4" />
+                                            <path d="M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" />
+                                        </svg>
+                                        <span className="text-sm">Simulasikan KPR</span>
+                                        <svg className={`size-4 transition-transform ${kprDropdownOpen ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M6 9l6 6 6-6" />
+                                        </svg>
+                                    </button>
+
+                                    {/* KPR Dropdown */}
+                                    {kprDropdownOpen && (
+                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl border border-border shadow-lg p-3 z-10">
+                                            <p className="text-xs text-muted-foreground mb-2 px-2">Pilih jenis KPR:</p>
+                                            <p className="text-xs font-medium text-blue-600 mb-3 px-2">
+                                                Harga: {property.priceDetails?.minFormatted || property.priceRange || formatPrice(property.priceDetails?.min || 0)}
+                                            </p>
+                                            <div className="flex flex-col gap-2">
+                                                {/* KPR Konvensional */}
+                                                <a
+                                                    href={`/simulasi-kpr/konvensional?harga=${property.priceDetails?.min || property.price_min || 0}`}
+                                                    className="flex items-center gap-3 p-3 rounded-xl hover:bg-blue-50 transition-colors"
+                                                >
+                                                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                                        <svg className="size-5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                            <path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3" />
+                                                        </svg>
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-medium text-gray-900">KPR Konvensional</p>
+                                                        <p className="text-xs text-gray-500">Dengan sistem bunga</p>
+                                                    </div>
+                                                </a>
+
+                                                {/* KPR Syariah */}
+                                                <a
+                                                    href={`/simulasi-kpr/syariah?harga=${property.priceDetails?.min || property.price_min || 0}`}
+                                                    className="flex items-center gap-3 p-3 rounded-xl hover:bg-green-50 transition-colors"
+                                                >
+                                                    <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                                                        <svg className="size-5 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                            <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                                                        </svg>
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-medium text-gray-900">KPR Syariah</p>
+                                                        <p className="text-xs text-gray-500">Dengan sistem margin/murabahah</p>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
 
                                 {/* Share Button */}
                                 <div className="relative share-dropdown-container">

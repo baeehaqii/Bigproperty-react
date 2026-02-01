@@ -58,14 +58,12 @@ export function Navbar() {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/">
-              <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm p-2 border border-white/20" style={{
-                boxShadow: '0 8px 32px rgba(214, 214, 103, 0.1)'
-              }}>
+              <div className="flex items-center justify-center">
                 <img
-                  src="https://res.cloudinary.com/dx8w9qwl6/image/upload/v1761232717/Logo_Big_t3qpb3.png"
+                  src="https://res.cloudinary.com/dbr6xazzh/image/upload/v1769962203/Logo_Big_twhwpo.png"
                   alt="Big Property Logo"
-                  width={56}
-                  height={56}
+                  width={70}
+                  height={70}
                   className="object-contain"
                 />
               </div>

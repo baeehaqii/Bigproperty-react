@@ -5,25 +5,28 @@ import { ChevronDown, ChevronUp } from "lucide-react"
 
 // Dummy partner logos (placeholder URLs)
 const partnerLogosRow1 = [
-    { name: "Bank A", logo: "https://via.placeholder.com/150x60/1e40af/ffffff?text=Bank+A" },
-    { name: "Bank B", logo: "https://via.placeholder.com/150x60/dc2626/ffffff?text=Bank+B" },
-    { name: "Bank C", logo: "https://via.placeholder.com/150x60/16a34a/ffffff?text=Bank+C" },
-    { name: "Bank D", logo: "https://via.placeholder.com/150x60/9333ea/ffffff?text=Bank+D" },
-    { name: "Bank E", logo: "https://via.placeholder.com/150x60/ea580c/ffffff?text=Bank+E" },
-    { name: "Bank F", logo: "https://via.placeholder.com/150x60/0891b2/ffffff?text=Bank+F" },
-    { name: "Bank G", logo: "https://via.placeholder.com/150x60/4f46e5/ffffff?text=Bank+G" },
-    { name: "Bank H", logo: "https://via.placeholder.com/150x60/be185d/ffffff?text=Bank+H" },
+    { name: "Bank A", logo: "https://res.cloudinary.com/dtlhdbzcf/image/upload/v1768130629/mandiri_dl9cr2.png" },
+    { name: "Bank B", logo: "https://res.cloudinary.com/dtlhdbzcf/image/upload/v1768130629/btn_a0o4ip.png" },
+    { name: "Bank C", logo: "https://res.cloudinary.com/dtlhdbzcf/image/upload/v1768130629/bsi_xgeqmx.png" },
+    { name: "Bank D", logo: "https://res.cloudinary.com/dtlhdbzcf/image/upload/v1768130629/bri_zprbf0.png" },
+    { name: "Bank E", logo: "https://res.cloudinary.com/dtlhdbzcf/image/upload/v1768130629/bsn_dzbzhs.png" },
+    { name: "Bank F", logo: "https://res.cloudinary.com/dtlhdbzcf/image/upload/v1768130629/muamalat_qeghta.png" },
+    { name: "Bank G", logo: "https://res.cloudinary.com/dtlhdbzcf/image/upload/v1768130629/bgs_r3osm2.png" },
+    { name: "Bank H", logo: "https://res.cloudinary.com/dtlhdbzcf/image/upload/v1768130630/ocbc_ahldlb.png" },
+    { name: "Bank I", logo: "https://res.cloudinary.com/dtlhdbzcf/image/upload/v1768130818/bca_xon0f9.png" },
+    { name: "Bank J", logo: "https://res.cloudinary.com/dtlhdbzcf/image/upload/v1768130938/bank-jateng_jp01ct.png" },
 ]
 
 const partnerLogosRow2 = [
-    { name: "Partner 1", logo: "https://via.placeholder.com/150x60/0d9488/ffffff?text=Partner+1" },
-    { name: "Partner 2", logo: "https://via.placeholder.com/150x60/7c3aed/ffffff?text=Partner+2" },
-    { name: "Partner 3", logo: "https://via.placeholder.com/150x60/db2777/ffffff?text=Partner+3" },
-    { name: "Partner 4", logo: "https://via.placeholder.com/150x60/2563eb/ffffff?text=Partner+4" },
-    { name: "Partner 5", logo: "https://via.placeholder.com/150x60/65a30d/ffffff?text=Partner+5" },
-    { name: "Partner 6", logo: "https://via.placeholder.com/150x60/c026d3/ffffff?text=Partner+6" },
-    { name: "Partner 7", logo: "https://via.placeholder.com/150x60/f59e0b/ffffff?text=Partner+7" },
-    { name: "Partner 8", logo: "https://via.placeholder.com/150x60/ef4444/ffffff?text=Partner+8" },
+    { name: "Partner 1", logo: "https://res.cloudinary.com/dtlhdbzcf/image/upload/v1768129495/quinland-graha_pgaxmb.png" },
+    { name: "Partner 2", logo: "https://res.cloudinary.com/dtlhdbzcf/image/upload/v1768129547/griyaland-sumbang_wv5cjp.png" },
+    { name: "Partner 3", logo: "https://res.cloudinary.com/dtlhdbzcf/image/upload/v1768129547/alexandria_wrycs2.png" },
+    { name: "Partner 4", logo: "https://res.cloudinary.com/dtlhdbzcf/image/upload/v1768129990/sapphire-griya_ef0lrd.png" },
+    { name: "Partner 5", logo: "https://res.cloudinary.com/dtlhdbzcf/image/upload/v1768129990/sgm_wazmhp.png" },
+    { name: "Partner 6", logo: "https://res.cloudinary.com/dtlhdbzcf/image/upload/v1768129989/samara-griya_btlxqr.png" },
+    { name: "Partner 7", logo: "https://res.cloudinary.com/dtlhdbzcf/image/upload/v1768129989/samara-graha_fuso4e.png" },
+    { name: "Partner 8", logo: "https://res.cloudinary.com/dtlhdbzcf/image/upload/v1768129989/graha_nkppm4.png" },
+    { name: "Partner 9", logo: "https://res.cloudinary.com/dtlhdbzcf/image/upload/v1768129989/atalas_cknaoe.png" },
 ]
 
 // Property categories with links

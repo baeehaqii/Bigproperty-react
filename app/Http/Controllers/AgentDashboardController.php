@@ -221,6 +221,62 @@ class AgentDashboardController extends Controller
     }
 
     /**
+     * Update listing status (sold/cancelled/active)
+     */
+    public function updateListingStatus($id, \Illuminate\Http\Request $request)
+    {
+        $agent = $this->guard()->user();
+
+        if (!$agent) {
+            return redirect()->route('agent.login')
+                ->with('error', 'Akun agent tidak ditemukan.');
+        }
+
+        $request->validate([
+            'status' => 'required|in:active,sold,cancelled',
+        ]);
+
+        // Find property and verify ownership
+        $property = Property::where('id', $id)
+            ->where('agen_id', $agent->id)
+            ->first();
+
+        if (!$property) {
+            return back()->withErrors([
+                'general' => 'Properti tidak ditemukan atau Anda tidak memiliki akses.',
+            ]);
+        }
+
+        // Only allow status change for verified properties
+        if (!$property->is_verified) {
+            return back()->withErrors([
+                'general' => 'Status hanya dapat diubah untuk properti yang sudah diverifikasi.',
+            ]);
+        }
+
+        try {
+            $property->status_listing = $request->status;
+            // Update is_available based on status
+            $property->is_available = $request->status === 'active';
+            $property->save();
+
+            $statusMessages = [
+                'active' => 'Properti berhasil diaktifkan kembali.',
+                'sold' => 'Properti berhasil ditandai sebagai Terjual.',
+                'cancelled' => 'Properti berhasil dibatalkan.',
+            ];
+
+            return redirect()->route('agent.dashboard.listing-saya')
+                ->with('success', $statusMessages[$request->status] ?? 'Status berhasil diubah.');
+        } catch (\Exception $e) {
+            \Log::error('Property status update error: ' . $e->getMessage());
+            return back()->withErrors([
+                'general' => 'Terjadi kesalahan saat mengubah status properti.',
+            ]);
+        }
+    }
+
+    /**
      * Show edit listing form
      */
     public function editListingForm($id)

@@ -33,6 +33,7 @@ interface PopularPropertyCardProps {
   landSize: string
   buildingSize: string
   additionalInfo?: string
+  condition?: string
   lastUpdated: string
   buttonType: "view" | "chat"
   available: boolean
@@ -59,6 +60,7 @@ export function PopularPropertyCard({
   landSize,
   buildingSize,
   additionalInfo,
+  condition,
   lastUpdated,
   buttonType,
   available,
@@ -185,8 +187,21 @@ export function PopularPropertyCard({
       {/* Content Section with Link */}
       <Link href={`/property/${id}`} className="block">
         <div className="p-4 cursor-pointer">
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
             <span className="text-sm text-gray-600">{type}</span>
+            {condition && (
+              <>
+                <span className="text-gray-300">•</span>
+                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${condition.toLowerCase() === 'baru'
+                    ? 'bg-green-100 text-green-700'
+                    : condition.toLowerCase() === 'bekas' || condition.toLowerCase() === 'second'
+                      ? 'bg-orange-100 text-orange-700'
+                      : 'bg-gray-100 text-gray-700'
+                  }`}>
+                  {condition}
+                </span>
+              </>
+            )}
             {units && (
               <>
                 <span className="text-gray-300">•</span>

@@ -359,6 +359,19 @@ function StepIndicator({
     )
 }
 
+// Helper function to format number with thousand separator
+const formatCurrency = (value: string): string => {
+    // Remove non-digit characters
+    const numericValue = value.replace(/\D/g, '')
+    // Format with thousand separator
+    return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+}
+
+// Helper function to parse formatted currency back to number
+const parseCurrency = (value: string): string => {
+    return value.replace(/\./g, '')
+}
+
 // Input Component
 function FormInput({
     label,
@@ -404,6 +417,76 @@ function FormInput({
                     onChange={onChange}
                     placeholder={placeholder}
                     className={`flex-1 px-4 py-3 border border-[#DCDEDD] text-[#0C1C3C] focus:border-[#C5A847] focus:ring-1 focus:ring-[#C5A847] focus:outline-none transition-all duration-200 ${prefix ? 'rounded-r-[16px]' : suffix ? 'rounded-l-[16px]' : 'rounded-[16px]'
+                        } ${error ? 'border-red-500' : ''}`}
+                />
+                {suffix && (
+                    <span className="inline-flex items-center px-3 border border-l-0 border-[#DCDEDD] rounded-r-[16px] bg-gray-50 text-gray-500 text-sm">
+                        {suffix}
+                    </span>
+                )}
+            </div>
+            {helpText && <p className="text-gray-500 text-xs">{helpText}</p>}
+            {error && <p className="text-red-500 text-xs">{error}</p>}
+        </div>
+    )
+}
+
+// Currency Input Component with IDR formatting
+function FormInputCurrency({
+    label,
+    name,
+    value,
+    onChange,
+    placeholder,
+    required = false,
+    prefix = "Rp",
+    suffix,
+    helpText,
+    error,
+}: {
+    label: string
+    name: string
+    value: string
+    onChange: (name: string, rawValue: string) => void
+    placeholder?: string
+    required?: boolean
+    prefix?: string
+    suffix?: string
+    helpText?: string
+    error?: string
+}) {
+    // Display formatted value
+    const displayValue = formatCurrency(value)
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const inputValue = e.target.value
+        // Parse to raw number (remove dots)
+        const rawValue = parseCurrency(inputValue)
+        // Only allow numbers
+        if (/^\d*$/.test(rawValue)) {
+            onChange(name, rawValue)
+        }
+    }
+
+    return (
+        <div className="space-y-2">
+            <label className="block text-[#0C1C3C] text-sm font-medium">
+                {label}
+                {required && <span className="text-red-500">*</span>}
+            </label>
+            <div className="relative flex">
+                {prefix && (
+                    <span className="inline-flex items-center px-3 border border-r-0 border-[#DCDEDD] rounded-l-[16px] bg-gray-50 text-gray-500 text-sm">
+                        {prefix}
+                    </span>
+                )}
+                <input
+                    type="text"
+                    name={name}
+                    value={displayValue}
+                    onChange={handleChange}
+                    placeholder={placeholder}
+                    className={`flex-1 px-4 py-3 border border-[#DCDEDD] text-[#0C1C3C] focus:border-[#C5A847] focus:ring-1 focus:ring-[#C5A847] focus:outline-none transition-all duration-200 ${prefix ? (suffix ? '' : 'rounded-r-[16px]') : suffix ? 'rounded-l-[16px]' : 'rounded-[16px]'
                         } ${error ? 'border-red-500' : ''}`}
                 />
                 {suffix && (
@@ -632,6 +715,7 @@ export default function UploadListing({ agent, developers = [], categories = [],
     const [loadingCities, setLoadingCities] = useState(false)
     const [provinceOptions, setProvinceOptions] = useState<{ value: string, label: string }[]>([])
     const [errors, setErrors] = useState<Record<string, string>>({})
+    const [showConfirmModal, setShowConfirmModal] = useState(false)
 
     // Fetch provinces on mount
     useEffect(() => {
@@ -711,6 +795,14 @@ export default function UploadListing({ agent, developers = [], categories = [],
         setFormData(prev => ({
             ...prev,
             [name]: value
+        }))
+    }
+
+    // Handle currency input change (for IDR formatted inputs)
+    const handleCurrencyChange = (name: string, rawValue: string) => {
+        setFormData(prev => ({
+            ...prev,
+            [name]: rawValue
         }))
     }
 
@@ -956,7 +1048,8 @@ export default function UploadListing({ agent, developers = [], categories = [],
         })
     }
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    // Show confirmation modal before submitting
+    const handleShowConfirmation = (e: React.FormEvent) => {
         e.preventDefault()
 
         // Check if required steps (1, 2, 3) are completed
@@ -972,6 +1065,12 @@ export default function UploadListing({ agent, developers = [], categories = [],
             return
         }
 
+        // Show confirmation modal
+        setShowConfirmModal(true)
+    }
+
+    const handleSubmit = async () => {
+        setShowConfirmModal(false)
         setIsSubmitting(true)
         setSubmitStatus('idle')
 
@@ -1154,24 +1253,22 @@ export default function UploadListing({ agent, developers = [], categories = [],
                     {currentStep === 2 && (
                         <>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <FormInput
+                                <FormInputCurrency
                                     label="Price"
                                     name="price_min"
                                     value={formData.price_min}
-                                    onChange={handleInputChange}
-                                    type="number"
-                                    placeholder="11000000"
+                                    onChange={handleCurrencyChange}
+                                    placeholder="2.000.000.000"
                                     prefix="Rp"
                                     required
                                     error={errors.price_min}
                                 />
-                                <FormInput
+                                <FormInputCurrency
                                     label="Starting Installment"
                                     name="installment_start"
                                     value={formData.installment_start}
-                                    onChange={handleInputChange}
-                                    type="number"
-                                    placeholder="5000000"
+                                    onChange={handleCurrencyChange}
+                                    placeholder="5.000.000"
                                     prefix="Rp"
                                     suffix="/month"
                                     required
@@ -1738,7 +1835,7 @@ export default function UploadListing({ agent, developers = [], categories = [],
                     onStepClick={handleStepClick}
                 />
 
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleShowConfirmation}>
                     {/* Step Content */}
                     {renderStepContent()}
 
@@ -1791,6 +1888,296 @@ export default function UploadListing({ agent, developers = [], categories = [],
                     </div>
                 </form>
             </div>
+
+            {/* Confirmation Modal */}
+            {showConfirmModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden animate-in fade-in zoom-in duration-200">
+                        {/* Modal Header */}
+                        <div className="bg-gradient-to-r from-[#0C1C3C] to-[#1a3a5c] px-6 py-4 flex items-center justify-between">
+                            <div>
+                                <h2 className="text-xl font-bold text-white">Konfirmasi Listing</h2>
+                                <p className="text-gray-300 text-sm">Periksa kembali detail listing sebelum mengajukan</p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setShowConfirmModal(false)}
+                                className="p-2 rounded-full hover:bg-white/10 transition-colors"
+                            >
+                                <X className="w-5 h-5 text-white" />
+                            </button>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div className="p-6 overflow-y-auto max-h-[60vh] space-y-6">
+                            {/* Step 1: Basic Information */}
+                            {(formData.name || formData.provinsi || formData.city || formData.location) && (
+                                <div className="border border-gray-200 rounded-xl p-4">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <Info className="w-5 h-5 text-[#C5A847]" />
+                                        <h3 className="font-semibold text-[#0C1C3C]">Informasi Dasar</h3>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                        {formData.name && (
+                                            <div>
+                                                <span className="text-gray-500">Nama Properti:</span>
+                                                <p className="font-medium text-[#0C1C3C]">{formData.name}</p>
+                                            </div>
+                                        )}
+                                        {formData.provinsi && (
+                                            <div>
+                                                <span className="text-gray-500">Provinsi:</span>
+                                                <p className="font-medium text-[#0C1C3C]">{provinceOptions.find(p => p.value === formData.provinsi)?.label || formData.provinsi}</p>
+                                            </div>
+                                        )}
+                                        {formData.city && (
+                                            <div>
+                                                <span className="text-gray-500">Kota/Kabupaten:</span>
+                                                <p className="font-medium text-[#0C1C3C]">{cities.find(c => c.value === formData.city)?.label || formData.city}</p>
+                                            </div>
+                                        )}
+                                        {formData.location && (
+                                            <div>
+                                                <span className="text-gray-500">Lokasi Detail:</span>
+                                                <p className="font-medium text-[#0C1C3C]">{formData.location}</p>
+                                            </div>
+                                        )}
+                                        {formData.units_remaining && (
+                                            <div>
+                                                <span className="text-gray-500">Sisa Unit:</span>
+                                                <p className="font-medium text-[#0C1C3C]">{formData.units_remaining}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Step 2: Price & Financing */}
+                            {(formData.price_min || formData.installment_start) && (
+                                <div className="border border-gray-200 rounded-xl p-4">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <DollarSign className="w-5 h-5 text-[#C5A847]" />
+                                        <h3 className="font-semibold text-[#0C1C3C]">Harga & Pembiayaan</h3>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                        {formData.price_min && (
+                                            <div>
+                                                <span className="text-gray-500">Harga:</span>
+                                                <p className="font-medium text-[#0C1C3C]">Rp {Number(formData.price_min).toLocaleString('id-ID')}</p>
+                                            </div>
+                                        )}
+                                        {formData.installment_start && (
+                                            <div>
+                                                <span className="text-gray-500">Cicilan Mulai:</span>
+                                                <p className="font-medium text-[#0C1C3C]">Rp {Number(formData.installment_start).toLocaleString('id-ID')}/bulan</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Step 3: Property Specifications */}
+                            {(formData.bedrooms || formData.bathrooms || formData.land_size_min || formData.building_size_min) && (
+                                <div className="border border-gray-200 rounded-xl p-4">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <Home className="w-5 h-5 text-[#C5A847]" />
+                                        <h3 className="font-semibold text-[#0C1C3C]">Spesifikasi Properti</h3>
+                                    </div>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                                        {formData.bedrooms && (
+                                            <div>
+                                                <span className="text-gray-500">Kamar Tidur:</span>
+                                                <p className="font-medium text-[#0C1C3C]">{formData.bedrooms}</p>
+                                            </div>
+                                        )}
+                                        {formData.bathrooms && (
+                                            <div>
+                                                <span className="text-gray-500">Kamar Mandi:</span>
+                                                <p className="font-medium text-[#0C1C3C]">{formData.bathrooms}</p>
+                                            </div>
+                                        )}
+                                        {formData.carport && (
+                                            <div>
+                                                <span className="text-gray-500">Carport:</span>
+                                                <p className="font-medium text-[#0C1C3C]">{formData.carport}</p>
+                                            </div>
+                                        )}
+                                        {formData.certificate_type && (
+                                            <div>
+                                                <span className="text-gray-500">Sertifikat:</span>
+                                                <p className="font-medium text-[#0C1C3C]">{formData.certificate_type}</p>
+                                            </div>
+                                        )}
+                                        {formData.land_size_min && (
+                                            <div>
+                                                <span className="text-gray-500">Luas Tanah:</span>
+                                                <p className="font-medium text-[#0C1C3C]">{formData.land_size_min}{formData.land_size_max ? ` - ${formData.land_size_max}` : ''} m²</p>
+                                            </div>
+                                        )}
+                                        {formData.building_size_min && (
+                                            <div>
+                                                <span className="text-gray-500">Luas Bangunan:</span>
+                                                <p className="font-medium text-[#0C1C3C]">{formData.building_size_min}{formData.building_size_max ? ` - ${formData.building_size_max}` : ''} m²</p>
+                                            </div>
+                                        )}
+                                        {formData.listrik && (
+                                            <div>
+                                                <span className="text-gray-500">Daya Listrik:</span>
+                                                <p className="font-medium text-[#0C1C3C]">{formData.listrik} VA</p>
+                                            </div>
+                                        )}
+                                        {formData.condition && (
+                                            <div>
+                                                <span className="text-gray-500">Kondisi:</span>
+                                                <p className="font-medium text-[#0C1C3C]">{formData.condition}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Step 4: Keunggulan & Fasilitas */}
+                            {(formData.keunggulan.length > 0 || formData.fasilitas.length > 0 || formData.nearby_places.length > 0) && (
+                                <div className="border border-gray-200 rounded-xl p-4">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <Star className="w-5 h-5 text-[#C5A847]" />
+                                        <h3 className="font-semibold text-[#0C1C3C]">Keunggulan & Fasilitas</h3>
+                                    </div>
+                                    <div className="space-y-3 text-sm">
+                                        {formData.keunggulan.length > 0 && (
+                                            <div>
+                                                <span className="text-gray-500">Keunggulan:</span>
+                                                <div className="flex flex-wrap gap-2 mt-1">
+                                                    {formData.keunggulan.map(id => {
+                                                        const item = keunggulanList.find(k => k.id === id)
+                                                        return item ? (
+                                                            <span key={id} className="px-2 py-1 bg-[#C5A847]/10 text-[#C5A847] rounded-full text-xs font-medium">
+                                                                {item.nama}
+                                                            </span>
+                                                        ) : null
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
+                                        {formData.fasilitas.length > 0 && (
+                                            <div>
+                                                <span className="text-gray-500">Fasilitas:</span>
+                                                <div className="flex flex-wrap gap-2 mt-1">
+                                                    {formData.fasilitas.map(id => {
+                                                        const item = fasilitasList.find(f => f.id === id)
+                                                        return item ? (
+                                                            <span key={id} className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                                                                {item.nama}
+                                                            </span>
+                                                        ) : null
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
+                                        {formData.nearby_places.length > 0 && (
+                                            <div>
+                                                <span className="text-gray-500">Lokasi Terdekat:</span>
+                                                <div className="flex flex-wrap gap-2 mt-1">
+                                                    {formData.nearby_places.map((place, idx) => (
+                                                        <span key={idx} className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                                                            {place.nama} ({place.kategori})
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Step 5: Marketing & Images */}
+                            {(formData.promo_text || formData.main_image || formData.images.length > 0) && (
+                                <div className="border border-gray-200 rounded-xl p-4">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <Megaphone className="w-5 h-5 text-[#C5A847]" />
+                                        <h3 className="font-semibold text-[#0C1C3C]">Marketing & Gambar</h3>
+                                    </div>
+                                    <div className="space-y-3 text-sm">
+                                        {formData.has_promo_active && formData.promos.length > 0 && (
+                                            <div>
+                                                <span className="text-gray-500">Promo Aktif:</span>
+                                                <div className="flex flex-wrap gap-2 mt-1">
+                                                    {formData.promos.map(id => {
+                                                        const promo = promosList.find(p => p.id === id)
+                                                        return promo ? (
+                                                            <span key={id} className="px-2 py-1 bg-rose-100 text-rose-700 rounded-full text-xs font-medium">
+                                                                {promo.nama}
+                                                            </span>
+                                                        ) : null
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
+                                        {formData.promo_text && (
+                                            <div>
+                                                <span className="text-gray-500">Tentang Property:</span>
+                                                <div
+                                                    className="mt-1 p-2 bg-gray-50 rounded-lg text-[#0C1C3C] text-xs max-h-24 overflow-y-auto prose prose-sm"
+                                                    dangerouslySetInnerHTML={{ __html: formData.promo_text }}
+                                                />
+                                            </div>
+                                        )}
+                                        {(formData.main_image || formData.images.length > 0) && (
+                                            <div>
+                                                <span className="text-gray-500">Gambar: </span>
+                                                <span className="font-medium text-[#0C1C3C]">
+                                                    {formData.main_image ? '1 gambar utama' : ''}{formData.images.length > 0 ? `, ${formData.images.length} gambar galeri` : ''}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Notice */}
+                            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
+                                <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                                <div className="text-sm">
+                                    <p className="font-medium text-amber-800">Perhatian</p>
+                                    <p className="text-amber-700 mt-1">
+                                        Listing Anda akan diajukan ke admin untuk direview. Setelah disetujui, listing akan tampil di halaman publik.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
+                            <Button
+                                type="button"
+                                onClick={() => setShowConfirmModal(false)}
+                                variant="outline"
+                                className="h-11 rounded-xl px-6 border-gray-300"
+                            >
+                                Kembali Edit
+                            </Button>
+                            <Button
+                                type="button"
+                                onClick={handleSubmit}
+                                disabled={isSubmitting}
+                                className="h-11 rounded-xl px-6 bg-[#C5A847] text-white hover:bg-[#B09530] flex items-center justify-center gap-2"
+                            >
+                                {isSubmitting ? (
+                                    <>
+                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        Mengajukan...
+                                    </>
+                                ) : (
+                                    <>
+                                        <CheckCircle className="w-5 h-5" />
+                                        Ajukan Listing
+                                    </>
+                                )}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </DashboardAgentLayout>
     )
 }

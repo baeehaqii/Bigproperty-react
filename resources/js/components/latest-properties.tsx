@@ -33,6 +33,7 @@ interface Property {
     landSize: string
     buildingSize: string
     additionalInfo?: string
+    condition?: string
     lastUpdated: string
     buttonType: "view" | "chat"
     available: boolean

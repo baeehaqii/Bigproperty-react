@@ -57,6 +57,7 @@ class Property extends Model
         'notaris',
         'promo_list',
         'is_draft',
+        'status_listing',
     ];
 
     protected $casts = [
