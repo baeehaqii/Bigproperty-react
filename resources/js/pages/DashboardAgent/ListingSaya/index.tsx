@@ -132,7 +132,7 @@ export default function ListingSaya({ agent, listings, stats }: ListingSayaProps
             return (
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">
                     <Clock className="w-3 h-3" />
-                    Menunggu Verifikasi
+                    Pending Verification
                 </span>
             )
         }
@@ -140,7 +140,7 @@ export default function ListingSaya({ agent, listings, stats }: ListingSayaProps
             return (
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
                     <DollarSign className="w-3 h-3" />
-                    Terjual
+                    Sold
                 </span>
             )
         }
@@ -148,7 +148,7 @@ export default function ListingSaya({ agent, listings, stats }: ListingSayaProps
             return (
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
                     <Ban className="w-3 h-3" />
-                    Dibatalkan
+                    Cancelled
                 </span>
             )
         }
@@ -156,14 +156,14 @@ export default function ListingSaya({ agent, listings, stats }: ListingSayaProps
             return (
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
                     <CheckCircle className="w-3 h-3" />
-                    Aktif
+                    Active
                 </span>
             )
         }
         return (
             <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">
                 <XCircle className="w-3 h-3" />
-                Tidak Aktif
+                Inactive
             </span>
         )
     }
@@ -231,10 +231,10 @@ export default function ListingSaya({ agent, listings, stats }: ListingSayaProps
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 md:mb-8">
                 <div>
                     <h1 className="text-[#0C1C3C] text-2xl md:text-3xl font-bold mb-1">
-                        Listing Saya
+                        My Listings
                     </h1>
                     <p className="text-gray-500 text-sm md:text-base">
-                        Kelola semua properti yang sudah Anda publikasikan
+                        Manage all properties you have published
                     </p>
                 </div>
                 <Link href="/agent/dashboard/upload-listing">
@@ -242,7 +242,7 @@ export default function ListingSaya({ agent, listings, stats }: ListingSayaProps
                         className="flex items-center gap-2 px-4 py-2.5 bg-[#D6D667] text-[#0C1C3C] rounded-[16px] font-medium hover:bg-[#c5c55f] transition-all duration-200"
                     >
                         <Plus className="w-4 h-4" />
-                        Tambah Listing
+                        Add Listing
                     </Button>
                 </Link>
             </div>
@@ -250,15 +250,15 @@ export default function ListingSaya({ agent, listings, stats }: ListingSayaProps
             {/* Stats Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 <div className="bg-[#F7F7F7] rounded-[20px] p-4">
-                    <p className="text-gray-500 text-sm mb-1">Total Listing</p>
+                    <p className="text-gray-500 text-sm mb-1">Total Listings</p>
                     <p className="text-[#0C1C3C] text-2xl font-bold">{stats.total}</p>
                 </div>
                 <div className="bg-[#F7F7F7] rounded-[20px] p-4">
-                    <p className="text-gray-500 text-sm mb-1">Listing Aktif</p>
+                    <p className="text-gray-500 text-sm mb-1">Active Listings</p>
                     <p className="text-green-600 text-2xl font-bold">{stats.active}</p>
                 </div>
                 <div className="bg-[#F7F7F7] rounded-[20px] p-4">
-                    <p className="text-gray-500 text-sm mb-1">Menunggu Verifikasi</p>
+                    <p className="text-gray-500 text-sm mb-1">Pending Verification</p>
                     <p className="text-yellow-600 text-2xl font-bold">{stats.pending}</p>
                 </div>
                 <div className="bg-[#F7F7F7] rounded-[20px] p-4">
@@ -269,7 +269,7 @@ export default function ListingSaya({ agent, listings, stats }: ListingSayaProps
 
             {/* Search and Filter */}
             <div className="bg-[#F7F7F7] rounded-[20px] pt-5 px-3 pb-3 mb-6">
-                <h3 className="text-[#0C1C3C] text-lg font-bold ml-3 mb-4">Filter & Pencarian</h3>
+                <h3 className="text-[#0C1C3C] text-lg font-bold ml-3 mb-4">Filter & Search</h3>
                 <div className="bg-white rounded-[20px] p-4">
                     <div className="flex flex-col md:flex-row gap-4">
                         {/* Search Input */}
@@ -277,7 +277,7 @@ export default function ListingSaya({ agent, listings, stats }: ListingSayaProps
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                             <input
                                 type="text"
-                                placeholder="Cari nama properti atau lokasi..."
+                                placeholder="Search property name or location..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="w-full pl-12 pr-4 py-3 border border-[#DCDEDD] rounded-[16px] text-[#0C1C3C] focus:border-[#D6D667] focus:ring-1 focus:ring-[#D6D667] focus:outline-none transition-all duration-200"
@@ -292,7 +292,7 @@ export default function ListingSaya({ agent, listings, stats }: ListingSayaProps
                                     : "border border-[#DCDEDD] text-gray-600 hover:border-[#D6D667]"
                                     }`}
                             >
-                                Semua
+                                All
                             </button>
                             <button
                                 onClick={() => setFilterStatus("active")}
@@ -301,7 +301,7 @@ export default function ListingSaya({ agent, listings, stats }: ListingSayaProps
                                     : "border border-[#DCDEDD] text-gray-600 hover:border-[#D6D667]"
                                     }`}
                             >
-                                Aktif
+                                Active
                             </button>
                             <button
                                 onClick={() => setFilterStatus("pending")}
@@ -319,7 +319,7 @@ export default function ListingSaya({ agent, listings, stats }: ListingSayaProps
                                     : "border border-[#DCDEDD] text-gray-600 hover:border-blue-400"
                                     }`}
                             >
-                                Terjual
+                                Sold
                             </button>
                             <button
                                 onClick={() => setFilterStatus("cancelled")}
@@ -328,7 +328,7 @@ export default function ListingSaya({ agent, listings, stats }: ListingSayaProps
                                     : "border border-[#DCDEDD] text-gray-600 hover:border-gray-400"
                                     }`}
                             >
-                                Dibatalkan
+                                Cancelled
                             </button>
                         </div>
                     </div>
@@ -338,7 +338,7 @@ export default function ListingSaya({ agent, listings, stats }: ListingSayaProps
             {/* Listings Table */}
             <div className="bg-[#F7F7F7] rounded-[20px] pt-5 px-3 pb-3">
                 <h3 className="text-[#0C1C3C] text-lg font-bold ml-3 mb-4">
-                    Daftar Properti ({filteredListings.length})
+                    Property List ({filteredListings.length})
                 </h3>
                 <div className="bg-white rounded-[20px] overflow-hidden">
                     {filteredListings.length === 0 ? (
@@ -346,17 +346,17 @@ export default function ListingSaya({ agent, listings, stats }: ListingSayaProps
                             <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <Search className="w-8 h-8 text-gray-400" />
                             </div>
-                            <h4 className="text-[#0C1C3C] font-bold text-lg mb-2">Tidak ada listing</h4>
+                            <h4 className="text-[#0C1C3C] font-bold text-lg mb-2">No listings found</h4>
                             <p className="text-gray-500 text-sm mb-6">
                                 {searchQuery
-                                    ? "Tidak ditemukan properti yang sesuai dengan pencarian Anda"
-                                    : "Anda belum memiliki properti. Mulai tambahkan listing pertama Anda!"}
+                                    ? "No properties found matching your search"
+                                    : "You don't have any properties yet. Start adding your first listing!"}
                             </p>
                             {!searchQuery && (
                                 <Link href="/agent/dashboard/upload-listing">
                                     <Button className="bg-[#D6D667] text-[#0C1C3C] hover:bg-[#c5c55f]">
                                         <Plus className="w-4 h-4 mr-2" />
-                                        Tambah Listing
+                                        Add Listing
                                     </Button>
                                 </Link>
                             )}
@@ -367,13 +367,13 @@ export default function ListingSaya({ agent, listings, stats }: ListingSayaProps
                                 <thead className="bg-gray-50 border-b border-gray-100">
                                     <tr>
                                         <th className="text-left px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                            Properti
+                                            Property
                                         </th>
                                         <th className="text-left px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                            Lokasi
+                                            Location
                                         </th>
                                         <th className="text-left px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                            Harga
+                                            Price
                                         </th>
                                         <th className="text-center px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                             <div className="flex items-center justify-center gap-1">
@@ -385,7 +385,7 @@ export default function ListingSaya({ agent, listings, stats }: ListingSayaProps
                                             Status
                                         </th>
                                         <th className="text-center px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                            Aksi
+                                            Actions
                                         </th>
                                     </tr>
                                 </thead>
@@ -475,7 +475,7 @@ export default function ListingSaya({ agent, listings, stats }: ListingSayaProps
                                                         <Link href={`/property/${listing.id}`}>
                                                             <button
                                                                 className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-[#0C1C3C] transition-colors cursor-pointer"
-                                                                title="Lihat Detail"
+                                                                title="View Details"
                                                             >
                                                                 <Eye className="w-4 h-4" />
                                                             </button>
@@ -497,14 +497,14 @@ export default function ListingSaya({ agent, listings, stats }: ListingSayaProps
                                                                         <button
                                                                             onClick={() => openStatusModal(listing, 'sold')}
                                                                             className="p-2 rounded-lg hover:bg-blue-50 text-gray-500 hover:text-blue-600 transition-colors cursor-pointer"
-                                                                            title="Tandai Terjual"
+                                                                            title="Mark as Sold"
                                                                         >
                                                                             <DollarSign className="w-4 h-4" />
                                                                         </button>
                                                                         <button
                                                                             onClick={() => openStatusModal(listing, 'cancelled')}
                                                                             className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
-                                                                            title="Batalkan Listing"
+                                                                            title="Cancel Listing"
                                                                         >
                                                                             <Ban className="w-4 h-4" />
                                                                         </button>
@@ -514,7 +514,7 @@ export default function ListingSaya({ agent, listings, stats }: ListingSayaProps
                                                                     <button
                                                                         onClick={() => openStatusModal(listing, 'active')}
                                                                         className="p-2 rounded-lg hover:bg-green-50 text-gray-500 hover:text-green-600 transition-colors cursor-pointer"
-                                                                        title="Aktifkan Kembali"
+                                                                        title="Reactivate"
                                                                     >
                                                                         <RefreshCw className="w-4 h-4" />
                                                                     </button>
@@ -525,7 +525,7 @@ export default function ListingSaya({ agent, listings, stats }: ListingSayaProps
                                                         <button
                                                             onClick={() => openDeleteModal(listing)}
                                                             className="p-2 rounded-lg hover:bg-red-50 text-gray-500 hover:text-red-500 transition-colors cursor-pointer"
-                                                            title="Hapus"
+                                                            title="Delete"
                                                         >
                                                             <Trash2 className="w-4 h-4" />
                                                         </button>
@@ -549,17 +549,17 @@ export default function ListingSaya({ agent, listings, stats }: ListingSayaProps
                             <AlertTriangle className="w-8 h-8 text-red-600" />
                         </div>
                         <h3 className="text-[#0C1C3C] text-xl font-bold mb-2 text-center">
-                            Hapus Listing?
+                            Delete Listing?
                         </h3>
                         <p className="text-gray-500 text-sm mb-2 text-center">
-                            Anda akan menghapus listing:
+                            You are about to delete listing:
                         </p>
                         <p className="text-[#0C1C3C] font-semibold text-center mb-4">
                             "{selectedProperty.name}"
                         </p>
                         <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-6">
                             <p className="text-red-700 text-xs text-center">
-                                ⚠️ Tindakan ini tidak dapat dibatalkan. Data listing akan dihapus permanen dan tidak bisa dikembalikan.
+                                ⚠️ This action cannot be undone. Listing data will be permanently deleted.
                             </p>
                         </div>
                         <div className="flex gap-3">
@@ -568,14 +568,14 @@ export default function ListingSaya({ agent, listings, stats }: ListingSayaProps
                                 disabled={isDeleting}
                                 className="flex-1 px-4 py-2.5 border border-[#DCDEDD] rounded-[16px] text-[#0C1C3C] font-medium hover:border-[#D6D667] transition-all duration-200 cursor-pointer disabled:opacity-50"
                             >
-                                Batal
+                                Cancel
                             </button>
                             <button
                                 onClick={handleDelete}
                                 disabled={isDeleting}
                                 className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-[16px] font-medium hover:bg-red-700 transition-all duration-200 cursor-pointer disabled:opacity-50"
                             >
-                                {isDeleting ? 'Menghapus...' : 'Ya, Hapus'}
+                                {isDeleting ? 'Deleting...' : 'Yes, Delete'}
                             </button>
                         </div>
                     </div>
@@ -587,32 +587,32 @@ export default function ListingSaya({ agent, listings, stats }: ListingSayaProps
                 <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
                     <div className="bg-white rounded-[20px] p-6 max-w-md w-full">
                         <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${statusAction === 'sold' ? 'bg-blue-100' :
-                                statusAction === 'cancelled' ? 'bg-gray-100' : 'bg-green-100'
+                            statusAction === 'cancelled' ? 'bg-gray-100' : 'bg-green-100'
                             }`}>
                             {statusAction === 'sold' && <DollarSign className="w-8 h-8 text-blue-600" />}
                             {statusAction === 'cancelled' && <Ban className="w-8 h-8 text-gray-600" />}
                             {statusAction === 'active' && <RefreshCw className="w-8 h-8 text-green-600" />}
                         </div>
                         <h3 className="text-[#0C1C3C] text-xl font-bold mb-2 text-center">
-                            {statusAction === 'sold' && 'Tandai sebagai Terjual?'}
-                            {statusAction === 'cancelled' && 'Batalkan Listing?'}
-                            {statusAction === 'active' && 'Aktifkan Kembali?'}
+                            {statusAction === 'sold' && 'Mark as Sold?'}
+                            {statusAction === 'cancelled' && 'Cancel Listing?'}
+                            {statusAction === 'active' && 'Reactivate Listing?'}
                         </h3>
                         <p className="text-gray-500 text-sm mb-2 text-center">
-                            Anda akan mengubah status listing:
+                            You are about to change listing status:
                         </p>
                         <p className="text-[#0C1C3C] font-semibold text-center mb-4">
                             "{selectedProperty.name}"
                         </p>
                         <div className={`border rounded-lg p-3 mb-6 ${statusAction === 'sold' ? 'bg-blue-50 border-blue-200' :
-                                statusAction === 'cancelled' ? 'bg-gray-50 border-gray-200' : 'bg-green-50 border-green-200'
+                            statusAction === 'cancelled' ? 'bg-gray-50 border-gray-200' : 'bg-green-50 border-green-200'
                             }`}>
                             <p className={`text-xs text-center ${statusAction === 'sold' ? 'text-blue-700' :
-                                    statusAction === 'cancelled' ? 'text-gray-700' : 'text-green-700'
+                                statusAction === 'cancelled' ? 'text-gray-700' : 'text-green-700'
                                 }`}>
-                                {statusAction === 'sold' && '✅ Listing akan ditandai sebagai terjual dan tidak akan ditampilkan di pencarian.'}
-                                {statusAction === 'cancelled' && '⏸️ Listing akan dibatalkan dan tidak akan ditampilkan di pencarian.'}
-                                {statusAction === 'active' && '🔄 Listing akan diaktifkan kembali dan ditampilkan di pencarian.'}
+                                {statusAction === 'sold' && '✅ Listing will be marked as sold and hidden from search.'}
+                                {statusAction === 'cancelled' && '⏸️ Listing will be cancelled and hidden from search.'}
+                                {statusAction === 'active' && '🔄 Listing will be reactivated and shown in search.'}
                             </p>
                         </div>
                         <div className="flex gap-3">
@@ -621,18 +621,18 @@ export default function ListingSaya({ agent, listings, stats }: ListingSayaProps
                                 disabled={isUpdatingStatus}
                                 className="flex-1 px-4 py-2.5 border border-[#DCDEDD] rounded-[16px] text-[#0C1C3C] font-medium hover:border-[#D6D667] transition-all duration-200 cursor-pointer disabled:opacity-50"
                             >
-                                Batal
+                                Cancel
                             </button>
                             <button
                                 onClick={handleStatusUpdate}
                                 disabled={isUpdatingStatus}
                                 className={`flex-1 px-4 py-2.5 text-white rounded-[16px] font-medium transition-all duration-200 cursor-pointer disabled:opacity-50 ${statusAction === 'sold' ? 'bg-blue-600 hover:bg-blue-700' :
-                                        statusAction === 'cancelled' ? 'bg-gray-600 hover:bg-gray-700' : 'bg-green-600 hover:bg-green-700'
+                                    statusAction === 'cancelled' ? 'bg-gray-600 hover:bg-gray-700' : 'bg-green-600 hover:bg-green-700'
                                     }`}
                             >
-                                {isUpdatingStatus ? 'Memproses...' :
-                                    statusAction === 'sold' ? 'Ya, Tandai Terjual' :
-                                        statusAction === 'cancelled' ? 'Ya, Batalkan' : 'Ya, Aktifkan'}
+                                {isUpdatingStatus ? 'Processing...' :
+                                    statusAction === 'sold' ? 'Yes, Mark as Sold' :
+                                        statusAction === 'cancelled' ? 'Yes, Cancel' : 'Yes, Activate'}
                             </button>
                         </div>
                     </div>

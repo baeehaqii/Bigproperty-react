@@ -1,8 +1,8 @@
-"use client"
 import { ChevronDown, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Link } from "@inertiajs/react"
+import { OptimizedImage } from "@/components/optimized-image"
 
 export function Navbar() {
   return (
@@ -59,12 +59,16 @@ export function Navbar() {
           <div className="flex items-center">
             <Link href="/">
               <div className="flex items-center justify-center">
-                <img
-                  src="https://res.cloudinary.com/dbr6xazzh/image/upload/v1769962203/Logo_Big_twhwpo.png"
+                <OptimizedImage
+                  src="https://storage.googleapis.com/bigproperty_image/website_assets/logo-bigproperty.png"
                   alt="Big Property Logo"
                   width={70}
                   height={70}
-                  className="object-contain"
+                  priority={true}
+                  blur={false}
+                  containerClassName="w-[70px] h-[70px] flex items-center justify-center"
+                  className="w-full h-full object-contain"
+                  objectFit="contain"
                 />
               </div>
             </Link>

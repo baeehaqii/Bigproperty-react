@@ -95,11 +95,11 @@ class CreateProperty extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $cloudinary = new \App\Services\CloudinaryService();
+        $storageService = new \App\Services\GoogleStorageService();
         $disk = \Illuminate\Support\Facades\Storage::disk('public');
         $log = \Illuminate\Support\Facades\Log::class;
 
-        $log::info('CreateProperty: Starting Cloudinary upload process');
+        $log::info('CreateProperty: Starting GCS upload process');
 
         // Handle Main Image
         if (!empty($data['main_image'])) {
@@ -112,16 +112,16 @@ class CreateProperty extends CreateRecord
 
                 if (file_exists($path)) {
                     try {
-                        $result = $cloudinary->uploadPropertyImage($path, 'properties/main');
+                        $result = $storageService->uploadPropertyImage($path, 'website_image_listing');
                         $data['main_image'] = $result['url'];
-                        $log::info('CreateProperty Main Image Uploaded to Cloudinary: ' . $result['url']);
+                        $log::info('CreateProperty Main Image Uploaded to GCS: ' . $result['url']);
                         @unlink($path);
                     } catch (\Exception $e) {
-                        $log::error('Cloudinary main image upload failed: ' . $e->getMessage());
+                        $log::error('GCS main image upload failed: ' . $e->getMessage());
                     }
                 }
             } else {
-                $log::info('CreateProperty Main Image already Cloudinary URL');
+                $log::info('CreateProperty Main Image already URL');
             }
         }
 
@@ -140,12 +140,12 @@ class CreateProperty extends CreateRecord
 
                     if (file_exists($path)) {
                         try {
-                            $result = $cloudinary->uploadPropertyImage($path, 'properties/gallery');
+                            $result = $storageService->uploadPropertyImage($path, 'website_image_listing');
                             $newImages[] = $result['url'];
-                            $log::info("CreateProperty Gallery[$index] Uploaded: " . $result['url']);
+                            $log::info("CreateProperty Gallery[$index] Uploaded to GCS: " . $result['url']);
                             @unlink($path);
                         } catch (\Exception $e) {
-                            $log::error("Cloudinary gallery image upload failed: " . $e->getMessage());
+                            $log::error("GCS gallery image upload failed: " . $e->getMessage());
                             $newImages[] = $image;
                         }
                     } else {
@@ -159,7 +159,7 @@ class CreateProperty extends CreateRecord
             $log::info('CreateProperty Gallery: Final count ' . count($newImages));
         }
 
-        $log::info('CreateProperty: Cloudinary upload process completed');
+        $log::info('CreateProperty: GCS upload process completed');
         return $data;
     }
 }

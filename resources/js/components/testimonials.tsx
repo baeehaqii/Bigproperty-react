@@ -4,6 +4,8 @@ import { useState, useEffect } from "react"
 import { ChevronLeft, ChevronRight, Quote, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
+import { OptimizedImage } from "./optimized-image"
+
 interface Testimonial {
   id: number
   name: string
@@ -134,10 +136,15 @@ export function Testimonials() {
                 className={`aspect-4/5 w-full transition-all duration-500 ${isAnimating ? "opacity-0 scale-95" : "opacity-100 scale-100"
                   }`}
               >
-                <img
+                <OptimizedImage
                   src={currentTestimonial.image || "/placeholder.svg"}
                   alt={currentTestimonial.name}
-                  className="h-full w-full object-cover"
+                  width={600}
+                  height={750}
+                  layout="full"
+                  blur={true}
+                  objectFit="cover"
+                  className="h-full w-full"
                 />
               </div>
               {/* Overlay gradient */}

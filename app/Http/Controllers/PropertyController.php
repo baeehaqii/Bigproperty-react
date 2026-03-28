@@ -111,8 +111,6 @@ class PropertyController extends Controller
                 'maxFormatted' => $this->formatPriceFull($property->price_max),
                 'minShort' => $this->formatPrice($property->price_min),
                 'maxShort' => $this->formatPrice($property->price_max),
-                'installmentStart' => $property->installment_start,
-                'installmentFormatted' => $this->formatPriceFull($property->installment_start),
             ],
 
             // Event

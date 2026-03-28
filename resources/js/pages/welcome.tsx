@@ -1,6 +1,6 @@
 import { dashboard, login } from '@/routes';
 import { type SharedData } from '@/types';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import Navbar from '@/components/navbar';
 import Hero from '@/components/hero';
 import { GoldenDeals } from '@/components/golden-deals';
@@ -11,16 +11,46 @@ import { PartnershipSection } from '@/components/partnership-section';
 import { VerifiedProjects } from '@/components/verified-projects';
 import { Testimonials } from '@/components/testimonials';
 import Footer from '@/components/footer';
+import { SEOHead, getOrganizationSchema, getWebsiteSchema } from '@/components/seo-head';
 
 export default function Welcome() {
     const { auth } = usePage<SharedData>().props;
 
+    // Combined structured data for homepage
+    const structuredData = {
+        '@context': 'https://schema.org',
+        '@graph': [
+            getOrganizationSchema(),
+            getWebsiteSchema(),
+        ],
+    };
+
     return (
         <>
-            <Head title="Welcome">
-                <link rel="preconnect" href="https://fonts.bunny.net" />
-                <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
-            </Head>
+            <SEOHead
+                title="Situs Jual Beli Properti Terpercaya"
+                description="Big Property - Temukan rumah, apartemen, tanah, dan properti impian Anda. Platform jual beli properti terpercaya dengan ribuan listing terverifikasi di seluruh Indonesia."
+                keywords={[
+                    'jual beli properti',
+                    'rumah dijual',
+                    'apartemen dijual',
+                    'tanah dijual',
+                    'properti indonesia',
+                    'rumah murah',
+                    'KPR',
+                    'investasi properti',
+                    'big property'
+                ]}
+                ogType="website"
+                structuredData={structuredData}
+                preload={[
+                    {
+                        href: 'https://storage.googleapis.com/bigproperty_image/website_assets/banner-bigpro-5.png',
+                        as: 'image',
+                    },
+                ]}
+            />
+
             {/* Navbar placed outside padded container so background can span the full viewport edges */}
             <div className="w-full">
                 <Navbar />
@@ -63,3 +93,4 @@ export default function Welcome() {
         </>
     );
 }
+

@@ -160,24 +160,85 @@ class PropertyForm
                     ]),
 
 
-                Section::make('Price & Financing')
-                    ->description('Pricing and installment information')
+                Section::make('Pricing & Features')
+                    ->description('Price, keunggulan, fasilitas, dan lokasi terdekat')
                     ->icon('heroicon-o-currency-dollar')
-                    ->columns(2)
+                    ->columns(1)
                     ->schema([
                         TextInput::make('price_min')
-                            ->label('Price')
+                            ->label('Harga Properti')
                             ->required()
                             ->numeric()
                             ->prefix('Rp'),
-                        TextInput::make('installment_start')
-                            ->label('Starting Installment')
-                            ->required()
-                            ->numeric()
-                            ->prefix('Rp')
-                            ->suffix('/month')
-                            ->placeholder('5000000')
-                            ->helperText('Monthly payment amount'),
+
+                        // Divider - Keunggulan & Fasilitas
+                        Placeholder::make('divider_features')
+                            ->label('')
+                            ->content(new \Illuminate\Support\HtmlString('<div class="w-full border-t-2 border-gray-200 my-4 relative"><span class="absolute left-1/2 -translate-x-1/2 -top-3 bg-white px-4 text-sm font-medium text-gray-500">Keunggulan & Fasilitas</span></div>'))
+                            ->columnSpanFull(),
+
+                        // Keunggulan
+                        Repeater::make('keunggulanPivot')
+                            ->label("Keunggulan Properti")
+                            ->relationship()
+                            ->schema([
+                                Select::make('keunggulan_id')
+                                    ->label('Pilih Keunggulan')
+                                    ->options(\App\Models\Keunggulan::pluck('nama', 'id'))
+                                    ->required()
+                                    ->searchable()
+                                    ->columnSpanFull()
+                                    ->preload()
+                            ])
+                            ->addActionLabel('Tambah Keunggulan')
+                            ->columnSpanFull(),
+
+                        // Fasilitas
+                        Repeater::make('fasilitasPivot')
+                            ->label("Fasilitas Properti")
+                            ->relationship()
+                            ->schema([
+                                Select::make('fasilitas_id')
+                                    ->label('Pilih Fasilitas')
+                                    ->options(\App\Models\Fasilitas::pluck('nama', 'id'))
+                                    ->required()
+                                    ->columnSpanFull()
+                                    ->searchable()
+                                    ->preload()
+                            ])
+                            ->addActionLabel('Tambah Fasilitas')
+                            ->columnSpanFull(),
+
+                        // Divider - Nearby Places
+                        Placeholder::make('divider_nearby')
+                            ->label('')
+                            ->content(new \Illuminate\Support\HtmlString('<div class="w-full border-t border-gray-200 my-4"></div>'))
+                            ->columnSpanFull(),
+
+                        // Nearby Places
+                        Repeater::make('nearbyPlacePivot')
+                            ->label("Lokasi Terdekat")
+                            ->relationship()
+                            ->schema([
+                                Select::make('nearby_place_id')
+                                    ->label('Tempat / Lokasi')
+                                    ->options(\App\Models\NearbyPlace::pluck('nama', 'id'))
+                                    ->required()
+                                    ->searchable()
+                                    ->preload()
+                                    ->columnSpan(2),
+
+                                TextInput::make('jarak')
+                                    ->label('Waktu (Menit)')
+                                    ->required()
+                                    ->numeric()
+                                    ->columnSpan(1),
+                            ])
+                            ->columns(3)
+                            ->defaultItems(1)
+                            ->reorderable()
+                            ->addActionLabel('Tambah Lokasi Terdekat')
+                            ->columnSpanFull(),
                     ]),
 
 
@@ -279,80 +340,6 @@ class PropertyForm
                     ]),
 
 
-                Section::make('Keunggulan')
-                    ->schema([
-                        Repeater::make('keunggulanPivot')
-                            ->label("Keunggulan")
-                            ->relationship()
-                            ->schema([
-                                Select::make('keunggulan_id') // Foreign key di tabel keunggulan_properties
-                                    ->label('Pilih Keunggulan')
-                                    ->options(\App\Models\Keunggulan::pluck('nama', 'id'))
-                                    ->required()
-                                    ->searchable()
-                                    ->columnSpanFull()
-                                    ->preload()
-                            ])
-
-                            ->addActionLabel('Tambah Keunggulan'),
-                    ]),
-
-                // Fasilitas Section
-                Section::make('Fasilitas')
-
-                    ->schema([
-                        Repeater::make('fasilitasPivot')
-                            ->label("Fasilitas")
-
-                            ->relationship()
-                            ->schema([
-                                Select::make('fasilitas_id') // Foreign key di tabel fasilitas_properties
-                                    ->label('Pilih Fasilitas')
-                                    ->options(\App\Models\Fasilitas::pluck('nama', 'id'))
-                                    ->required()
-                                    ->columnSpanFull()
-
-                                    ->searchable()
-                                    ->preload()
-                            ])
-                            ->addActionLabel('Tambah Fasilitas'),
-                    ]),
-
-
-                Section::make('Nearby Places')
-                    ->description('Lokasi terdekat dan jarak tempuh')
-                    ->icon('heroicon-o-map-pin')
-                    ->collapsible()
-                    ->schema([
-                        Repeater::make('nearbyPlacePivot')
-                            ->label("Nearby Places")
-
-                            ->relationship()
-                            ->schema([
-                                Select::make('nearby_place_id')
-                                    ->label('Tempat / Lokasi')
-                                    ->options(\App\Models\NearbyPlace::pluck('nama', 'id'))
-                                    ->required()
-                                    ->searchable()
-                                    ->preload()
-                                    ->columnSpan(2),
-
-                                TextInput::make('jarak')
-                                    ->label('Waktu ( Menit ')
-                                    ->required()
-                                    ->numeric()
-                                    ->columnSpan(1),
-                            ])
-                            ->columns(3)
-                            ->defaultItems(1)
-                            ->reorderable()
-                            ->itemLabel(
-                                fn(array $state): ?string =>
-                                !empty($state['nearby_place_id'])
-                                ? \App\Models\NearbyPlace::find($state['nearby_place_id'])?->nama
-                                : 'Tambah Tempat Terdekat'
-                            ),
-                    ]),
 
                 Section::make('Media Assets')
                     ->columnspanFull()

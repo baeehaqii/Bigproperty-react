@@ -4,6 +4,7 @@ import { Heart, MapPin, ChevronLeft, ChevronRight, Eye } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { Link } from "@inertiajs/react"
+import { OptimizedImage } from "./optimized-image"
 
 interface PropertyFeature {
   icon: string
@@ -94,12 +95,17 @@ export function PopularPropertyCard({
       {/* Image Section with Link */}
       <div className="relative h-[200px] group cursor-pointer">
         <Link href={`/property/${id}`} className="block h-full w-full">
-          <img
+          <OptimizedImage
             src={allImages[currentImageIndex] || "/placeholder.svg"}
-            alt={name}
-            loading="lazy"
-            className="w-full h-full object-cover transition-opacity duration-300"
-            onError={(e) => { e.currentTarget.src = '/placeholder.svg' }}
+            alt={`${name} - ${type} di ${location}`}
+            layout="card"
+            blur={true}
+            containerClassName="w-full h-full"
+            className="w-full h-full"
+            objectFit="cover"
+            fallback="/placeholder.svg"
+            width={320}
+            height={200}
           />
 
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -193,10 +199,10 @@ export function PopularPropertyCard({
               <>
                 <span className="text-gray-300">•</span>
                 <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${condition.toLowerCase() === 'baru'
-                    ? 'bg-green-100 text-green-700'
-                    : condition.toLowerCase() === 'bekas' || condition.toLowerCase() === 'second'
-                      ? 'bg-orange-100 text-orange-700'
-                      : 'bg-gray-100 text-gray-700'
+                  ? 'bg-green-100 text-green-700'
+                  : condition.toLowerCase() === 'bekas' || condition.toLowerCase() === 'second'
+                    ? 'bg-orange-100 text-orange-700'
+                    : 'bg-gray-100 text-gray-700'
                   }`}>
                   {condition}
                 </span>
@@ -220,21 +226,23 @@ export function PopularPropertyCard({
             {/* Agent/Developer Avatar */}
             <div className="w-8 h-8 rounded-full flex-shrink-0 overflow-hidden">
               {(agent?.photo || developerLogo) ? (
-                <img
+                <OptimizedImage
                   src={agent?.photo || developerLogo || "/placeholder.svg"}
                   alt={developer}
                   width={32}
                   height={32}
-                  loading="lazy"
-                  className="w-full h-full object-cover"
-                  onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.querySelector('.avatar-fallback')?.classList.remove('hidden') }}
+                  blur={false}
+                  containerClassName="w-full h-full"
+                  className="w-full h-full"
+                  objectFit="cover"
                 />
-              ) : null}
-              <div className={`avatar-fallback w-full h-full bg-blue-600 flex items-center justify-center ${(agent?.photo || developerLogo) ? 'hidden' : ''}`}>
-                <span className="text-white font-bold text-sm">
-                  {(agent?.name || developer)?.charAt(0)?.toUpperCase() || 'A'}
-                </span>
-              </div>
+              ) : (
+                <div className={`avatar-fallback w-full h-full bg-blue-600 flex items-center justify-center`}>
+                  <span className="text-white font-bold text-sm">
+                    {(agent?.name || developer)?.charAt(0)?.toUpperCase() || 'A'}
+                  </span>
+                </div>
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-gray-900 text-sm truncate">{name}</p>

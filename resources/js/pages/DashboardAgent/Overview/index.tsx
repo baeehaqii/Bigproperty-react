@@ -291,10 +291,10 @@ export default function Overview({ agent, stats }: OverviewProps) {
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 md:mb-8">
                 <div>
                     <h1 className="text-[#0C1C3C] text-2xl md:text-3xl font-bold mb-1">
-                        Selamat Datang, {agent?.name || 'Agent'}!
+                        Welcome, {agent?.name || 'Agent'}!
                     </h1>
                     <p className="text-gray-500 text-sm md:text-base">
-                        Kelola properti dan pantau performa Anda dari sini
+                        Manage your properties and track your performance here
                     </p>
                 </div>
                 <div className="grid grid-cols-2 gap-2 w-full md:w-auto md:flex md:items-center md:gap-3">
@@ -380,12 +380,12 @@ export default function Overview({ agent, stats }: OverviewProps) {
             {/* Stats Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
                 <div className="bg-[#F7F7F7] rounded-[20px] pt-5 px-3 pb-3">
-                    <h3 className="text-[#0C1C3C] text-lg font-bold ml-3 mb-4">Total Properti</h3>
+                    <h3 className="text-[#0C1C3C] text-lg font-bold ml-3 mb-4">Total Properties</h3>
                     <div className="bg-white rounded-[20px] p-5">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-[#0C1C3C] text-4xl font-extrabold mb-1">{defaultStats.totalListings}</p>
-                                <p className="text-green-600 text-sm font-medium">properti aktif</p>
+                                <p className="text-green-600 text-sm font-medium">active properties</p>
                             </div>
                             <div className="w-16 h-16 bg-[#D6D667] rounded-[22px] flex items-center justify-center">
                                 <Building2 className="w-7 h-7 text-[#0C1C3C]" />
@@ -400,7 +400,7 @@ export default function Overview({ agent, stats }: OverviewProps) {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-[#0C1C3C] text-4xl font-extrabold mb-1">{defaultStats.totalViews.toLocaleString()}</p>
-                                <p className="text-green-600 text-sm font-medium">+12% bulan ini</p>
+                                <p className="text-green-600 text-sm font-medium">+12% this month</p>
                             </div>
                             <div className="w-16 h-16 bg-[#82D9D7] rounded-[22px] flex items-center justify-center">
                                 <Eye className="w-7 h-7 text-[#0C1C3C]" />
@@ -415,7 +415,7 @@ export default function Overview({ agent, stats }: OverviewProps) {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-[#0C1C3C] text-4xl font-extrabold mb-1">{defaultStats.totalInquiries}</p>
-                                <p className="text-blue-600 text-sm font-medium">permintaan info</p>
+                                <p className="text-blue-600 text-sm font-medium">info requests</p>
                             </div>
                             <div className="w-16 h-16 bg-[#FAAC7B] rounded-[22px] flex items-center justify-center">
                                 <Phone className="w-7 h-7 text-[#0C1C3C]" />
@@ -430,7 +430,7 @@ export default function Overview({ agent, stats }: OverviewProps) {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-[#0C1C3C] text-4xl font-extrabold mb-1">{defaultStats.totalLeads}</p>
-                                <p className="text-green-600 text-sm font-medium">calon pembeli</p>
+                                <p className="text-green-600 text-sm font-medium">potential buyers</p>
                             </div>
                             <div className="w-16 h-16 bg-[#D6D667] rounded-[22px] flex items-center justify-center">
                                 <TrendingUp className="w-7 h-7 text-[#0C1C3C]" />
@@ -490,7 +490,7 @@ export default function Overview({ agent, stats }: OverviewProps) {
                 </div>
 
                 <div className="bg-[#F7F7F7] rounded-[20px] pt-5 px-3 pb-3">
-                    <h3 className="text-[#0C1C3C] text-lg font-bold ml-3 mb-4">Top Properti</h3>
+                    <h3 className="text-[#0C1C3C] text-lg font-bold ml-3 mb-4">Top Properties</h3>
                     <div className="bg-white rounded-[20px] p-4 md:p-5">
                         <div className="space-y-4">
                             <div className="flex items-center justify-between pb-3 border-b border-gray-100">
@@ -541,12 +541,12 @@ export default function Overview({ agent, stats }: OverviewProps) {
             {/* Quick Actions Section */}
             <div className="bg-[#F7F7F7] rounded-[20px] pt-5 px-3 pb-3">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4 px-3">
-                    <h3 className="text-[#0C1C3C] text-lg font-bold">Aksi Cepat</h3>
+                    <h3 className="text-[#0C1C3C] text-lg font-bold">Quick Actions</h3>
                     <button
                         onClick={() => setNotFoundModalOpen(true)}
                         className="cursor-pointer text-sm text-[#D6D667] hover:underline"
                     >
-                        Lihat Semua
+                        See All
                     </button>
                 </div>
                 <div className="bg-white rounded-[20px] p-4 md:p-5">
@@ -557,10 +557,10 @@ export default function Overview({ agent, stats }: OverviewProps) {
                                     <Plus className="w-6 h-6 text-[#166534]" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <h4 className="text-[#0C1C3C] font-bold text-sm mb-1">Tambah Properti</h4>
-                                    <p className="text-gray-500 text-xs mb-3 line-clamp-2">Tambahkan properti baru untuk dipasarkan</p>
+                                    <h4 className="text-[#0C1C3C] font-bold text-sm mb-1">Add Property</h4>
+                                    <p className="text-gray-500 text-xs mb-3 line-clamp-2">Add new property to the market</p>
                                     <a href="/agent/dashboard/upload-listing" className="text-[#D6D667] text-xs font-medium hover:underline cursor-pointer">
-                                        Mulai Sekarang
+                                        Start Now
                                     </a>
                                 </div>
                             </div>
@@ -572,13 +572,13 @@ export default function Overview({ agent, stats }: OverviewProps) {
                                     <Users className="w-6 h-6 text-[#1E40AF]" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <h4 className="text-[#0C1C3C] font-bold text-sm mb-1">Lihat Leads</h4>
-                                    <p className="text-gray-500 text-xs mb-3 line-clamp-2">Kelola calon pembeli yang tertarik</p>
+                                    <h4 className="text-[#0C1C3C] font-bold text-sm mb-1">View Leads</h4>
+                                    <p className="text-gray-500 text-xs mb-3 line-clamp-2">Manage interested buyers</p>
                                     <a
                                         href="/agent/dashboard/leads"
                                         className="text-[#D6D667] text-xs font-medium hover:underline cursor-pointer"
                                     >
-                                        Lihat Detail
+                                        View Details
                                     </a>
                                 </div>
                             </div>
@@ -590,13 +590,13 @@ export default function Overview({ agent, stats }: OverviewProps) {
                                     <MessageSquare className="w-6 h-6 text-[#854D0E]" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <h4 className="text-[#0C1C3C] font-bold text-sm mb-1">Balas Pesan</h4>
-                                    <p className="text-gray-500 text-xs mb-3 line-clamp-2">Respon cepat ke pertanyaan pembeli</p>
+                                    <h4 className="text-[#0C1C3C] font-bold text-sm mb-1">Reply Messages</h4>
+                                    <p className="text-gray-500 text-xs mb-3 line-clamp-2">Quick response to buyer questions</p>
                                     <button
                                         onClick={() => setNotFoundModalOpen(true)}
                                         className="text-[#D6D667] text-xs font-medium hover:underline cursor-pointer"
                                     >
-                                        Buka Pesan
+                                        Open Messages
                                     </button>
                                 </div>
                             </div>
@@ -608,13 +608,13 @@ export default function Overview({ agent, stats }: OverviewProps) {
                                     <Settings className="w-6 h-6 text-[#9A3412]" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <h4 className="text-[#0C1C3C] font-bold text-sm mb-1">Update Profil</h4>
-                                    <p className="text-gray-500 text-xs mb-3 line-clamp-2">Lengkapi profil untuk meningkatkan kepercayaan</p>
+                                    <h4 className="text-[#0C1C3C] font-bold text-sm mb-1">Update Profile</h4>
+                                    <p className="text-gray-500 text-xs mb-3 line-clamp-2">Complete profile to increase trust</p>
                                     <button
                                         onClick={() => setNotFoundModalOpen(true)}
                                         className="text-[#D6D667] text-xs font-medium hover:underline cursor-pointer"
                                     >
-                                        Edit Profil
+                                        Edit Profile
                                     </button>
                                 </div>
                             </div>
@@ -627,12 +627,12 @@ export default function Overview({ agent, stats }: OverviewProps) {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <h4 className="text-[#0C1C3C] font-bold text-sm mb-1">Custom Report</h4>
-                                    <p className="text-gray-500 text-xs mb-3 line-clamp-2">Buat laporan performa dengan metrik kustom</p>
+                                    <p className="text-gray-500 text-xs mb-3 line-clamp-2">Create performance reports with custom metrics</p>
                                     <button
                                         onClick={showExportModal}
                                         className="text-[#D6D667] text-xs font-medium hover:underline cursor-pointer"
                                     >
-                                        Buat Report
+                                        Create Report
                                     </button>
                                 </div>
                             </div>
@@ -645,12 +645,12 @@ export default function Overview({ agent, stats }: OverviewProps) {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <h4 className="text-[#0C1C3C] font-bold text-sm mb-1">Scheduled Reports</h4>
-                                    <p className="text-gray-500 text-xs mb-3 line-clamp-2">Laporan otomatis dikirim ke email Anda</p>
+                                    <p className="text-gray-500 text-xs mb-3 line-clamp-2">Automatic reports sent to your email</p>
                                     <button
                                         onClick={() => setNotFoundModalOpen(true)}
                                         className="text-[#D6D667] text-xs font-medium hover:underline cursor-pointer"
                                     >
-                                        Atur Jadwal
+                                        Set Schedule
                                     </button>
                                 </div>
                             </div>
@@ -694,13 +694,13 @@ export default function Overview({ agent, stats }: OverviewProps) {
                         <div className="w-16 h-16 bg-[#FEF9C3] rounded-full flex items-center justify-center mx-auto mb-4">
                             <AlertTriangle className="w-8 h-8 text-[#854D0E]" />
                         </div>
-                        <h3 className="text-[#0C1C3C] text-xl font-bold mb-2">Fitur Belum Tersedia</h3>
-                        <p className="text-gray-500 text-sm mb-6">Fitur ini sedang dalam pengembangan.</p>
+                        <h3 className="text-[#0C1C3C] text-xl font-bold mb-2">Feature Not Available</h3>
+                        <p className="text-gray-500 text-sm mb-6">This feature is currently in development.</p>
                         <button
                             onClick={() => setNotFoundModalOpen(false)}
                             className="w-full px-4 py-2.5 bg-[#D6D667] text-[#0C1C3C] rounded-[16px] font-medium hover:bg-[#c5c55f] transition-all duration-200 cursor-pointer"
                         >
-                            Mengerti
+                            Understood
                         </button>
                     </div>
                 </div>

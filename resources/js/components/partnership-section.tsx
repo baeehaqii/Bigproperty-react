@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { ChevronDown, ChevronUp } from "lucide-react"
+import { OptimizedImage } from "./optimized-image"
 
 // Dummy partner logos (placeholder URLs)
 const partnerLogosRow1 = [
@@ -130,11 +131,14 @@ function LogoMarquee({ logos, direction = "right" }: { logos: typeof partnerLogo
                         key={`${partner.name}-${index}`}
                         className="flex-shrink-0 bg-white rounded-lg px-6 py-3 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
                     >
-                        <img
+                        <OptimizedImage
                             src={partner.logo}
-                            alt={partner.name}
-                            className="h-10 w-auto object-contain"
-                            loading="lazy"
+                            alt={`Partner ${partner.name}`}
+                            height={40}
+                            blur={false}
+                            containerClassName="h-10 w-auto"
+                            className="h-10 w-auto"
+                            objectFit="contain"
                         />
                     </div>
                 ))}

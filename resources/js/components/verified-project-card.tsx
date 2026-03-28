@@ -4,6 +4,7 @@ import { Heart, MapPin, ChevronLeft, ChevronRight, BadgeCheck } from "lucide-rea
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { Link } from "@inertiajs/react"
+import { OptimizedImage } from "./optimized-image"
 
 interface VerifiedProjectCardProps {
   id: string
@@ -59,10 +60,17 @@ export function VerifiedProjectCard({
       {/* Image Section */}
       <Link href={`/property/${id}`} className="block">
         <div className="relative h-[200px] group cursor-pointer">
-          <img
+          <OptimizedImage
             src={allImages[currentImageIndex] || "/placeholder.svg"}
-            alt={name}
-            className="object-cover w-full h-full block transition-opacity duration-300"
+            alt={`${name} - Project Terverifikasi by {developer}`}
+            layout="card"
+            blur={true}
+            containerClassName="w-full h-full"
+            className="w-full h-full"
+            objectFit="cover"
+            fallback="/placeholder.svg"
+            width={320}
+            height={200}
           />
 
           {/* Watermark */}
@@ -160,12 +168,15 @@ export function VerifiedProjectCard({
 
           {/* Developer Info */}
           <div className="flex items-start gap-2 mb-2">
-            <img
+            <OptimizedImage
               src={developerLogo || "/placeholder.svg"}
-              alt={developer}
+              alt={`Logo ${developer}`}
               width={32}
               height={32}
-              className="rounded-full flex-shrink-0"
+              blur={false}
+              containerClassName="w-8 h-8 rounded-full flex-shrink-0"
+              className="w-full h-full"
+              objectFit="cover"
             />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1">

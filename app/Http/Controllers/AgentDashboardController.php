@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Developer;
 use App\Models\Property;
 use App\Models\PropertyCategory;
-use App\Services\CloudinaryService;
+use App\Services\GoogleStorageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -352,7 +352,6 @@ class AgentDashboardController extends Controller
             'price_max' => ['nullable', 'numeric', 'min:0'],
             'pajak' => ['nullable', 'numeric', 'min:0'],
             'notaris' => ['nullable', 'numeric', 'min:0'],
-            'installment_start' => ['nullable', 'numeric', 'min:0'],
 
             'bedrooms' => ['nullable', 'integer', 'min:0'],
             'bathrooms' => ['nullable', 'integer', 'min:0'],
@@ -383,25 +382,25 @@ class AgentDashboardController extends Controller
             set_time_limit(120); // 2 minutes for multiple image uploads
             ini_set('memory_limit', '256M');
 
-            // Initialize Cloudinary service
-            $cloudinaryService = new CloudinaryService();
+            // Initialize GCS service
+            $storageService = new GoogleStorageService();
 
-            // Handle main image upload to Cloudinary
+            // Handle main image upload to GCS
             $mainImageUrl = null;
             if ($request->hasFile('main_image')) {
-                $result = $cloudinaryService->uploadPropertyImage(
+                $result = $storageService->uploadPropertyImage(
                     $request->file('main_image'),
-                    'big-property/properties'
+                    'website_image_listing'
                 );
                 $mainImageUrl = $result['url'];
             }
 
-            // Handle gallery images upload to Cloudinary
+            // Handle gallery images upload to GCS
             $galleryImages = [];
             if ($request->hasFile('images')) {
-                $results = $cloudinaryService->uploadMultiplePropertyImages(
+                $results = $storageService->uploadMultiplePropertyImages(
                     $request->file('images'),
-                    'big-property/properties'
+                    'website_image_listing'
                 );
                 $galleryImages = array_map(fn($r) => $r['url'], $results);
             }
@@ -420,7 +419,6 @@ class AgentDashboardController extends Controller
                 'price_max' => $validated['price_max'] ?? ($validated['price_min'] ?? $property->price_max),
                 'pajak' => $validated['pajak'] ?? $property->pajak,
                 'notaris' => $validated['notaris'] ?? $property->notaris,
-                'installment_start' => $validated['installment_start'] ?? $property->installment_start,
 
                 'bedrooms' => $validated['bedrooms'] ?? $property->bedrooms,
                 'bathrooms' => $validated['bathrooms'] ?? $property->bathrooms,
@@ -545,7 +543,6 @@ class AgentDashboardController extends Controller
             'kategori' => ['nullable', 'string'], // JSON string
 
             'price_min' => ['nullable', 'numeric', 'min:0'],
-            'installment_start' => ['nullable', 'numeric', 'min:0'],
 
             'bedrooms' => ['nullable', 'integer', 'min:0'],
             'bathrooms' => ['nullable', 'integer', 'min:0'],
@@ -590,25 +587,25 @@ class AgentDashboardController extends Controller
                 $sanitizedPromoText = htmlspecialchars($sanitizedPromoText, ENT_QUOTES, 'UTF-8');
             }
 
-            // Initialize Cloudinary service
-            $cloudinaryService = new CloudinaryService();
+            // Initialize GCS service
+            $storageService = new GoogleStorageService();
 
-            // Handle main image upload to Cloudinary
+            // Handle main image upload to GCS
             $mainImageUrl = null;
             if ($request->hasFile('main_image')) {
-                $result = $cloudinaryService->uploadPropertyImage(
+                $result = $storageService->uploadPropertyImage(
                     $request->file('main_image'),
-                    'big-property/properties'
+                    'website_image_listing'
                 );
                 $mainImageUrl = $result['url'];
             }
 
-            // Handle gallery images upload to Cloudinary
+            // Handle gallery images upload to GCS
             $galleryImages = [];
             if ($request->hasFile('images')) {
-                $results = $cloudinaryService->uploadMultiplePropertyImages(
+                $results = $storageService->uploadMultiplePropertyImages(
                     $request->file('images'),
-                    'big-property/properties'
+                    'website_image_listing'
                 );
                 $galleryImages = array_map(fn($r) => $r['url'], $results);
             }
@@ -626,7 +623,6 @@ class AgentDashboardController extends Controller
 
                 'price_min' => $validated['price_min'] ?? 0,
                 'price_max' => $validated['price_min'] ?? 0, // Same as price_min since we removed max
-                'installment_start' => $validated['installment_start'] ?? 0,
 
                 'bedrooms' => $validated['bedrooms'] ?? 0,
                 'bathrooms' => $validated['bathrooms'] ?? null,
@@ -719,7 +715,7 @@ class AgentDashboardController extends Controller
     }
 
     /**
-     * Show report page (placeholder)
+     * Show report page with comprehensive analytics
      */
     public function report()
     {
@@ -730,13 +726,151 @@ class AgentDashboardController extends Controller
                 ->with('error', 'Akun agent tidak ditemukan.');
         }
 
-        return Inertia::render('DashboardAgent/Overview/index', [
+        // Get all properties for this agent
+        $properties = Property::where('agen_id', $agent->id)->get();
+
+        // Listing statistics
+        $totalListings = $properties->count();
+        $activeListings = $properties->where('is_available', true)->where('is_verified', true)->count();
+        $pendingListings = $properties->where('is_verified', false)->where('is_draft', false)->count();
+        $draftListings = $properties->where('is_draft', true)->count();
+        $totalViews = $properties->sum('count_clicked') ?? 0;
+
+        // Lead statistics
+        $leads = \App\Models\LeadsAgent::where('agent_id', $agent->id)->get();
+        $totalLeads = $leads->count();
+        $coldLeads = $leads->where('status_lead', 'cold')->count();
+        $warmLeads = $leads->where('status_lead', 'warm')->count();
+        $hotLeads = $leads->where('status_lead', 'hot')->count();
+        $followedLeads = $leads->where('status_followup', 'sudah')->count();
+        $unfollowedLeads = $leads->where('status_followup', 'belum')->count();
+
+        // Calculate conversion rate (views to leads percentage)
+        $conversionRate = $totalViews > 0 ? round(($totalLeads / $totalViews) * 100, 2) : 0;
+
+        // Calculate trends (comparing current month vs last month)
+        $currentMonth = now()->startOfMonth();
+        $lastMonth = now()->subMonth()->startOfMonth();
+        $lastMonthEnd = now()->subMonth()->endOfMonth();
+
+        $currentMonthLeads = \App\Models\LeadsAgent::where('agent_id', $agent->id)
+            ->where('tanggal_leads', '>=', $currentMonth)
+            ->count();
+        $lastMonthLeads = \App\Models\LeadsAgent::where('agent_id', $agent->id)
+            ->whereBetween('tanggal_leads', [$lastMonth, $lastMonthEnd])
+            ->count();
+        $leadsTrend = $lastMonthLeads > 0 ? round((($currentMonthLeads - $lastMonthLeads) / $lastMonthLeads) * 100) : 0;
+
+        // Views trend (simplified - would need historical data for real trend)
+        $viewsTrend = 0; // Placeholder - requires view history tracking
+        $listingsTrend = 0; // Placeholder - requires listing history tracking
+
+        // Monthly data for charts (last 6 months)
+        $monthlyLabels = [];
+        $monthlyViews = [];
+        $monthlyLeads = [];
+
+        for ($i = 5; $i >= 0; $i--) {
+            $month = now()->subMonths($i);
+            $monthlyLabels[] = $month->format('M');
+
+            // Get leads count for this month
+            $monthStart = $month->copy()->startOfMonth();
+            $monthEnd = $month->copy()->endOfMonth();
+            $monthlyLeads[] = \App\Models\LeadsAgent::where('agent_id', $agent->id)
+                ->whereBetween('tanggal_leads', [$monthStart, $monthEnd])
+                ->count();
+
+            // Views - using placeholder (would need view history for real data)
+            $monthlyViews[] = 0; // Placeholder
+        }
+
+        // Top properties by views
+        $topProperties = $properties
+            ->sortByDesc('count_clicked')
+            ->take(5)
+            ->map(function ($property) use ($agent) {
+                $leadsCount = \App\Models\LeadsAgent::where('agent_id', $agent->id)
+                    ->where('property_id', $property->id)
+                    ->count();
+
+                return [
+                    'id' => $property->id,
+                    'name' => $property->name,
+                    'views' => $property->count_clicked ?? 0,
+                    'leads' => $leadsCount,
+                    'location' => $property->location ?? '-',
+                ];
+            })
+            ->values()
+            ->toArray();
+
+        // Lead sources (from listing_source field)
+        $leadSources = $leads->groupBy('listing_source')
+            ->map(function ($group, $source) use ($totalLeads) {
+                $count = $group->count();
+                return [
+                    'name' => $source ?: 'Unknown',
+                    'count' => $count,
+                    'percentage' => $totalLeads > 0 ? round(($count / $totalLeads) * 100, 1) : 0,
+                ];
+            })
+            ->values()
+            ->take(5)
+            ->toArray();
+
+        // Weekly activity (leads per day of week)
+        $weeklyActivity = [];
+        for ($i = 0; $i < 7; $i++) {
+            $dayStart = now()->startOfWeek()->addDays($i)->startOfDay();
+            $dayEnd = now()->startOfWeek()->addDays($i)->endOfDay();
+
+            $weeklyActivity[] = \App\Models\LeadsAgent::where('agent_id', $agent->id)
+                ->whereBetween('tanggal_leads', [$dayStart, $dayEnd])
+                ->count();
+        }
+
+        // Average response time (placeholder - would need response tracking)
+        $avgResponseTime = '-';
+
+        return Inertia::render('DashboardAgent/Report/index', [
             'agent' => $this->getAgentData(),
-            'stats' => [
-                'totalListings' => $agent->properties()->count(),
-                'totalViews' => $agent->properties()->sum('count_clicked') ?? 0,
-                'totalInquiries' => 0,
-                'totalLeads' => 0,
+            'reportData' => [
+                // Performance Summary
+                'totalListings' => $totalListings,
+                'activeListings' => $activeListings,
+                'pendingListings' => $pendingListings,
+                'draftListings' => $draftListings,
+                'totalViews' => $totalViews,
+                'totalLeads' => $totalLeads,
+                'conversionRate' => $conversionRate,
+                'avgResponseTime' => $avgResponseTime,
+
+                // Lead Stats
+                'coldLeads' => $coldLeads,
+                'warmLeads' => $warmLeads,
+                'hotLeads' => $hotLeads,
+                'followedLeads' => $followedLeads,
+                'unfollowedLeads' => $unfollowedLeads,
+
+                // Trends
+                'viewsTrend' => $viewsTrend,
+                'leadsTrend' => $leadsTrend,
+                'listingsTrend' => $listingsTrend,
+
+                // Monthly Data
+                'monthlyViews' => $monthlyViews,
+                'monthlyLeads' => $monthlyLeads,
+                'monthlyLabels' => $monthlyLabels,
+
+                // Top Properties
+                'topProperties' => $topProperties,
+
+                // Lead Sources
+                'leadSources' => $leadSources,
+
+                // Weekly Activity
+                'weeklyActivity' => $weeklyActivity,
             ],
         ]);
     }
@@ -940,8 +1074,8 @@ class AgentDashboardController extends Controller
         $validated = $request->validate($rules, $messages);
 
         try {
-            // Initialize Cloudinary service
-            $cloudinaryService = new CloudinaryService();
+            // Initialize GCS service
+            $storageService = new GoogleStorageService();
 
             // Base update data
             $updateData = [
@@ -959,7 +1093,7 @@ class AgentDashboardController extends Controller
 
                 // Handle logo upload
                 if ($request->hasFile('logo_agensi')) {
-                    $result = $cloudinaryService->uploadPropertyImage(
+                    $result = $storageService->uploadPropertyImage(
                         $request->file('logo_agensi'),
                         'big-property/agents/logos'
                     );
@@ -968,7 +1102,7 @@ class AgentDashboardController extends Controller
 
                 // Handle foto PIC upload
                 if ($request->hasFile('foto_pic')) {
-                    $result = $cloudinaryService->uploadPropertyImage(
+                    $result = $storageService->uploadPropertyImage(
                         $request->file('foto_pic'),
                         'big-property/agents/photos'
                     );
@@ -977,7 +1111,7 @@ class AgentDashboardController extends Controller
 
                 // Handle KTP PIC upload
                 if ($request->hasFile('ktp_pic')) {
-                    $result = $cloudinaryService->uploadPropertyImage(
+                    $result = $storageService->uploadPropertyImage(
                         $request->file('ktp_pic'),
                         'big-property/agents/ktp'
                     );
@@ -991,7 +1125,7 @@ class AgentDashboardController extends Controller
 
                 // Handle photo upload
                 if ($request->hasFile('photo')) {
-                    $result = $cloudinaryService->uploadPropertyImage(
+                    $result = $storageService->uploadPropertyImage(
                         $request->file('photo'),
                         'big-property/agents/photos'
                     );
@@ -1000,7 +1134,7 @@ class AgentDashboardController extends Controller
 
                 // Handle KTP upload
                 if ($request->hasFile('ktp')) {
-                    $result = $cloudinaryService->uploadPropertyImage(
+                    $result = $storageService->uploadPropertyImage(
                         $request->file('ktp'),
                         'big-property/agents/ktp'
                     );

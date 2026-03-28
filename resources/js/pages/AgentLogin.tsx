@@ -76,7 +76,7 @@ export default function AgentLogin() {
                         {/* Logo */}
                         <Link href="/" className="inline-block mb-6">
                             <img
-                                src="https://res.cloudinary.com/dx8w9qwl6/image/upload/v1761232717/Logo_Big_t3qpb3.png"
+                                src="https://storage.googleapis.com/bigproperty_image/website_assets/logo-bigproperty.png"
                                 alt="BigProperty"
                                 className="h-10"
                                 onError={(e) => {

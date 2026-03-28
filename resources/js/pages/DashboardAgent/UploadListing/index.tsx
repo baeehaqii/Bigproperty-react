@@ -186,9 +186,8 @@ interface FormData {
     developer_id: string
     kategori: string[]
 
-    // Price & Financing
+    // Pricing
     price_min: string
-    installment_start: string
 
     // Property Specifications
     bedrooms: string
@@ -230,10 +229,9 @@ interface FormData {
 // Step configuration
 const STEPS = [
     { id: 1, title: "Basic Information", subtitle: "Property basic details and identification", icon: Info },
-    { id: 2, title: "Price & Financing", subtitle: "Pricing and installment information", icon: DollarSign },
+    { id: 2, title: "Pricing & Features", subtitle: "Price and property features", icon: DollarSign },
     { id: 3, title: "Property Specifications", subtitle: "Detailed property specifications", icon: Home },
-    { id: 4, title: "Keunggulan & Fasilitas", subtitle: "Keunggulan, fasilitas, dan lokasi terdekat", icon: Star },
-    { id: 5, title: "Marketing & Promo", subtitle: "Promosi dan gambar properti", icon: Megaphone },
+    { id: 4, title: "Marketing & Promo", subtitle: "Promosi dan gambar properti", icon: Megaphone },
 ]
 
 // Icon options for facilities and keunggulan
@@ -748,9 +746,8 @@ export default function UploadListing({ agent, developers = [], categories = [],
         developer_id: '',
         kategori: [],
 
-        // Price & Financing
+        // Pricing
         price_min: '',
-        installment_start: '',
 
         // Property Specifications
         bedrooms: '',
@@ -940,9 +937,8 @@ export default function UploadListing({ agent, developers = [], categories = [],
                 if (!formData.city) newErrors.city = 'Kota wajib dipilih'
                 if (!formData.location) newErrors.location = 'Lokasi wajib diisi'
                 break
-            case 2: // Price & Financing
+            case 2: // Pricing
                 if (!formData.price_min) newErrors.price_min = 'Harga minimum wajib diisi'
-                if (!formData.installment_start) newErrors.installment_start = 'Cicilan mulai wajib diisi'
                 break
             case 3: // Property Specifications
                 if (!formData.bedrooms) newErrors.bedrooms = 'Jumlah kamar tidur wajib diisi'
@@ -966,7 +962,7 @@ export default function UploadListing({ agent, developers = [], categories = [],
             case 1:
                 return !!(formData.name && formData.provinsi && formData.city && formData.location)
             case 2:
-                return !!(formData.price_min && formData.installment_start)
+                return !!(formData.price_min)
             case 3:
                 return !!(formData.bedrooms && formData.land_size_min && formData.building_size_min)
             case 4:
@@ -1252,9 +1248,10 @@ export default function UploadListing({ agent, developers = [], categories = [],
 
                     {currentStep === 2 && (
                         <>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Price Section */}
+                            <div className="grid grid-cols-1 gap-4">
                                 <FormInputCurrency
-                                    label="Price"
+                                    label="Harga Properti"
                                     name="price_min"
                                     value={formData.price_min}
                                     onChange={handleCurrencyChange}
@@ -1263,148 +1260,18 @@ export default function UploadListing({ agent, developers = [], categories = [],
                                     required
                                     error={errors.price_min}
                                 />
-                                <FormInputCurrency
-                                    label="Starting Installment"
-                                    name="installment_start"
-                                    value={formData.installment_start}
-                                    onChange={handleCurrencyChange}
-                                    placeholder="5.000.000"
-                                    prefix="Rp"
-                                    suffix="/month"
-                                    required
-                                    helpText="Monthly payment amount"
-                                    error={errors.installment_start}
-                                />
-                            </div>
-                        </>
-                    )}
-
-                    {currentStep === 3 && (
-                        <>
-                            {/* Bedrooms, Bathrooms, Carport - 3 columns */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <FormInput
-                                    label="Bedrooms"
-                                    name="bedrooms"
-                                    value={formData.bedrooms}
-                                    onChange={handleInputChange}
-                                    type="number"
-                                    placeholder="2"
-                                    suffix="KT"
-                                    required
-                                    error={errors.bedrooms}
-                                />
-                                <FormInput
-                                    label="Bathrooms"
-                                    name="bathrooms"
-                                    value={formData.bathrooms}
-                                    onChange={handleInputChange}
-                                    type="number"
-                                    placeholder="1"
-                                    suffix="KM"
-                                />
-                                <FormInput
-                                    label="Carport"
-                                    name="carport"
-                                    value={formData.carport}
-                                    onChange={handleInputChange}
-                                    type="number"
-                                    placeholder="1"
-                                    suffix="Unit"
-                                />
                             </div>
 
-                            {/* Daya Listrik, Sumber Air, Kondisi Properti - 3 columns */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <FormSelect
-                                    label="Daya Listrik (VA)"
-                                    name="listrik"
-                                    value={formData.listrik}
-                                    onChange={handleInputChange}
-                                    options={listrikOptions}
-                                    placeholder="Pilih daya listrik"
-                                />
-                                <FormSelect
-                                    label="Sumber Air"
-                                    name="jenis_air"
-                                    value={formData.jenis_air}
-                                    onChange={handleInputChange}
-                                    options={jenisAirOptions}
-                                    placeholder="Pilih sumber air"
-                                />
-                                <FormSelect
-                                    label="Kondisi Properti"
-                                    name="condition"
-                                    value={formData.condition}
-                                    onChange={handleInputChange}
-                                    options={conditionOptions}
-                                    placeholder="Pilih kondisi"
-                                    required
-                                />
+                            {/* Divider */}
+                            <div className="relative my-8">
+                                <div className="absolute inset-0 flex items-center">
+                                    <div className="w-full border-t-2 border-[#DCDEDD]"></div>
+                                </div>
+                                <div className="relative flex justify-center">
+                                    <span className="bg-white px-4 text-sm font-medium text-gray-500">Keunggulan & Fasilitas</span>
+                                </div>
                             </div>
 
-                            {/* Certificate Type */}
-                            <FormSelect
-                                label="Certificate Type"
-                                name="certificate_type"
-                                value={formData.certificate_type}
-                                onChange={handleInputChange}
-                                options={certificateOptions}
-                                placeholder="Select certificate type"
-                            />
-
-                            {/* Land Size */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <FormInput
-                                    label="Land Size Min"
-                                    name="land_size_min"
-                                    value={formData.land_size_min}
-                                    onChange={handleInputChange}
-                                    type="number"
-                                    placeholder="120"
-                                    suffix="m²"
-                                    required
-                                    error={errors.land_size_min}
-                                />
-                                <FormInput
-                                    label="Land Size Max"
-                                    name="land_size_max"
-                                    value={formData.land_size_max}
-                                    onChange={handleInputChange}
-                                    type="number"
-                                    placeholder="123"
-                                    suffix="m²"
-                                />
-                            </div>
-
-                            {/* Building Size */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <FormInput
-                                    label="Building Size Min"
-                                    name="building_size_min"
-                                    value={formData.building_size_min}
-                                    onChange={handleInputChange}
-                                    type="number"
-                                    placeholder="45"
-                                    suffix="m²"
-                                    required
-                                    error={errors.building_size_min}
-                                />
-                                <FormInput
-                                    label="Building Size Max"
-                                    name="building_size_max"
-                                    value={formData.building_size_max}
-                                    onChange={handleInputChange}
-                                    type="number"
-                                    placeholder="80"
-                                    suffix="m²"
-                                />
-                            </div>
-                        </>
-                    )}
-
-                    {currentStep === 4 && (
-                        <>
                             {/* Keunggulan Section */}
                             <div className="mb-8">
                                 <div className="flex items-center gap-2 mb-3">
@@ -1590,7 +1457,131 @@ export default function UploadListing({ agent, developers = [], categories = [],
                         </>
                     )}
 
-                    {currentStep === 5 && (
+                    {currentStep === 3 && (
+                        <>
+                            {/* Bedrooms, Bathrooms, Carport - 3 columns */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <FormInput
+                                    label="Bedrooms"
+                                    name="bedrooms"
+                                    value={formData.bedrooms}
+                                    onChange={handleInputChange}
+                                    type="number"
+                                    placeholder="2"
+                                    suffix="KT"
+                                    required
+                                    error={errors.bedrooms}
+                                />
+                                <FormInput
+                                    label="Bathrooms"
+                                    name="bathrooms"
+                                    value={formData.bathrooms}
+                                    onChange={handleInputChange}
+                                    type="number"
+                                    placeholder="1"
+                                    suffix="KM"
+                                />
+                                <FormInput
+                                    label="Carport"
+                                    name="carport"
+                                    value={formData.carport}
+                                    onChange={handleInputChange}
+                                    type="number"
+                                    placeholder="1"
+                                    suffix="Unit"
+                                />
+                            </div>
+
+                            {/* Daya Listrik, Sumber Air, Kondisi Properti - 3 columns */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <FormSelect
+                                    label="Daya Listrik (VA)"
+                                    name="listrik"
+                                    value={formData.listrik}
+                                    onChange={handleInputChange}
+                                    options={listrikOptions}
+                                    placeholder="Pilih daya listrik"
+                                />
+                                <FormSelect
+                                    label="Sumber Air"
+                                    name="jenis_air"
+                                    value={formData.jenis_air}
+                                    onChange={handleInputChange}
+                                    options={jenisAirOptions}
+                                    placeholder="Pilih sumber air"
+                                />
+                                <FormSelect
+                                    label="Kondisi Properti"
+                                    name="condition"
+                                    value={formData.condition}
+                                    onChange={handleInputChange}
+                                    options={conditionOptions}
+                                    placeholder="Pilih kondisi"
+                                    required
+                                />
+                            </div>
+
+                            {/* Certificate Type */}
+                            <FormSelect
+                                label="Certificate Type"
+                                name="certificate_type"
+                                value={formData.certificate_type}
+                                onChange={handleInputChange}
+                                options={certificateOptions}
+                                placeholder="Select certificate type"
+                            />
+
+                            {/* Land Size */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <FormInput
+                                    label="Land Size Min"
+                                    name="land_size_min"
+                                    value={formData.land_size_min}
+                                    onChange={handleInputChange}
+                                    type="number"
+                                    placeholder="120"
+                                    suffix="m²"
+                                    required
+                                    error={errors.land_size_min}
+                                />
+                                <FormInput
+                                    label="Land Size Max"
+                                    name="land_size_max"
+                                    value={formData.land_size_max}
+                                    onChange={handleInputChange}
+                                    type="number"
+                                    placeholder="123"
+                                    suffix="m²"
+                                />
+                            </div>
+
+                            {/* Building Size */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <FormInput
+                                    label="Building Size Min"
+                                    name="building_size_min"
+                                    value={formData.building_size_min}
+                                    onChange={handleInputChange}
+                                    type="number"
+                                    placeholder="45"
+                                    suffix="m²"
+                                    required
+                                    error={errors.building_size_min}
+                                />
+                                <FormInput
+                                    label="Building Size Max"
+                                    name="building_size_max"
+                                    value={formData.building_size_max}
+                                    onChange={handleInputChange}
+                                    type="number"
+                                    placeholder="80"
+                                    suffix="m²"
+                                />
+                            </div>
+                        </>
+                    )}
+
+                    {currentStep === 4 && (
                         <>
                             {/* Promo Section */}
                             <div className="mb-8">
@@ -1952,24 +1943,18 @@ export default function UploadListing({ agent, developers = [], categories = [],
                                 </div>
                             )}
 
-                            {/* Step 2: Price & Financing */}
-                            {(formData.price_min || formData.installment_start) && (
+                            {/* Step 2: Pricing */}
+                            {formData.price_min && (
                                 <div className="border border-gray-200 rounded-xl p-4">
                                     <div className="flex items-center gap-2 mb-3">
                                         <DollarSign className="w-5 h-5 text-[#C5A847]" />
-                                        <h3 className="font-semibold text-[#0C1C3C]">Harga & Pembiayaan</h3>
+                                        <h3 className="font-semibold text-[#0C1C3C]">Harga</h3>
                                     </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                    <div className="grid grid-cols-1 gap-3 text-sm">
                                         {formData.price_min && (
                                             <div>
                                                 <span className="text-gray-500">Harga:</span>
                                                 <p className="font-medium text-[#0C1C3C]">Rp {Number(formData.price_min).toLocaleString('id-ID')}</p>
-                                            </div>
-                                        )}
-                                        {formData.installment_start && (
-                                            <div>
-                                                <span className="text-gray-500">Cicilan Mulai:</span>
-                                                <p className="font-medium text-[#0C1C3C]">Rp {Number(formData.installment_start).toLocaleString('id-ID')}/bulan</p>
                                             </div>
                                         )}
                                     </div>

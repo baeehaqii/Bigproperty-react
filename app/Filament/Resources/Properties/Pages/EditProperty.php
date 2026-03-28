@@ -19,11 +19,11 @@ class EditProperty extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        $cloudinary = new \App\Services\CloudinaryService();
+        $storageService = new \App\Services\GoogleStorageService();
         $disk = \Illuminate\Support\Facades\Storage::disk('public');
         $log = \Illuminate\Support\Facades\Log::class;
 
-        $log::info('EditProperty: Starting Cloudinary upload process');
+        $log::info('EditProperty: Starting GCS upload process');
 
         // Handle Main Image
         if (!empty($data['main_image'])) {
@@ -36,16 +36,16 @@ class EditProperty extends EditRecord
 
                 if (file_exists($path)) {
                     try {
-                        $result = $cloudinary->uploadPropertyImage($path, 'properties/main');
+                        $result = $storageService->uploadPropertyImage($path, 'website_image_listing');
                         $data['main_image'] = $result['url'];
-                        $log::info('EditProperty Main Image Uploaded to Cloudinary: ' . $result['url']);
+                        $log::info('EditProperty Main Image Uploaded to GCS: ' . $result['url']);
                         @unlink($path);
                     } catch (\Exception $e) {
-                        $log::error('Cloudinary main image upload failed: ' . $e->getMessage());
+                        $log::error('GCS main image upload failed: ' . $e->getMessage());
                     }
                 }
             } else {
-                $log::info('EditProperty Main Image already Cloudinary URL');
+                $log::info('EditProperty Main Image already URL');
             }
         }
 
@@ -64,12 +64,12 @@ class EditProperty extends EditRecord
 
                     if (file_exists($path)) {
                         try {
-                            $result = $cloudinary->uploadPropertyImage($path, 'properties/gallery');
+                            $result = $storageService->uploadPropertyImage($path, 'website_image_listing');
                             $newImages[] = $result['url'];
-                            $log::info("EditProperty Gallery[$index] Uploaded: " . $result['url']);
+                            $log::info("EditProperty Gallery[$index] Uploaded to GCS: " . $result['url']);
                             @unlink($path);
                         } catch (\Exception $e) {
-                            $log::error("Cloudinary gallery image upload failed: " . $e->getMessage());
+                            $log::error("GCS gallery image upload failed: " . $e->getMessage());
                             $newImages[] = $image; // Keep original on failure
                         }
                     } else {
@@ -83,7 +83,7 @@ class EditProperty extends EditRecord
             $log::info('EditProperty Gallery: Final count ' . count($newImages));
         }
 
-        $log::info('EditProperty: Cloudinary upload process completed');
+        $log::info('EditProperty: GCS upload process completed');
         return $data;
     }
 }

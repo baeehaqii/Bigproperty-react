@@ -157,8 +157,12 @@ class Property extends Model
     }
 
 
-    public function getInstallmentTextAttribute(): string
+    public function getInstallmentTextAttribute(): ?string
     {
+        // Field is deprecated - installment_start is no longer used in forms
+        if (!$this->installment_start || $this->installment_start <= 0) {
+            return null;
+        }
         $value = $this->installment_start / 1000000;
         $formatted = $value == floor($value) ? number_format($value, 0) : number_format($value, 1, ',', '.');
         return 'Angsuran mulai dari Rp' . $formatted . ' Jt/bln';

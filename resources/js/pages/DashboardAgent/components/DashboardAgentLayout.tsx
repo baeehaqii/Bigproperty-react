@@ -50,13 +50,13 @@ interface NavItem {
 
 const navItems: NavItem[] = [
     { id: 'overview', label: 'Overview', icon: TrendingUp, href: '/agent/dashboard', section: 'AGENT AREA', requiresProfile: true },
-    { id: 'listing-saya', label: 'Listing Saya', icon: Building2, href: '/agent/dashboard/listing-saya', section: 'AGENT AREA', requiresProfile: true },
-    { id: 'upload-listing', label: 'Upload Listing', icon: Upload, href: '/agent/dashboard/upload-listing', section: 'AGENT AREA', requiresProfile: true },
+    { id: 'listing-saya', label: 'My Listings', icon: Building2, href: '/agent/dashboard/listing-saya', section: 'AGENT AREA', requiresProfile: true },
+
     { id: 'leads', label: 'Leads', icon: Users, href: '/agent/dashboard/leads', section: 'AGENT AREA', requiresProfile: true },
     { id: 'report', label: 'Report', icon: Globe, href: '/agent/dashboard/report', section: 'AGENT AREA', requiresProfile: true },
-    { id: 'beli-credit', label: 'Beli Credit', icon: CreditCard, href: '/agent/dashboard/beli-credit', section: 'CREDIT', requiresProfile: true },
-    { id: 'history-credit', label: 'History Credit', icon: History, href: '/agent/dashboard/history-credit', section: 'CREDIT', requiresProfile: true },
-    { id: 'profile', label: 'Profile', icon: UserCircle, href: '/agent/dashboard/profile', section: 'AKUN', requiresProfile: false },
+    { id: 'beli-credit', label: 'Buy Credit', icon: CreditCard, href: '/agent/dashboard/beli-credit', section: 'CREDIT', requiresProfile: true },
+    { id: 'history-credit', label: 'Credit History', icon: History, href: '/agent/dashboard/history-credit', section: 'CREDIT', requiresProfile: true },
+    { id: 'profile', label: 'Profile', icon: UserCircle, href: '/agent/dashboard/profile', section: 'ACCOUNT', requiresProfile: false },
 ]
 
 export function DashboardAgentLayout({ agent, children, title = 'Dashboard Agent', activeMenu = 'overview' }: DashboardAgentLayoutProps) {
@@ -109,7 +109,7 @@ export function DashboardAgentLayout({ agent, children, title = 'Dashboard Agent
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
                                 <img
-                                    src="https://res.cloudinary.com/dx8w9qwl6/image/upload/v1761232717/Logo_Big_t3qpb3.png"
+                                    src="https://storage.googleapis.com/bigproperty_image/website_assets/logo-bigproperty.png"
                                     alt="BigProperty Logo"
                                     className="w-14 h-14 object-contain"
                                 />
@@ -134,8 +134,8 @@ export function DashboardAgentLayout({ agent, children, title = 'Dashboard Agent
                             <div className="flex items-start gap-2">
                                 <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
                                 <div>
-                                    <p className="text-xs font-medium text-amber-800">Profil Belum Lengkap</p>
-                                    <p className="text-xs text-amber-700 mt-0.5">Lengkapi profil untuk mengakses semua fitur</p>
+                                    <p className="text-xs font-medium text-amber-800">Incomplete Profile</p>
+                                    <p className="text-xs text-amber-700 mt-0.5">Complete your profile to access all features</p>
                                 </div>
                             </div>
                         </div>
@@ -167,7 +167,7 @@ export function DashboardAgentLayout({ agent, children, title = 'Dashboard Agent
                                                     {/* Tooltip - appears below the item */}
                                                     <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 hidden group-hover:block z-[100] pointer-events-none">
                                                         <div className="bg-gray-800 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap shadow-lg">
-                                                            Lengkapi profil terlebih dahulu
+                                                            Please complete your profile first
                                                         </div>
                                                     </div>
                                                 </div>
@@ -228,7 +228,7 @@ export function DashboardAgentLayout({ agent, children, title = 'Dashboard Agent
                                 className="w-full justify-start gap-2 text-red-600 border-red-200 hover:bg-red-50 rounded-[16px]"
                             >
                                 <LogOut className="w-4 h-4" />
-                                Keluar
+                                Logout
                             </Button>
                         </form>
                     </div>

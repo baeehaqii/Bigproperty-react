@@ -4,6 +4,7 @@ import { Heart, FileText, MessageCircle, Eye, MapPin, ChevronLeft, ChevronRight 
 import { useState } from "react"
 import { Button } from "./ui/button"
 import { Link } from "@inertiajs/react"
+import { OptimizedImage } from "./optimized-image"
 
 interface GoldenDealsCardProps {
   id: string
@@ -78,12 +79,17 @@ export function GoldenDealsCard({
       {/* Image Section */}
       <div className="relative h-[200px] group cursor-pointer">
         <Link href={`/property/${id}`} className="block h-full w-full">
-          <img
+          <OptimizedImage
             src={allImages[currentImageIndex] || "/placeholder.svg"}
-            alt={propertyName}
-            loading="lazy"
-            className="w-full h-full object-cover transition-opacity duration-300"
-            onError={(e) => { e.currentTarget.src = '/placeholder.svg' }}
+            alt={`${propertyName} - ${type} di ${location}`}
+            layout="card"
+            blur={true}
+            containerClassName="w-full h-full"
+            className="w-full h-full"
+            objectFit="cover"
+            fallback="/placeholder.svg"
+            width={320}
+            height={200}
           />
         </Link>
 
@@ -180,14 +186,15 @@ export function GoldenDealsCard({
             {/* Developer Avatar */}
             <div className="w-8 h-8 rounded-full flex-shrink-0 overflow-hidden">
               {developerLogo ? (
-                <img
+                <OptimizedImage
                   src={developerLogo}
-                  alt={developer}
+                  alt={`Logo ${developer}`}
                   width={32}
                   height={32}
-                  loading="lazy"
-                  className="w-full h-full object-cover"
-                  onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.querySelector('.avatar-fallback')?.classList.remove('hidden') }}
+                  blur={false}
+                  containerClassName="w-full h-full"
+                  className="w-full h-full"
+                  objectFit="cover"
                 />
               ) : null}
               <div className={`avatar-fallback w-full h-full bg-amber-600 flex items-center justify-center ${developerLogo ? 'hidden' : ''}`}>

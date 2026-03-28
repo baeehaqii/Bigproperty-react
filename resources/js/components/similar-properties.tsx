@@ -41,6 +41,8 @@ interface SimilarPropertiesProps {
     propertyId: string | number
 }
 
+import { OptimizedImage } from "./optimized-image"
+
 // Property Card Component (inline to avoid import issues)
 function SimilarPropertyCard({
     id,
@@ -86,12 +88,17 @@ function SimilarPropertyCard({
             {/* Image Section */}
             <div className="relative h-[180px] group cursor-pointer">
                 <Link href={`/property/${id}`} className="block h-full w-full">
-                    <img
+                    <OptimizedImage
                         src={allImages[currentImageIndex] || "/placeholder.svg"}
-                        alt={name}
-                        loading="lazy"
-                        className="w-full h-full object-cover transition-opacity duration-300"
-                        onError={(e) => { e.currentTarget.src = '/placeholder.svg' }}
+                        alt={`${name} - ${type}`}
+                        layout="card"
+                        blur={true}
+                        containerClassName="w-full h-full"
+                        className="w-full h-full"
+                        objectFit="cover"
+                        fallback="/placeholder.svg"
+                        width={300}
+                        height={180}
                     />
                 </Link>
 
@@ -176,11 +183,15 @@ function SimilarPropertyCard({
                     <div className="flex items-start gap-2 mb-2">
                         <div className="w-6 h-6 rounded-full flex-shrink-0 overflow-hidden bg-blue-600 flex items-center justify-center">
                             {(agent?.photo || developerLogo) ? (
-                                <img
-                                    src={agent?.photo || developerLogo}
+                                <OptimizedImage
+                                    src={agent?.photo || developerLogo || "/placeholder.svg"}
                                     alt={developer}
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => { e.currentTarget.style.display = 'none' }}
+                                    width={24}
+                                    height={24}
+                                    blur={false}
+                                    containerClassName="w-full h-full"
+                                    className="w-full h-full"
+                                    objectFit="cover"
                                 />
                             ) : (
                                 <span className="text-white font-bold text-xs">

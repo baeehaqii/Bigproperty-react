@@ -47,6 +47,8 @@ const footerSections: FooterSection[] = [
     }
 ]
 
+import { OptimizedImage } from "./optimized-image"
+
 const socialLinks = [
     { icon: Facebook, href: "https://facebook.com/bigproperty", label: "Facebook" },
     { icon: Instagram, href: "https://instagram.com/bigproperty", label: "Instagram" },
@@ -129,12 +131,15 @@ export function Footer() {
                         {/* Logo */}
                         <div className="flex items-center gap-3">
                             <div className="flex items-center justify-center">
-                                <img
-                                    src="https://res.cloudinary.com/dbr6xazzh/image/upload/v1769962203/Logo_Big_twhwpo.png"
+                                <OptimizedImage
+                                    src="https://storage.googleapis.com/bigproperty_image/website_assets/logo-bigproperty.png"
                                     alt="Big Property Logo"
                                     width={70}
                                     height={70}
-                                    className="object-contain"
+                                    blur={false}
+                                    containerClassName="w-[70px] h-[70px]"
+                                    className="w-full h-full object-contain"
+                                    objectFit="contain"
                                 />
                             </div>
                         </div>

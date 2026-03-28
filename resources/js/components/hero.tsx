@@ -5,6 +5,7 @@ import { Search, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { OptimizedImage, usePreloadImage } from "@/components/optimized-image"
 
 export function Hero() {
   const [searchType, setSearchType] = useState<"Beli" | "Sewa">("Beli")
@@ -46,15 +47,17 @@ export function Hero() {
 
   // Fallback slides kalo belum ada data
   const defaultSlides = [
-    "https://res.cloudinary.com/dneebbl5v/image/upload/v1763110873/banner-bigpro-5_vbn47k.png",
-    "https://res.cloudinary.com/dneebbl5v/image/upload/v1763110873/banner-bigpro-5_vbn47k.png",
-    "https://res.cloudinary.com/dneebbl5v/image/upload/v1763110873/banner-bigpro-5_vbn47k.png",
+    "https://storage.googleapis.com/bigproperty_image/website_assets/banner-bigpro-5.png",
+    "https://storage.googleapis.com/bigproperty_image/website_assets/banner-bigpro-5.png",
   ]
 
   // Gunakan images dari database atau fallback
   const slides = heroes.length > 0
     ? heroes.flatMap(hero => hero.image || [])
     : defaultSlides
+
+  // Preload first slide for LCP
+  usePreloadImage(slides[0], true)
 
   // Auto slide
   useEffect(() => {
@@ -103,7 +106,16 @@ export function Hero() {
         >
           {slides.map((src, idx) => (
             <div key={idx} className="h-full w-full shrink-0 flex items-center justify-center">
-              <img src={src || "/placeholder.svg"} alt={`slide-${idx}`} className="h-full w-full object-cover" />
+              <OptimizedImage
+                src={src || "/placeholder.svg"}
+                alt={`Hero Banner ${idx + 1} - Big Property`}
+                priority={idx === 0}
+                layout="full"
+                blur={false}
+                containerClassName="h-full w-full"
+                className="h-full w-full"
+                objectFit="cover"
+              />
             </div>
           ))}
         </div>

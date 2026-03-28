@@ -9,6 +9,8 @@ interface PropertyGalleryProps {
   developer?: string
 }
 
+import { OptimizedImage } from "./optimized-image"
+
 export function PropertyGallery({ images, title, developer }: PropertyGalleryProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
@@ -31,15 +33,18 @@ export function PropertyGallery({ images, title, developer }: PropertyGalleryPro
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-[1.5fr_1fr] gap-2">
             {/* Main Image */}
-            <div className="relative h-[300px] md:h-[400px] cursor-pointer" onClick={() => openLightbox(0)}>
-              <img
+            <div className="relative h-[300px] md:h-[400px] cursor-pointer group" onClick={() => openLightbox(0)}>
+              <OptimizedImage
                 src={images[0] || "/placeholder.svg"}
                 alt={`${title} - Main`}
-                className="w-full h-full object-cover rounded-lg"
-                onError={(e) => {
-                  e.currentTarget.src = "/placeholder.svg"
-                }}
+                priority={true}
+                layout="full"
+                blur={true}
+                containerClassName="w-full h-full rounded-lg"
+                className="w-full h-full rounded-lg"
+                objectFit="cover"
               />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 rounded-lg" />
             </div>
 
             {/* Thumbnail Grid - 2x2 */}
@@ -47,20 +52,23 @@ export function PropertyGallery({ images, title, developer }: PropertyGalleryPro
               {images.slice(1, 5).map((imageUrl, index) => (
                 <div
                   key={index}
-                  className="relative h-[145px] md:h-[196px] cursor-pointer"
+                  className="relative h-[145px] md:h-[196px] cursor-pointer group"
                   onClick={() => openLightbox(index + 1)}
                 >
-                  <img
+                  <OptimizedImage
                     src={imageUrl || "/placeholder.svg"}
                     alt={`${title} - ${index + 2}`}
-                    className="w-full h-full object-cover rounded-lg"
-                    onError={(e) => {
-                      e.currentTarget.src = "/placeholder.svg"
-                    }}
+                    layout="card"
+                    blur={true}
+                    containerClassName="w-full h-full rounded-lg"
+                    className="w-full h-full rounded-lg"
+                    objectFit="cover"
                   />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 rounded-lg" />
+
                   {index === 3 && images.length > 5 && (
                     <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-lg">
-                      <Button variant="secondary" className="bg-white hover:bg-white/90 text-foreground font-medium">
+                      <Button variant="secondary" className="bg-white hover:bg-white/90 text-foreground font-medium pointer-events-none">
                         <span className="mr-2">📷</span>
                         {images.length} Foto
                       </Button>

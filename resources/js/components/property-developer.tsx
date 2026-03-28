@@ -7,6 +7,8 @@ interface PropertyDeveloperProps {
   developer: DeveloperType | null
 }
 
+import { OptimizedImage } from "./optimized-image"
+
 export function PropertyDeveloper({ developer }: PropertyDeveloperProps) {
   if (!developer) {
     return (
@@ -22,10 +24,14 @@ export function PropertyDeveloper({ developer }: PropertyDeveloperProps) {
       <h2 className="text-2xl font-bold text-gray-900">Developer</h2>
 
       <div className="flex items-center gap-3">
-        <img
+        <OptimizedImage
           src={developer.logo || "/placeholder.svg"}
           alt={developer.name}
-          className="w-12 h-12 rounded-full object-cover"
+          width={48}
+          height={48}
+          blur={false}
+          containerClassName="w-12 h-12 rounded-full flex-shrink-0"
+          className="w-full h-full object-cover"
         />
         <div>
           <p className="font-semibold text-gray-900">{developer.name}</p>
