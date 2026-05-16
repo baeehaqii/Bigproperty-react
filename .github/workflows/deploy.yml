@@ -45,7 +45,8 @@ jobs:
             sudo -u www bash -c "cd $DEPLOY_DIR && php artisan package:discover --ansi"
 
             echo "==> Installing Node dependencies..."
-            sudo -u www bash -c "cd $DEPLOY_DIR && npm ci --prefer-offline"
+            sudo -u www bash -c "rm -rf $DEPLOY_DIR/node_modules"
+            sudo -u www bash -c "cd $DEPLOY_DIR && npm ci"
 
             echo "==> Building frontend assets..."
             sudo -u www bash -c "cd $DEPLOY_DIR && npm run build"
