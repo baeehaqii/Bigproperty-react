@@ -1,0 +1,56 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          script: |
+            set -e
+            DEPLOY_DIR="/www/wwwroot/carihunian.co"
+
+            echo "==> [$(date)] Deploy started"
+
+            echo "==> Pulling latest code..."
+            sudo -u www git -C "$DEPLOY_DIR" pull origin main
+
+            echo "==> Installing PHP dependencies..."
+            sudo -u www composer install \
+              --no-dev --optimize-autoloader --no-interaction \
+              --working-dir="$DEPLOY_DIR"
+
+            echo "==> Installing Node dependencies..."
+            sudo -u www bash -c "cd $DEPLOY_DIR && npm ci --prefer-offline"
+
+            echo "==> Building frontend assets..."
+            sudo -u www bash -c "cd $DEPLOY_DIR && npm run build"
+
+            echo "==> Running database migrations..."
+            sudo -u www bash -c "cd $DEPLOY_DIR && php artisan migrate --force"
+
+            echo "==> Clearing & caching..."
+            sudo -u www bash -c "cd $DEPLOY_DIR && php artisan optimize:clear"
+            sudo -u www bash -c "cd $DEPLOY_DIR && php artisan optimize"
+
+            echo "==> Restarting queue workers..."
+            sudo -u www bash -c "cd $DEPLOY_DIR && php artisan queue:restart"
+
+            echo "==> [$(date)] Deploy complete!"

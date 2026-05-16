@@ -79,7 +79,7 @@ function InputGroup({
     textAlign?: "left" | "center" | "right"
 }) {
     return (
-        <div className={`flex items-center border border-gray-300 rounded-lg bg-white overflow-hidden focus-within:border-[#D6D667] focus-within:ring-1 focus-within:ring-[#D6D667] transition-all ${className}`}>
+        <div className={`flex items-center border border-gray-300 rounded-lg bg-white overflow-hidden focus-within:border-[#C5E62A] focus-within:ring-1 focus-within:ring-[#C5E62A] transition-all ${className}`}>
             {prefix && (
                 <span className="px-3 py-2.5 bg-gray-50 text-gray-600 border-r border-gray-300 text-sm font-medium">
                     {prefix}
@@ -134,7 +134,7 @@ function RangeSlider({
                     [&::-webkit-slider-thumb]:h-5
                     [&::-webkit-slider-thumb]:bg-white
                     [&::-webkit-slider-thumb]:border-[3px]
-                    [&::-webkit-slider-thumb]:border-[#D6D667]
+                    [&::-webkit-slider-thumb]:border-[#C5E62A]
                     [&::-webkit-slider-thumb]:rounded-full
                     [&::-webkit-slider-thumb]:cursor-pointer
                     [&::-webkit-slider-thumb]:shadow-md
@@ -343,7 +343,7 @@ export default function KPRSyariah() {
             <div className="min-h-screen bg-gray-100">
                 {/* Hero Banner - Syariah Green Theme */}
                 <div className="relative overflow-hidden">
-                    <div className="bg-gradient-to-r from-[#D6D667] to-[#a3cd49] pt-10 pb-24">
+                    <div className="bg-gradient-to-r from-[#C5E62A] to-[#a3cd49] pt-10 pb-24">
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-center">
                                 {/* Text Left */}
@@ -380,7 +380,7 @@ export default function KPRSyariah() {
                                         className="bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-lg flex items-center justify-between hover:bg-white transition-all transform hover:scale-[1.02] group"
                                     >
                                         <div className="flex items-center">
-                                            <div className="bg-[#D6D667] p-2.5 rounded-xl mr-4">
+                                            <div className="bg-[#C5E62A] p-2.5 rounded-xl mr-4">
                                                 <Calculator className="w-6 h-6 text-white" />
                                             </div>
                                             <div>
@@ -388,7 +388,7 @@ export default function KPRSyariah() {
                                                 <p className="text-sm text-gray-500">Simulasi KPR dengan mudah</p>
                                             </div>
                                         </div>
-                                        <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-[#D6D667] transition-colors" />
+                                        <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-[#C5E62A] transition-colors" />
                                     </Link>
 
                                     <a
@@ -396,7 +396,7 @@ export default function KPRSyariah() {
                                         className="bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-lg flex items-center justify-between hover:bg-white transition-all transform hover:scale-[1.02] group"
                                     >
                                         <div className="flex items-center">
-                                            <div className="bg-[#D6D667] p-2.5 rounded-xl mr-4">
+                                            <div className="bg-[#C5E62A] p-2.5 rounded-xl mr-4">
                                                 <MessageCircle className="w-6 h-6 text-white" />
                                             </div>
                                             <div>
@@ -404,7 +404,7 @@ export default function KPRSyariah() {
                                                 <p className="text-sm text-gray-500">Take Over KPR Anda dengan mudah</p>
                                             </div>
                                         </div>
-                                        <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-[#D6D667] transition-colors" />
+                                        <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-[#C5E62A] transition-colors" />
                                     </a>
                                 </div>
                             </div>
@@ -477,7 +477,7 @@ export default function KPRSyariah() {
                                             type="button"
                                             onClick={() => setActiveProgram('fix-floating')}
                                             className={`flex-1 py-2.5 rounded-lg font-medium transition-colors cursor-pointer ${activeProgram === 'fix-floating'
-                                                ? 'bg-[#D6D667] text-white'
+                                                ? 'bg-[#C5E62A] text-white'
                                                 : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
                                                 }`}
                                         >
@@ -487,7 +487,7 @@ export default function KPRSyariah() {
                                             type="button"
                                             onClick={() => setActiveProgram('berjenjang')}
                                             className={`flex-1 py-2.5 rounded-lg font-medium transition-colors cursor-pointer ${activeProgram === 'berjenjang'
-                                                ? 'bg-[#D6D667] text-white'
+                                                ? 'bg-[#C5E62A] text-white'
                                                 : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
                                                 }`}
                                         >
@@ -619,7 +619,7 @@ export default function KPRSyariah() {
                                 {/* Submit Button */}
                                 <button
                                     type="submit"
-                                    className="w-full bg-[#D6D667] text-white font-semibold py-3.5 rounded-xl hover:bg-[#c9c85a] transition-colors cursor-pointer shadow-lg shadow-[#D6D667]/30"
+                                    className="w-full bg-[#C5E62A] text-white font-semibold py-3.5 rounded-xl hover:bg-[#b8d922] transition-colors cursor-pointer shadow-lg shadow-[#C5E62A]/30"
                                 >
                                     Simulasikan
                                 </button>
@@ -646,7 +646,7 @@ export default function KPRSyariah() {
                                         <button
                                             onClick={() => setActiveTab('ringkasan')}
                                             className={`font-semibold py-2.5 px-6 rounded-xl shadow-sm cursor-pointer transition-colors ${activeTab === 'ringkasan'
-                                                ? 'bg-[#D6D667] text-white'
+                                                ? 'bg-[#C5E62A] text-white'
                                                 : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
                                                 }`}
                                         >
@@ -655,7 +655,7 @@ export default function KPRSyariah() {
                                         <button
                                             onClick={() => { setActiveTab('tabel'); setCurrentPage(1); }}
                                             className={`font-semibold py-2.5 px-6 rounded-xl shadow-sm cursor-pointer transition-colors ${activeTab === 'tabel'
-                                                ? 'bg-[#D6D667] text-white'
+                                                ? 'bg-[#C5E62A] text-white'
                                                 : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
                                                 }`}
                                         >
@@ -667,7 +667,7 @@ export default function KPRSyariah() {
                                     {activeTab === 'ringkasan' ? (
                                         <>
                                             {/* Angsuran Fix Card */}
-                                            <div className="bg-[#f0f9e8] p-6 rounded-2xl border border-green-200">
+                                            <div className="bg-[#f5ffd6] p-6 rounded-2xl border border-green-200">
                                                 <div className="flex justify-center gap-2 mb-2">
                                                     <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-1 rounded-full">
                                                         Syariah
@@ -688,7 +688,7 @@ export default function KPRSyariah() {
                                                                 </p>
                                                                 <p className="font-bold text-gray-800">Margin {item.rate}%</p>
                                                             </div>
-                                                            <p className={`font-bold text-[#29291b] ${activeProgram === 'fix-floating' ? 'text-2xl' : 'text-xl'}`}>
+                                                            <p className={`font-bold text-[#1a2e00] ${activeProgram === 'fix-floating' ? 'text-2xl' : 'text-xl'}`}>
                                                                 Rp{formatCurrency(item.installment)}
                                                             </p>
                                                         </div>
@@ -697,7 +697,7 @@ export default function KPRSyariah() {
                                                 <p className="text-center text-xs text-green-700 mt-4">
                                                     * Angsuran tetap selama masa pembiayaan
                                                 </p>
-                                                <button className="mt-4 w-full sm:w-auto bg-[#D6D667] text-white font-semibold py-2.5 px-8 rounded-xl hover:bg-[#c9c85a] transition-colors mx-auto block cursor-pointer">
+                                                <button className="mt-4 w-full sm:w-auto bg-[#C5E62A] text-white font-semibold py-2.5 px-8 rounded-xl hover:bg-[#b8d922] transition-colors mx-auto block cursor-pointer">
                                                     Tanya KPR Syariah
                                                 </button>
                                             </div>
@@ -721,7 +721,7 @@ export default function KPRSyariah() {
                                                     <div className="space-y-2 pt-4 border-t">
                                                         <div className="flex justify-between items-center font-semibold">
                                                             <h4 className="text-gray-800">Estimasi Pembayaran Pertama</h4>
-                                                            <p className="text-[#a8a63e]">
+                                                            <p className="text-[#8fa819]">
                                                                 Rp{formatCurrency(uangMukaRp + result.angsuranBulanan + 36000000)}
                                                             </p>
                                                         </div>
@@ -745,7 +745,7 @@ export default function KPRSyariah() {
                                                     <div className="space-y-2 pt-4 border-t">
                                                         <div className="flex justify-between items-center font-semibold">
                                                             <h4 className="text-gray-800">Detail Pembiayaan</h4>
-                                                            <p className="text-[#a8a63e]">
+                                                            <p className="text-[#8fa819]">
                                                                 Rp{formatCurrency(result.totalPembayaran)}
                                                             </p>
                                                         </div>
@@ -777,7 +777,7 @@ export default function KPRSyariah() {
                                             <div className="overflow-x-auto">
                                                 <table className="w-full text-sm">
                                                     <thead>
-                                                        <tr className="bg-[#f0f9e8] text-gray-700">
+                                                        <tr className="bg-[#f5ffd6] text-gray-700">
                                                             <th className="px-3 py-3 text-left font-semibold rounded-tl-lg">Bulan</th>
                                                             <th className="px-3 py-3 text-right font-semibold">Pokok</th>
                                                             <th className="px-3 py-3 text-right font-semibold">Margin</th>
@@ -803,7 +803,7 @@ export default function KPRSyariah() {
                                                                 <td className="px-3 py-3 text-right text-gray-900 font-semibold">
                                                                     Rp{formatCurrency(item.totalAngsuran)}
                                                                 </td>
-                                                                <td className="px-3 py-3 text-right text-[#a8a63e] font-medium">
+                                                                <td className="px-3 py-3 text-right text-[#8fa819] font-medium">
                                                                     Rp{formatCurrency(item.sisaPinjaman)}
                                                                 </td>
                                                             </tr>
@@ -848,7 +848,7 @@ export default function KPRSyariah() {
                                                                         key={pageNum}
                                                                         onClick={() => setCurrentPage(pageNum)}
                                                                         className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors cursor-pointer ${currentPage === pageNum
-                                                                            ? 'bg-[#D6D667] text-white'
+                                                                            ? 'bg-[#C5E62A] text-white'
                                                                             : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
                                                                             }`}
                                                                     >
@@ -873,7 +873,7 @@ export default function KPRSyariah() {
                                             )}
 
                                             {/* Summary at bottom */}
-                                            <div className="mt-4 p-4 bg-[#f0f9e8] rounded-xl border border-green-200">
+                                            <div className="mt-4 p-4 bg-[#f5ffd6] rounded-xl border border-green-200">
                                                 <div className="grid grid-cols-2 gap-4 text-sm">
                                                     <div>
                                                         <p className="text-gray-600">Total Angsuran Pokok</p>
