@@ -30,7 +30,8 @@ jobs:
             echo "==> [$(date)] Deploy started"
 
             echo "==> Pulling latest code..."
-            sudo -u www git -C "$DEPLOY_DIR" pull origin main
+            sudo -u www git -C "$DEPLOY_DIR" fetch origin main
+            sudo -u www git -C "$DEPLOY_DIR" reset --hard origin/main
 
             echo "==> Installing PHP dependencies..."
             sudo -u www composer install \
