@@ -37,6 +37,11 @@ jobs:
             sudo -u www composer install \
               --no-dev --optimize-autoloader --no-interaction --no-scripts \
               --working-dir="$DEPLOY_DIR"
+
+            echo "==> Running database migrations..."
+            sudo -u www bash -c "cd $DEPLOY_DIR && php artisan migrate --force"
+
+            echo "==> Discovering packages..."
             sudo -u www bash -c "cd $DEPLOY_DIR && php artisan package:discover --ansi"
 
             echo "==> Installing Node dependencies..."
@@ -44,9 +49,6 @@ jobs:
 
             echo "==> Building frontend assets..."
             sudo -u www bash -c "cd $DEPLOY_DIR && npm run build"
-
-            echo "==> Running database migrations..."
-            sudo -u www bash -c "cd $DEPLOY_DIR && php artisan migrate --force"
 
             echo "==> Clearing & caching..."
             sudo -u www bash -c "cd $DEPLOY_DIR && php artisan optimize:clear"
