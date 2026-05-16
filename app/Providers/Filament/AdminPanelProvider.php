@@ -29,7 +29,11 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         
-        $settings = Hero::first();
+        try {
+            $settings = \Illuminate\Support\Facades\Schema::hasTable('heroes') ? Hero::first() : null;
+        } catch (\Throwable $e) {
+            $settings = null;
+        }
 
         return $panel
             ->default()
