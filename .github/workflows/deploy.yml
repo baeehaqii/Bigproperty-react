@@ -35,8 +35,9 @@ jobs:
 
             echo "==> Installing PHP dependencies..."
             sudo -u www composer install \
-              --no-dev --optimize-autoloader --no-interaction \
+              --no-dev --optimize-autoloader --no-interaction --no-scripts \
               --working-dir="$DEPLOY_DIR"
+            sudo -u www bash -c "cd $DEPLOY_DIR && php artisan package:discover --ansi"
 
             echo "==> Installing Node dependencies..."
             sudo -u www bash -c "cd $DEPLOY_DIR && npm ci --prefer-offline"
