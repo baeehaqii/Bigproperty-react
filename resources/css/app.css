@@ -10,6 +10,18 @@
 @theme {
     --font-sans:
         'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-heading: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+    --font-body: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+    --font-tagline: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+
+    /* CariHunian Brand Colors */
+    --color-ch-citrine: #C5E62A;
+    --color-ch-cobalt: #3B9EF5;
+    --color-ch-ultraviolet: #8B5CF6;
+    --color-ch-midnight: #1A1A2E;
+    --color-ch-canvas: #FFFFFF;
+    --color-ch-sunset: #FF6B6B;
+    --color-ch-mist: #9CA3AF;
 
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);

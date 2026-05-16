@@ -323,33 +323,36 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                 </div>
                             </button>
 
-                            {/* Thumbnail Grid - Right Side (2x2) */}
+                            {/* Thumbnail Grid - Right Side (2x2), always 4 slots */}
                             <div className="grid grid-cols-2 gap-4 md:gap-5 w-full md:w-[450px] shrink-0">
-                                {allImages.slice(1, 5).map((img, index) => (
-                                    <button
-                                        key={index}
-                                        onClick={() => openModal(img)}
-                                        className="relative group flex w-full h-[140px] md:h-[215px] rounded-[22px] overflow-hidden bg-white"
-                                    >
-                                        <img
-                                            src={img || '/placeholder.svg'}
-                                            className="w-full h-full object-cover"
-                                            alt={`${property.name} - ${index + 2}`}
-                                            onError={(e) => { e.currentTarget.src = '/placeholder.svg' }}
-                                        />
-                                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/20">
-                                            <svg className="size-[50px] text-white" viewBox="0 0 24 24" fill="currentColor">
-                                                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
-                                            </svg>
-                                        </div>
-                                    </button>
-                                ))}
+                                {Array.from({ length: 4 }, (_, index) => {
+                                    const img = allImages[index + 1] || allImages[0] || '/placeholder.svg'
+                                    return (
+                                        <button
+                                            key={index}
+                                            onClick={() => openModal(img)}
+                                            className="relative group flex w-full h-[140px] md:h-[215px] rounded-[22px] overflow-hidden bg-gray-100"
+                                        >
+                                            <img
+                                                src={img}
+                                                className="w-full h-full object-cover"
+                                                alt={`${property.name} - ${index + 2}`}
+                                                onError={(e) => { e.currentTarget.src = '/placeholder.svg' }}
+                                            />
+                                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/20">
+                                                <svg className="size-[50px] text-white" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+                                                </svg>
+                                            </div>
+                                        </button>
+                                    )
+                                })}
                             </div>
                         </section>
 
                         {/* Specs Section */}
                         <section id="specs" className="w-full mb-8">
-                            <div className="flex flex-wrap items-center justify-between rounded-2xl border border-border py-5 px-4 md:px-8 bg-white gap-4 md:gap-0">
+                            <div className="flex flex-wrap items-center justify-between rounded-2xl border border-gray-300 py-5 px-4 md:px-8 bg-white gap-4 md:gap-0">
                                 {/* Bedroom */}
                                 <div className="flex flex-col w-fit gap-3">
                                     <p className="text-sm text-muted-foreground">Bedroom</p>
@@ -362,7 +365,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                         <p className="font-semibold">{property.bedrooms || '0'} Bedroom</p>
                                     </div>
                                 </div>
-                                <div className="hidden md:block h-[60px] border-r border-border"></div>
+                                <div className="hidden md:block h-[60px] border-r border-gray-300"></div>
 
                                 {/* Bathroom */}
                                 <div className="flex flex-col w-fit gap-3">
@@ -375,7 +378,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                         <p className="font-semibold">{property.bathrooms || '0'} Bathroom</p>
                                     </div>
                                 </div>
-                                <div className="hidden md:block h-[60px] border-r border-border"></div>
+                                <div className="hidden md:block h-[60px] border-r border-gray-300"></div>
 
                                 {/* Certificate */}
                                 <div className="flex flex-col w-fit gap-3">
@@ -389,7 +392,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                         <p className="font-semibold">{property.certificateType || 'SHM'}</p>
                                     </div>
                                 </div>
-                                <div className="hidden md:block h-[60px] border-r border-border"></div>
+                                <div className="hidden md:block h-[60px] border-r border-gray-300"></div>
 
                                 {/* Land Area */}
                                 <div className="flex flex-col w-fit gap-3">
@@ -401,7 +404,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                         <p className="font-semibold">{property.landSize || '0'}</p>
                                     </div>
                                 </div>
-                                <div className="hidden md:block h-[60px] border-r border-border"></div>
+                                <div className="hidden md:block h-[60px] border-r border-gray-300"></div>
 
                                 {/* Building Area */}
                                 <div className="flex flex-col w-fit gap-3">
@@ -415,7 +418,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                         <p className="font-semibold">{property.buildingSize || '0'}</p>
                                     </div>
                                 </div>
-                                <div className="hidden md:block h-[60px] border-r border-border"></div>
+                                <div className="hidden md:block h-[60px] border-r border-gray-300"></div>
 
                                 {/* Electric Power */}
                                 <div className="flex flex-col w-fit gap-3">
@@ -438,7 +441,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                 <div id="About" className="flex flex-col gap-4">
                                     <h2 className="font-semibold text-xl">Tentang Properti</h2>
                                     <div
-                                        className="leading-7 bg-white p-4 rounded-md border border-border text-black prose prose-sm max-w-none 
+                                        className="leading-7 bg-white p-4 rounded-md border border-gray-300 text-black prose prose-sm max-w-none 
                                         [&_p]:mb-3 [&_p]:leading-relaxed
                                         [&_br]:block [&_br]:content-[''] [&_br]:mb-2
                                         [&_strong]:font-semibold [&_em]:italic
@@ -482,7 +485,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                             {property.advantages.map((item: any, index: number) => (
                                                 <div
                                                     key={index}
-                                                    className="flex items-start gap-3 p-4 rounded-xl border border-border bg-white hover:shadow-md transition-shadow"
+                                                    className="flex items-start gap-3 p-4 rounded-xl border border-gray-300 bg-white hover:shadow-md transition-shadow"
                                                 >
                                                     <div className="flex-shrink-0 w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
                                                         <CheckCircle className="w-5 h-5 text-green-600" />
@@ -509,7 +512,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                                 return (
                                                     <div
                                                         key={index}
-                                                        className="flex flex-col min-h-[100px] rounded-2xl border border-border p-4 gap-3 bg-white hover:shadow-md transition-shadow"
+                                                        className="flex flex-col min-h-[100px] rounded-2xl border border-gray-300 p-4 gap-3 bg-white hover:shadow-md transition-shadow"
                                                     >
                                                         <IconComponent className="size-7 text-blue-600" strokeWidth={1.5} />
                                                         <p className="font-medium text-sm text-gray-900">{facility.name || facility.nama}</p>
@@ -530,7 +533,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                                 return (
                                                     <div
                                                         key={index}
-                                                        className="flex items-start gap-3 p-4 rounded-xl border border-border bg-white hover:shadow-md transition-shadow"
+                                                        className="flex items-start gap-3 p-4 rounded-xl border border-gray-300 bg-white hover:shadow-md transition-shadow"
                                                     >
                                                         <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
                                                             <IconComponent className="w-5 h-5 text-gray-600" strokeWidth={1.5} />
@@ -552,7 +555,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                 <div id="Location" className="flex flex-col gap-4">
                                     <h2 className="font-semibold text-xl">Strategic Location</h2>
                                     {property.location?.mapUrl || property.location?.mapUrlOriginal ? (
-                                        <div className="overflow-hidden w-full h-[320px] rounded-2xl border border-border">
+                                        <div className="overflow-hidden w-full h-[320px] rounded-2xl border border-gray-300">
                                             <iframe
                                                 className="h-full w-full border-0"
                                                 src={property.location?.mapUrl || `https://www.google.com/maps/embed/v1/place?q=${encodeURIComponent(property.location?.full || property.location?.city || 'jakarta')}&key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8`}
@@ -561,7 +564,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                             ></iframe>
                                         </div>
                                     ) : (
-                                        <div className="overflow-hidden w-full h-[320px] rounded-2xl border border-border flex items-center justify-center bg-gray-100">
+                                        <div className="overflow-hidden w-full h-[320px] rounded-2xl border border-gray-300 flex items-center justify-center bg-gray-100">
                                             <p className="text-gray-500">Lokasi belum tersedia</p>
                                         </div>
                                     )}
@@ -580,11 +583,11 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                             </div>
 
                             {/* Right Sidebar - Price Card */}
-                            <div className="flex flex-col w-full lg:w-[380px] shrink-0 h-fit rounded-3xl border border-border p-6 gap-5 bg-white lg:sticky lg:top-8">
+                            <div className="flex flex-col w-full lg:w-[380px] shrink-0 h-fit rounded-3xl border border-gray-300 p-6 gap-5 bg-white lg:sticky lg:top-8">
                                 <p className="font-bold text-2xl md:text-3xl text-center text-blue-600">
                                     {property.priceDetails?.minFormatted || formatPrice(property.priceDetails?.min || 0)}
                                 </p>
-                                <hr className="border-border" />
+                                <hr className="border-gray-300" />
 
                                 {/* Benefits */}
                                 <div className="flex flex-col gap-3">
@@ -607,7 +610,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                         <p className="font-medium text-sm">Gratis biaya balik nama</p>
                                     </div>
                                 </div>
-                                <hr className="border-border" />
+                                <hr className="border-gray-300" />
 
                                 {/* Agent Profile Card */}
                                 <div className="flex items-start justify-between gap-3">
@@ -675,7 +678,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
 
                                 {/* Wishlist Button */}
                                 <button
-                                    className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-full border border-border text-black font-medium hover:bg-secondary hover:text-white transition-colors"
+                                    className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-full border border-gray-300 text-black font-medium hover:bg-secondary hover:text-white transition-colors"
                                     onClick={() => alert('Ditambahkan ke wishlist!')}
                                 >
                                     <svg className="size-5 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -702,7 +705,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
 
                                     {/* KPR Dropdown */}
                                     {kprDropdownOpen && (
-                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl border border-border shadow-lg p-3 z-10">
+                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl border border-gray-300 shadow-lg p-3 z-10">
                                             <p className="text-xs text-muted-foreground mb-2 px-2">Pilih jenis KPR:</p>
                                             <p className="text-xs font-medium text-blue-600 mb-3 px-2">
                                                 Harga: {property.priceDetails?.minFormatted || property.priceRange || formatPrice(property.priceDetails?.min || 0)}
@@ -748,7 +751,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
                                 <div className="relative share-dropdown-container">
                                     <button
                                         onClick={() => setShareOpen(!shareOpen)}
-                                        className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-full border border-border text-black font-medium hover:bg-secondary hover:text-white transition-colors"
+                                        className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-full border border-gray-300 text-black font-medium hover:bg-secondary hover:text-white transition-colors"
                                     >
                                         <svg className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                             <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8" />
@@ -760,7 +763,7 @@ export default function PropertyDetail({ property }: PropertyDetailProps) {
 
                                     {/* Share Dropdown */}
                                     {shareOpen && (
-                                        <div className="absolute bottom-full left-0 right-0 mb-2 bg-white rounded-2xl border border-border shadow-lg p-3 z-10">
+                                        <div className="absolute bottom-full left-0 right-0 mb-2 bg-white rounded-2xl border border-gray-300 shadow-lg p-3 z-10">
                                             <p className="text-xs text-muted-foreground mb-3 px-2">Share via:</p>
                                             <div className="grid grid-cols-2 gap-2">
                                                 {/* WhatsApp */}

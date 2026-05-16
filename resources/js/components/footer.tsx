@@ -50,9 +50,9 @@ const footerSections: FooterSection[] = [
 import { OptimizedImage } from "./optimized-image"
 
 const socialLinks = [
-    { icon: Facebook, href: "https://facebook.com/bigproperty", label: "Facebook" },
-    { icon: Instagram, href: "https://instagram.com/bigproperty", label: "Instagram" },
-    { icon: Youtube, href: "https://youtube.com/bigproperty", label: "YouTube" },
+    { icon: Facebook, href: "https://facebook.com/carihunian", label: "Facebook" },
+    { icon: Instagram, href: "https://instagram.com/carihunian", label: "Instagram" },
+    { icon: Youtube, href: "https://youtube.com/carihunian", label: "YouTube" },
 ]
 
 export function Footer() {
@@ -131,15 +131,12 @@ export function Footer() {
                         {/* Logo */}
                         <div className="flex items-center gap-3">
                             <div className="flex items-center justify-center">
-                                <OptimizedImage
-                                    src="https://storage.googleapis.com/bigproperty_image/website_assets/logo-bigproperty.png"
-                                    alt="Big Property Logo"
-                                    width={70}
-                                    height={70}
-                                    blur={false}
-                                    containerClassName="w-[70px] h-[70px]"
-                                    className="w-full h-full object-contain"
-                                    objectFit="contain"
+                                <img
+                                    src="/logo-carihunian-warna.svg"
+                                    alt="CariHunian Logo"
+                                    className="w-[70px] h-[70px] object-contain"
+                                    loading="lazy"
+                                    decoding="async"
                                 />
                             </div>
                         </div>
@@ -160,7 +157,7 @@ export function Footer() {
                             ))}
                             {/* TikTok Icon (custom) */}
                             <a
-                                href="https://tiktok.com/@bigproperty"
+                                href="https://tiktok.com/@carihunian"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-600 text-gray-400 transition-all duration-300 hover:border-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-500"

@@ -18,7 +18,7 @@ export function PropertyMortgage({ property }: PropertyMortgageProps) {
           <p className="text-xs text-gray-600 uppercase mb-2">ESTIMASI ANGSURAN KPR/KPA MULAI DARI</p>
           <div className="flex items-baseline gap-2">
             <p className="text-2xl font-bold text-gray-900">{property.installment.monthly} /Bln</p>
-            <Button variant="link" className="text-[#ECEC5C] p-0 h-auto">
+            <Button variant="link" className="text-[#C5E62A] p-0 h-auto">
               Lihat Detail Perhitungan
             </Button>
           </div>
@@ -36,7 +36,7 @@ export function PropertyMortgage({ property }: PropertyMortgageProps) {
         </div>
       </div>
 
-      <Button className="w-full bg-[#ECEC5C] hover:bg-[#ECEC5C]/90 text-gray-900">
+      <Button className="w-full bg-[#C5E62A] hover:bg-[#C5E62A]/90 text-gray-900">
         <Calculator className="w-4 h-4 mr-2" />
         Simulasikan KPR
       </Button>

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Agen;
+use App\Models\User;
+use App\Services\OtpService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -116,6 +118,106 @@ class AgentAuthController extends Controller
         return back()->withErrors([
             'email' => 'Email atau password salah.',
         ])->onlyInput('email');
+    }
+
+    /**
+     * Show agent forgot password form
+     */
+    public function showForgotPasswordForm()
+    {
+        return Inertia::render('AgentForgotPassword');
+    }
+
+    /**
+     * Send OTP to agent email
+     */
+    public function sendOtp(Request $request, OtpService $otpService)
+    {
+        $request->validate([
+            'email' => ['required', 'email']
+        ]);
+
+        $result = $otpService->sendOtp($request->email, 'agent');
+
+        if (!$result['success']) {
+            return back()->withErrors(['email' => $result['message']]);
+        }
+
+        return back()->with('success', $result['message'])->with('dummy_otp', $result['dummy_otp']); 
+    }
+
+    /**
+     * Verify OTP format
+     */
+    public function verifyOtp(Request $request, OtpService $otpService)
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
+            'otp' => ['required', 'digits:6']
+        ]);
+
+        $isValid = $otpService->verifyOtp($request->email, $request->otp, 'agent');
+
+        if (!$isValid) {
+            return back()->withErrors(['otp' => 'Kode OTP tidak valid atau sudah kedaluwarsa.']);
+        }
+
+        // Simpan sesi bahwa OTP terverifikasi agar bisa mengakses form reset
+        session(['otp_verified_' . $request->email => true]);
+
+        return back()->with('otp_verified', true)->with('success', 'OTP valid. Silakan ubah password Anda.');
+    }
+
+    /**
+     * Handle agent reset password
+     */
+    public function resetPassword(Request $request, OtpService $otpService)
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
+            'otp' => ['required', 'digits:6'],
+            'password' => [
+                'required', 
+                'confirmed', 
+                'min:8',
+                'regex:/[A-Z]/', // Harus ada huruf besar
+                'regex:/[\W_]/', // Harus ada spesial karakter
+                function ($attribute, $value, $fail) {
+                    // Validasi "Tidak boleh angka berulang berturut-turut (misal 111)"
+                    if (preg_match('/(\d)\1{2,}/', $value)) {
+                        $fail('Password tidak boleh mengandung angka berulang 3x berturut-turut.');
+                    }
+                    
+                    // Simple check "tidak boleh terlihat seperti tanggal lahir (e.g. 120590 or 19900512)"
+                    // Since we don't know the exact DOB in this context without querying or extra input, 
+                    if (preg_match('/\b\d{6,8}\b/', $value)) {
+                         $fail('Password tidak boleh hanya kombinasi angka mirip tanggal lahir.');
+                    }
+                }
+            ],
+        ], [
+            'password.regex' => 'Password harus mengandung huruf besar dan spesial karakter.',
+            'password.min' => 'Password minimal 8 karakter.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.'
+        ]);
+
+        if (!session('otp_verified_' . $request->email) || !$otpService->verifyOtp($request->email, $request->otp, 'agent')) {
+            return back()->withErrors(['otp' => 'Kode OTP tidak valid atau sesi berakhir.']);
+        }
+
+        $agent = Agen::where('email', $request->email)->first();
+        if ($agent) {
+            $agent->password = Hash::make($request->password);
+            $agent->save();
+
+            // Clear session and OTP
+            session()->forget('otp_verified_' . $request->email);
+            $otpService->clearOtp($request->email, 'agent');
+
+            return redirect()->route('agent.login')->with('success', 'Password berhasil diubah, silakan login kembali.');
+        }
+
+        return back()->withErrors(['email' => 'Gagal mengubah password.']);
     }
 
     /**

@@ -73,7 +73,7 @@ export default function AgentSignup() {
 
     return (
         <>
-            <Head title="Daftar Agent - BigProperty">
+            <Head title="Daftar Agent - CariHunian">
                 <link rel="preconnect" href="https://fonts.bunny.net" />
                 <link
                     href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700"
@@ -90,7 +90,7 @@ export default function AgentSignup() {
                             <Link href="/" className="inline-block mb-6">
                                 <img
                                     src="https://res.cloudinary.com/dx8w9qwl6/image/upload/v1761232717/Logo_Big_t3qpb3.png"
-                                    alt="BigProperty"
+                                    alt="CariHunian"
                                     className="h-10"
                                 />
                             </Link>
@@ -107,7 +107,7 @@ export default function AgentSignup() {
                             {/* Step Indicator */}
                             <div className="flex bg-gray-100 h-2 mt-6 rounded-full overflow-hidden">
                                 <div
-                                    className={`h-full bg-[#ECEC5C] transition-all duration-300 ease-in-out ${currentStep === 1 ? 'w-1/2' : 'w-full'
+                                    className={`h-full bg-[#C5E62A] transition-all duration-300 ease-in-out ${currentStep === 1 ? 'w-1/2' : 'w-full'
                                         }`}
                                 />
                             </div>
@@ -316,7 +316,7 @@ export default function AgentSignup() {
                                         <Button
                                             type="submit"
                                             disabled={processing}
-                                            className="h-12 flex-[2] rounded-full bg-[#ECEC5C] text-gray-900 font-semibold hover:bg-[#d9d94f] transition-colors"
+                                            className="h-12 flex-[2] rounded-full bg-[#C5E62A] text-gray-900 font-semibold hover:bg-[#d9d94f] transition-colors"
                                         >
                                             {processing ? "Mendaftar..." : "Daftar Sekarang"}
                                         </Button>
@@ -347,7 +347,7 @@ export default function AgentSignup() {
                         <div className="absolute inset-0 flex flex-col justify-center p-12">
                             <div className="mb-8">
                                 <h2 className="text-4xl font-bold text-white mb-4">
-                                    Bergabunglah sebagai Agent BigProperty
+                                    Bergabunglah sebagai Agent CariHunian
                                 </h2>
                                 <p className="text-lg text-white/90">
                                     Dapatkan akses ke ribuan listing properti dan raih komisi terbaik bersama kami.
@@ -407,7 +407,7 @@ export default function AgentSignup() {
                                     ))}
                                 </div>
                                 <p className="font-medium text-white leading-relaxed mb-4">
-                                    "Bergabung dengan BigProperty adalah keputusan terbaik untuk karir saya. Sistemnya mudah dan komisi sangat kompetitif!"
+                                    "Bergabung dengan CariHunian adalah keputusan terbaik untuk karir saya. Sistemnya mudah dan komisi sangat kompetitif!"
                                 </p>
                                 <div className="flex items-center gap-4">
                                     <div className="h-14 w-14 rounded-full bg-white/20 overflow-hidden">

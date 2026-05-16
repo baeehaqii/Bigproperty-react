@@ -37,7 +37,7 @@ export function PropertyUnitTypes({ unitTypes }: PropertyUnitTypesProps) {
                 <h3 className="font-bold text-lg text-gray-900">{unit.name} - {unit.name2}</h3>
               </div>
 
-              <p className="text-xl font-bold text-[#ECEC5C]">
+              <p className="text-xl font-bold text-[#C5E62A]">
                 {unit.priceFormatted || formatPrice(unit.price)}
               </p>
 

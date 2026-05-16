@@ -101,7 +101,7 @@ export function VerifiedProjects() {
             Properti dengan info terbaru, akurat, dan diverifikasi secara berkala ke developer
           </p>
         </div>
-        <a href="#" className="text-[#ECEC5C] font-medium text-sm whitespace-nowrap hover:underline">
+        <a href="#" className="text-[#C5E62A] font-medium text-sm whitespace-nowrap hover:underline">
           Lihat Semua
         </a>
       </div>

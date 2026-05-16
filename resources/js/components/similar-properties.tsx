@@ -143,7 +143,7 @@ function SimilarPropertyCard({
                 )}
 
                 {promoText && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-[#ECEC5C] to-[#d4d44a] text-gray-900 text-xs font-semibold text-center py-1.5">
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-[#C5E62A] to-[#d4d44a] text-gray-900 text-xs font-semibold text-center py-1.5">
                         {promoText}
                     </div>
                 )}

@@ -134,9 +134,6 @@ function PropertyListingCard({ property }: { property: Property }) {
         ? [property.mainImage, ...(property.images || [])]
         : property.images || []
 
-    // Get first 3 thumbnails for the grid (main image is already the first)
-    const thumbnails = allImages.slice(1, 4)
-
     const nextImage = (e: React.MouseEvent) => {
         e.preventDefault()
         e.stopPropagation()
@@ -149,86 +146,54 @@ function PropertyListingCard({ property }: { property: Property }) {
         setCurrentImageIndex((prev) => (prev - 1 + allImages.length) % allImages.length)
     }
 
-    const formatViews = (count: number) => {
-        if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`
-        if (count >= 1000) return `${(count / 1000).toFixed(1)}K`
-        return count.toString()
-    }
-
     return (
         <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all group">
-            {/* Image Section - Main + Thumbnails Grid */}
+            {/* Image Section - single full-width with slide */}
             <div className="relative">
                 <Link href={`/property/${property.id}`} className="block">
-                    <div className="flex h-[220px]">
-                        {/* Main Image - Left Side */}
-                        <div className="relative flex-1 min-w-0 overflow-hidden">
-                            <img
-                                src={allImages[currentImageIndex] || "/placeholder.svg"}
-                                alt={property.name}
-                                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                            />
-
-                            {/* Watermark */}
-                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                <span className="text-white/20 text-2xl font-bold">BigProperty</span>
-                            </div>
-
-                            {/* Image Counter Badge */}
-                            <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-md flex items-center gap-1">
-                                <Grid3X3 className="w-3 h-3" />
-                                <span>{currentImageIndex + 1}/{allImages.length}</span>
-                            </div>
+                    <div className="relative h-[200px] overflow-hidden">
+                        <img
+                            src={allImages[currentImageIndex] || "/placeholder.svg"}
+                            alt={property.name}
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                        {/* Watermark */}
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <span className="text-white/20 text-xl font-bold">Big Property</span>
                         </div>
-
-                        {/* Thumbnail Grid - Right Side (if more than 1 image) */}
-                        {thumbnails.length > 0 && (
-                            <div className="w-[140px] flex-shrink-0 grid grid-cols-2 gap-0.5 ml-0.5">
-                                {thumbnails.map((img, idx) => (
-                                    <div
-                                        key={idx}
-                                        className="relative overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
-                                        onClick={(e) => {
-                                            e.preventDefault()
-                                            e.stopPropagation()
-                                            setCurrentImageIndex(idx + 1)
-                                        }}
-                                    >
-                                        <img
-                                            src={img || "/placeholder.svg"}
-                                            alt={`${property.name} - ${idx + 2}`}
-                                            className="w-full h-full object-cover"
-                                        />
-                                        {/* Watermark on thumbnails */}
-                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                            <span className="text-white/10 text-xs font-bold">BP</span>
-                                        </div>
-                                    </div>
-                                ))}
-                                {/* Empty slots if less than 4 thumbnails */}
-                                {thumbnails.length < 4 && Array.from({ length: 4 - thumbnails.length }, (_, i) => (
-                                    <div key={`empty-${i}`} className="bg-gray-100" />
+                        {/* Dot indicators */}
+                        {allImages.length > 1 && (
+                            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+                                {allImages.map((_, i) => (
+                                    <span
+                                        key={i}
+                                        className={`block rounded-full transition-all ${i === currentImageIndex ? "w-4 h-1.5 bg-white" : "w-1.5 h-1.5 bg-white/50"}`}
+                                    />
                                 ))}
                             </div>
                         )}
+                        {/* Counter badge */}
+                        <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm text-white text-xs px-2 py-0.5 rounded-md flex items-center gap-1">
+                            <Grid3X3 className="w-3 h-3" />
+                            <span>{currentImageIndex + 1}/{allImages.length}</span>
+                        </div>
                     </div>
                 </Link>
 
-                {/* Image Gallery Navigation - Only show on main image area */}
+                {/* Prev / Next arrows */}
                 {allImages.length > 1 && (
                     <>
                         <button
                             onClick={prevImage}
-                            className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-md hover:bg-white transition-all opacity-0 group-hover:opacity-100 z-10"
+                            className="absolute left-2 top-[100px] -translate-y-1/2 w-7 h-7 bg-white/90 rounded-full flex items-center justify-center shadow-md hover:bg-white transition-all opacity-0 group-hover:opacity-100 z-10"
                         >
-                            <ChevronLeft className="w-5 h-5 text-gray-700" />
+                            <ChevronLeft className="w-4 h-4 text-gray-700" />
                         </button>
                         <button
                             onClick={nextImage}
-                            className="absolute right-[156px] top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-md hover:bg-white transition-all opacity-0 group-hover:opacity-100 z-10"
-                            style={{ right: thumbnails.length > 0 ? '156px' : '8px' }}
+                            className="absolute right-2 top-[100px] -translate-y-1/2 w-7 h-7 bg-white/90 rounded-full flex items-center justify-center shadow-md hover:bg-white transition-all opacity-0 group-hover:opacity-100 z-10"
                         >
-                            <ChevronRight className="w-5 h-5 text-gray-700" />
+                            <ChevronRight className="w-4 h-4 text-gray-700" />
                         </button>
                     </>
                 )}
@@ -458,6 +423,34 @@ export default function PropertyListing({
         })
     }, [filters, searchQuery, type])
 
+    // Handle page change
+    const handlePageChange = useCallback((page: number) => {
+        if (page < 1 || page > pagination.lastPage) return
+        const params: Record<string, unknown> = {
+            ...filters,
+            search: searchQuery || undefined,
+            sort: sortBy,
+            page,
+        }
+        router.get(`/${type}`, params as Record<string, string | string[] | boolean | number | undefined>, {
+            preserveState: true,
+            preserveScroll: false,
+        })
+    }, [filters, searchQuery, sortBy, type, pagination.lastPage])
+
+    // Generate page window around current page
+    const getPageNumbers = useCallback((): number[] => {
+        const { currentPage, lastPage } = pagination
+        const delta = 2
+        let start = Math.max(1, currentPage - delta)
+        let end = Math.min(lastPage, currentPage + delta)
+        if (end - start < 4) {
+            if (start === 1) end = Math.min(lastPage, 5)
+            else if (end === lastPage) start = Math.max(1, lastPage - 4)
+        }
+        return Array.from({ length: end - start + 1 }, (_, i) => start + i)
+    }, [pagination])
+
     // Handle category change
     const handleCategoryChange = useCallback((categorySlug: string | null) => {
         setActiveCategory(categorySlug)
@@ -609,7 +602,7 @@ export default function PropertyListing({
                                     key={category.id}
                                     onClick={() => handleCategoryChange(activeCategory === category.slug ? null : category.slug)}
                                     className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-full border transition-all flex-shrink-0 ${activeCategory === category.slug
-                                        ? "bg-[#ECEC5C] border-[#c4a747] text-gray-900"
+                                        ? "bg-[#C5E62A] border-[#c4a747] text-gray-900"
                                         : "bg-white border-gray-300 text-gray-700 hover:border-gray-400"
                                         }`}
                                 >
@@ -714,7 +707,7 @@ export default function PropertyListing({
                         </div>
                         <div className="flex-1">
                             <p className="text-sm">
-                                Transaksi {isBeli ? "jual beli" : "sewa"} kini bisa di BigProperty! Lebih aman, untung, dan ringan.{" "}
+                                Transaksi {isBeli ? "jual beli" : "sewa"} kini bisa di CariHunian! Lebih aman, untung, dan ringan.{" "}
                                 <a href="#" className="underline font-semibold hover:text-white/90">
                                     Lihat Keuntungannya →
                                 </a>
@@ -725,10 +718,10 @@ export default function PropertyListing({
                         </button>
                     </div >
 
-                    {/* Property Grid - 2 Columns */}
+                    {/* Property Grid - 3 Columns */}
                     {
                         properties.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {properties.map((property) => (
                                     <PropertyListingCard key={property.id} property={property} />
                                 ))}
@@ -749,56 +742,79 @@ export default function PropertyListing({
                     }
 
                     {/* Pagination */}
-                    {
-                        pagination.lastPage > 1 && (
-                            <div className="flex items-center justify-center gap-2 mt-8">
+                    {pagination.lastPage > 1 && (() => {
+                        const pageNums = getPageNumbers()
+                        const { currentPage, lastPage } = pagination
+                        return (
+                            <div className="flex items-center justify-center gap-1.5 mt-8">
+                                {/* Prev */}
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    disabled={pagination.currentPage === 1}
-                                    className="border-gray-300"
+                                    disabled={currentPage === 1}
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    className="border-gray-300 disabled:opacity-40"
                                 >
                                     <ChevronLeft className="w-4 h-4" />
                                 </Button>
 
-                                {Array.from({ length: Math.min(5, pagination.lastPage) }, (_, i) => {
-                                    const pageNum = i + 1
-                                    return (
-                                        <Button
-                                            key={pageNum}
-                                            variant={pagination.currentPage === pageNum ? "default" : "outline"}
-                                            size="sm"
-                                            className={
-                                                pagination.currentPage === pageNum
-                                                    ? "bg-[#ECEC5C] text-gray-900 hover:bg-[#d4d44a]"
-                                                    : "border-gray-300"
-                                            }
-                                        >
-                                            {pageNum}
-                                        </Button>
-                                    )
-                                })}
-
-                                {pagination.lastPage > 5 && (
+                                {/* First page + ellipsis if needed */}
+                                {pageNums[0] > 1 && (
                                     <>
-                                        <span className="text-gray-400">...</span>
-                                        <Button variant="outline" size="sm" className="border-gray-300">
-                                            {pagination.lastPage}
-                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => handlePageChange(1)}
+                                            className="border-gray-300 min-w-[36px]"
+                                        >1</Button>
+                                        {pageNums[0] > 2 && <span className="text-gray-400 px-1">...</span>}
                                     </>
                                 )}
 
+                                {/* Page window */}
+                                {pageNums.map((pageNum) => (
+                                    <Button
+                                        key={pageNum}
+                                        variant={currentPage === pageNum ? "default" : "outline"}
+                                        size="sm"
+                                        onClick={() => handlePageChange(pageNum)}
+                                        className={`min-w-[36px] ${currentPage === pageNum
+                                            ? "bg-[#C5E62A] text-gray-900 hover:bg-[#d4d44a] border-[#C5E62A]"
+                                            : "border-gray-300"
+                                        }`}
+                                    >
+                                        {pageNum}
+                                    </Button>
+                                ))}
+
+                                {/* Last page + ellipsis if needed */}
+                                {pageNums[pageNums.length - 1] < lastPage && (
+                                    <>
+                                        {pageNums[pageNums.length - 1] < lastPage - 1 && (
+                                            <span className="text-gray-400 px-1">...</span>
+                                        )}
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => handlePageChange(lastPage)}
+                                            className="border-gray-300 min-w-[36px]"
+                                        >{lastPage}</Button>
+                                    </>
+                                )}
+
+                                {/* Next */}
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    disabled={pagination.currentPage === pagination.lastPage}
-                                    className="border-gray-300"
+                                    disabled={currentPage === lastPage}
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    className="border-gray-300 disabled:opacity-40"
                                 >
                                     <ChevronRight className="w-4 h-4" />
                                 </Button>
                             </div>
                         )
-                    }
+                    })()}
                 </div >
 
                 {/* Footer Spacer */}

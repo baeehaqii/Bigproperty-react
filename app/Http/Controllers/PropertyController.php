@@ -464,18 +464,24 @@ class PropertyController extends Controller
             })->toArray();
         }
 
+        // Handle array of plain strings e.g. ["Lokasi strategis", "Dekat sekolah"]
+        if (!empty($keunggulan) && is_string($keunggulan[0])) {
+            return array_map(fn($item) => [
+                'icon' => '✓',
+                'title' => $item,
+                'description' => '',
+            ], $keunggulan);
+        }
+
         // Handle array of objects format
         return array_map(function ($item) {
-            // Handle both object and array format
             if (is_array($item)) {
                 return [
                     'icon' => $item['icon'] ?? '✓',
-                    'title' => $item['nama'] ?? '',
-                    'description' => $item['keterangan'] ?? '',
+                    'title' => $item['nama'] ?? $item['title'] ?? '',
+                    'description' => $item['keterangan'] ?? $item['description'] ?? '',
                 ];
             }
-
-            // Fallback for object
             return [
                 'icon' => $item->icon ?? '✓',
                 'title' => $item->nama ?? '',

@@ -141,13 +141,13 @@ export function LatestProperties() {
                         <h2 className="text-2xl font-bold text-gray-900 mb-2">Properti Terbaru</h2>
                         <p className="text-gray-600">Listing baru yang sudah diverifikasi dan siap untuk Anda</p>
                     </div>
-                    <a href="/beli" className="text-[#ECEC5C] font-medium text-sm whitespace-nowrap hover:underline">
+                    <a href="/beli" className="text-[#C5E62A] font-medium text-sm whitespace-nowrap hover:underline">
                         Lihat Semua
                     </a>
                 </div>
                 <div className="flex items-center justify-center h-64">
                     <div className="flex flex-col items-center gap-3">
-                        <div className="w-10 h-10 border-4 border-[#ECEC5C] border-t-transparent rounded-full animate-spin"></div>
+                        <div className="w-10 h-10 border-4 border-[#C5E62A] border-t-transparent rounded-full animate-spin"></div>
                         <div className="text-gray-500">Memuat properti terbaru...</div>
                     </div>
                 </div>
@@ -165,7 +165,7 @@ export function LatestProperties() {
                         <h2 className="text-2xl font-bold text-gray-900 mb-2">Properti Terbaru</h2>
                         <p className="text-gray-600">Listing baru yang sudah diverifikasi dan siap untuk Anda</p>
                     </div>
-                    <a href="/beli" className="text-[#ECEC5C] font-medium text-sm whitespace-nowrap hover:underline">
+                    <a href="/beli" className="text-[#C5E62A] font-medium text-sm whitespace-nowrap hover:underline">
                         Lihat Semua
                     </a>
                 </div>
@@ -180,7 +180,7 @@ export function LatestProperties() {
                         </div>
                         <button
                             onClick={() => fetchLatestProperties(1)}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-[#ECEC5C] hover:bg-[#d4d44a] text-gray-900 font-medium rounded-lg transition-colors"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-[#C5E62A] hover:bg-[#d4d44a] text-gray-900 font-medium rounded-lg transition-colors"
                         >
                             <RefreshCw className="w-4 h-4" />
                             Coba Lagi
@@ -201,7 +201,7 @@ export function LatestProperties() {
                         <h2 className="text-2xl font-bold text-gray-900 mb-2">Properti Terbaru</h2>
                         <p className="text-gray-600">Listing baru yang sudah diverifikasi dan siap untuk Anda</p>
                     </div>
-                    <a href="/beli" className="text-[#ECEC5C] font-medium text-sm whitespace-nowrap hover:underline">
+                    <a href="/beli" className="text-[#C5E62A] font-medium text-sm whitespace-nowrap hover:underline">
                         Lihat Semua
                     </a>
                 </div>
@@ -216,7 +216,7 @@ export function LatestProperties() {
                         </div>
                         <a
                             href="/beli"
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-[#ECEC5C] hover:bg-[#d4d44a] text-gray-900 font-medium rounded-lg transition-colors"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-[#C5E62A] hover:bg-[#d4d44a] text-gray-900 font-medium rounded-lg transition-colors"
                         >
                             Lihat Semua Properti
                             <ChevronRight className="w-4 h-4" />
@@ -235,7 +235,7 @@ export function LatestProperties() {
                     <h2 className="text-2xl font-bold text-gray-900 mb-2">Properti Terbaru</h2>
                     <p className="text-gray-600">Listing baru yang sudah diverifikasi dan siap untuk Anda</p>
                 </div>
-                <a href="/beli" className="text-[#ECEC5C] font-medium text-sm whitespace-nowrap hover:underline">
+                <a href="/beli" className="text-[#C5E62A] font-medium text-sm whitespace-nowrap hover:underline">
                     Lihat Semua
                 </a>
             </div>
@@ -243,7 +243,7 @@ export function LatestProperties() {
             {/* Loading overlay for page transitions */}
             {loading && (
                 <div className="absolute inset-0 bg-white/50 flex items-center justify-center z-10 rounded-xl">
-                    <div className="w-8 h-8 border-4 border-[#ECEC5C] border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-8 h-8 border-4 border-[#C5E62A] border-t-transparent rounded-full animate-spin"></div>
                 </div>
             )}
 
@@ -272,7 +272,7 @@ export function LatestProperties() {
                             disabled={currentPage === 1}
                             className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all ${currentPage === 1
                                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                : 'bg-white text-gray-700 border border-gray-200 hover:border-[#ECEC5C] hover:bg-[#ECEC5C]/10'
+                                : 'bg-white text-gray-700 border border-gray-200 hover:border-[#C5E62A] hover:bg-[#C5E62A]/10'
                                 }`}
                             aria-label="Previous page"
                         >
@@ -291,8 +291,8 @@ export function LatestProperties() {
                                         key={page}
                                         onClick={() => handlePageChange(page as number)}
                                         className={`w-10 h-10 rounded-lg font-medium transition-all ${currentPage === page
-                                            ? 'bg-gradient-to-br from-[#ECEC5C] to-[#d4d44a] text-gray-900 shadow-md'
-                                            : 'bg-white text-gray-700 border border-gray-200 hover:border-[#ECEC5C] hover:bg-[#ECEC5C]/10'
+                                            ? 'bg-gradient-to-br from-[#C5E62A] to-[#d4d44a] text-gray-900 shadow-md'
+                                            : 'bg-white text-gray-700 border border-gray-200 hover:border-[#C5E62A] hover:bg-[#C5E62A]/10'
                                             }`}
                                     >
                                         {page}
@@ -307,7 +307,7 @@ export function LatestProperties() {
                             disabled={!pagination.has_more_pages}
                             className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all ${!pagination.has_more_pages
                                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                : 'bg-white text-gray-700 border border-gray-200 hover:border-[#ECEC5C] hover:bg-[#ECEC5C]/10'
+                                : 'bg-white text-gray-700 border border-gray-200 hover:border-[#C5E62A] hover:bg-[#C5E62A]/10'
                                 }`}
                             aria-label="Next page"
                         >

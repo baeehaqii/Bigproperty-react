@@ -45,9 +45,9 @@ interface SEOHeadProps {
     dnsPrefetch?: string[]
 }
 
-const SITE_NAME = 'Big Property'
-const SITE_URL = 'https://bigproperty.id'
-const DEFAULT_DESCRIPTION = 'Big Property - Situs jual beli properti terpercaya di Indonesia. Temukan rumah, apartemen, tanah, dan properti impian Anda dengan mudah.'
+const SITE_NAME = 'CariHunian'
+const SITE_URL = 'https://carihunian.co'
+const DEFAULT_DESCRIPTION = 'CariHunian - Situs jual beli properti terpercaya di Indonesia. Temukan rumah, apartemen, tanah, dan properti impian Anda dengan mudah.'
 const DEFAULT_OG_IMAGE = 'https://storage.googleapis.com/bigproperty_image/website_assets/og-image-bigproperty.png'
 
 /**
@@ -158,7 +158,7 @@ export function SEOHead({
             <meta name="twitter:image" content={ogImage} />
 
             {/* Mobile & PWA */}
-            <meta name="theme-color" content="#ECEC5C" />
+            <meta name="theme-color" content="#C5E62A" />
             <meta name="mobile-web-app-capable" content="yes" />
             <meta name="apple-mobile-web-app-capable" content="yes" />
             <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -208,13 +208,13 @@ export function getOrganizationSchema() {
     return {
         '@context': 'https://schema.org',
         '@type': 'Organization',
-        name: 'Big Property',
+        name: 'CariHunian',
         url: SITE_URL,
-        logo: 'https://storage.googleapis.com/bigproperty_image/website_assets/logo-bigproperty.png',
+        logo: `${SITE_URL}/logo-carihunian-warna.svg`,
         sameAs: [
-            'https://www.facebook.com/bigproperty.id',
-            'https://www.instagram.com/bigproperty.id',
-            'https://twitter.com/bigproperty_id',
+            'https://www.facebook.com/carihunian.co',
+            'https://www.instagram.com/carihunian.co',
+            'https://twitter.com/carihunian_co',
         ],
         contactPoint: {
             '@type': 'ContactPoint',

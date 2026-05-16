@@ -88,7 +88,7 @@ export function DashboardAgentLayout({ agent, children, title = 'Dashboard Agent
 
     return (
         <>
-            <Head title={`${title} - BigProperty`} />
+            <Head title={`${title} - CariHunian`} />
 
             {/* Mobile Overlay */}
             {sidebarOpen && (
@@ -109,8 +109,8 @@ export function DashboardAgentLayout({ agent, children, title = 'Dashboard Agent
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
                                 <img
-                                    src="https://storage.googleapis.com/bigproperty_image/website_assets/logo-bigproperty.png"
-                                    alt="BigProperty Logo"
+                                    src="/logo-carihunian-warna.svg"
+                                    alt="CariHunian Logo"
                                     className="w-14 h-14 object-contain"
                                 />
                                 <div>

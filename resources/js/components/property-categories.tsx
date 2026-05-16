@@ -77,38 +77,58 @@ interface CategoryCardProps {
 }
 
 function CategoryCard({ icon, label, slug, section, badge, badgeColor, highlighted = false, isOrange = false }: CategoryCardProps) {
-  // Generate URL based on section
   const getUrl = () => {
-    if (section === 'buy') {
-      return `/beli?kategori=${slug}`
-    } else if (section === 'rent') {
-      return `/sewa?kategori=${slug}`
-    }
+    if (section === 'buy') return `/beli?kategori=${slug}`
+    if (section === 'rent') return `/sewa?kategori=${slug}`
     return '#'
   }
 
+  const iconBg = highlighted
+    ? '#C5E62A'
+    : isOrange
+      ? '#FF6B6B'
+      : '#3B9EF5'
+
+  const iconColor = highlighted || isOrange ? '#1A1A2E' : '#ffffff'
+
   return (
     <Link href={getUrl()} className="no-underline">
-      <div className="relative flex min-w-[90px] flex-col items-center gap-2 rounded-lg border border-gray-200 bg-white p-3 transition-all hover:shadow-md hover:border-primary/30 cursor-pointer flex-shrink-0">
+      <div
+        className="relative flex min-w-[80px] flex-col items-center gap-2.5 rounded-2xl bg-white px-3 py-3.5 cursor-pointer flex-shrink-0 transition-all duration-200"
+        style={{ border: '1.5px solid #F0F0F0', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}
+        onMouseEnter={e => {
+          const el = e.currentTarget as HTMLElement;
+          el.style.borderColor = '#C5E62A';
+          el.style.boxShadow = '0 4px 16px rgba(197,230,42,0.2)';
+          el.style.transform = 'translateY(-2px)';
+        }}
+        onMouseLeave={e => {
+          const el = e.currentTarget as HTMLElement;
+          el.style.borderColor = '#F0F0F0';
+          el.style.boxShadow = '0 1px 4px rgba(0,0,0,0.05)';
+          el.style.transform = '';
+        }}
+      >
         {badge && (
           <div
-            className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full px-2 py-0.5 text-[10px] font-bold text-white whitespace-nowrap z-10"
-            style={{ backgroundColor: badgeColor || '#ef4444' }}
+            className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full px-2 py-0.5 text-[9px] font-bold whitespace-nowrap z-10"
+            style={{ backgroundColor: badgeColor || '#FF6B6B', color: '#fff', fontFamily: "'Outfit', sans-serif" }}
           >
             {badge}
           </div>
         )}
         <div
-          className={`flex h-10 w-10 items-center justify-center rounded-full ${isOrange
-            ? "bg-gradient-to-br from-orange-500 to-orange-600"
-            : highlighted
-              ? "bg-gradient-to-br from-[#ECEC5C] to-[#c4a747]"
-              : "bg-blue-500"
-            }`}
+          className="flex h-9 w-9 items-center justify-center rounded-xl flex-shrink-0"
+          style={{ backgroundColor: iconBg, color: iconColor }}
         >
-          <div className={isOrange || highlighted ? "text-white" : "text-white"}>{icon}</div>
+          {icon}
         </div>
-        <span className="text-center text-xs font-medium text-gray-800 leading-tight">{label}</span>
+        <span
+          className="text-center text-[11px] leading-tight"
+          style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 600, color: '#1A1A2E' }}
+        >
+          {label}
+        </span>
       </div>
     </Link>
   )
@@ -117,62 +137,62 @@ function CategoryCard({ icon, label, slug, section, badge, badgeColor, highlight
 // Heroicon mapping dari backend Laravel (menggunakan Lucide React equivalents)
 const heroiconMap: Record<string, React.ReactNode> = {
   // Property & Real Estate
-  "heroicon-o-home": <Home className="h-5 w-5" />,
-  "heroicon-o-home-modern": <Building className="h-5 w-5" />,
-  "heroicon-o-building-office": <Building2 className="h-5 w-5" />,
-  "heroicon-o-building-office-2": <Building2 className="h-5 w-5" />,
-  "heroicon-o-building-storefront": <Store className="h-5 w-5" />,
-  "heroicon-o-building-library": <Building className="h-5 w-5" />,
+  "heroicon-o-home": <Home className="h-4 w-4" />,
+  "heroicon-o-home-modern": <Building className="h-4 w-4" />,
+  "heroicon-o-building-office": <Building2 className="h-4 w-4" />,
+  "heroicon-o-building-office-2": <Building2 className="h-4 w-4" />,
+  "heroicon-o-building-storefront": <Store className="h-4 w-4" />,
+  "heroicon-o-building-library": <Building className="h-4 w-4" />,
 
   // Location
-  "heroicon-o-map-pin": <MapPin className="h-5 w-5" />,
-  "heroicon-o-map": <Map className="h-5 w-5" />,
-  "heroicon-o-globe-alt": <Globe className="h-5 w-5" />,
+  "heroicon-o-map-pin": <MapPin className="h-4 w-4" />,
+  "heroicon-o-map": <Map className="h-4 w-4" />,
+  "heroicon-o-globe-alt": <Globe className="h-4 w-4" />,
 
   // Business
-  "heroicon-o-briefcase": <Briefcase className="h-5 w-5" />,
-  "heroicon-o-banknotes": <Banknote className="h-5 w-5" />,
-  "heroicon-o-currency-dollar": <DollarSign className="h-5 w-5" />,
+  "heroicon-o-briefcase": <Briefcase className="h-4 w-4" />,
+  "heroicon-o-banknotes": <Banknote className="h-4 w-4" />,
+  "heroicon-o-currency-dollar": <DollarSign className="h-4 w-4" />,
 
   // Categories
-  "heroicon-o-squares-2x2": <Grid2X2 className="h-5 w-5" />,
-  "heroicon-o-squares-plus": <Plus className="h-5 w-5" />,
-  "heroicon-o-rectangle-group": <Columns3 className="h-5 w-5" />,
+  "heroicon-o-squares-2x2": <Grid2X2 className="h-4 w-4" />,
+  "heroicon-o-squares-plus": <Plus className="h-4 w-4" />,
+  "heroicon-o-rectangle-group": <Columns3 className="h-4 w-4" />,
 
   // Common
-  "heroicon-o-star": <Star className="h-5 w-5" />,
-  "heroicon-o-heart": <Heart className="h-5 w-5" />,
-  "heroicon-o-fire": <Flame className="h-5 w-5" />,
-  "heroicon-o-sparkles": <Sparkles className="h-5 w-5" />,
-  "heroicon-o-bolt": <Zap className="h-5 w-5" />,
-  "heroicon-o-key": <Key className="h-5 w-5" />,
-  "heroicon-o-shopping-cart": <ShoppingCart className="h-5 w-5" />,
-  "heroicon-o-shopping-bag": <ShoppingBag className="h-5 w-5" />,
+  "heroicon-o-star": <Star className="h-4 w-4" />,
+  "heroicon-o-heart": <Heart className="h-4 w-4" />,
+  "heroicon-o-fire": <Flame className="h-4 w-4" />,
+  "heroicon-o-sparkles": <Sparkles className="h-4 w-4" />,
+  "heroicon-o-bolt": <Zap className="h-4 w-4" />,
+  "heroicon-o-key": <Key className="h-4 w-4" />,
+  "heroicon-o-shopping-cart": <ShoppingCart className="h-4 w-4" />,
+  "heroicon-o-shopping-bag": <ShoppingBag className="h-4 w-4" />,
 
   // Facilities
-  "heroicon-o-tv": <Tv className="h-5 w-5" />,
-  "heroicon-o-wifi": <Wifi className="h-5 w-5" />,
-  "heroicon-o-truck": <Truck className="h-5 w-5" />,
-  "heroicon-o-wrench-screwdriver": <Wrench className="h-5 w-5" />,
+  "heroicon-o-tv": <Tv className="h-4 w-4" />,
+  "heroicon-o-wifi": <Wifi className="h-4 w-4" />,
+  "heroicon-o-truck": <Truck className="h-4 w-4" />,
+  "heroicon-o-wrench-screwdriver": <Wrench className="h-4 w-4" />,
 
   // Nature
-  "heroicon-o-sun": <Sun className="h-5 w-5" />,
-  "heroicon-o-moon": <Moon className="h-5 w-5" />,
-  "heroicon-o-cloud": <Cloud className="h-5 w-5" />,
+  "heroicon-o-sun": <Sun className="h-4 w-4" />,
+  "heroicon-o-moon": <Moon className="h-4 w-4" />,
+  "heroicon-o-cloud": <Cloud className="h-4 w-4" />,
 
   // Legacy mappings (untuk backward compatibility)
-  Home: <Home className="h-5 w-5" />,
-  CheckCircle2: <CheckCircle2 className="h-5 w-5" />,
-  PlusCircle: <PlusCircle className="h-5 w-5" />,
-  Building2: <Building2 className="h-5 w-5" />,
-  Layers: <Layers className="h-5 w-5" />,
-  Store: <Store className="h-5 w-5" />,
-  Factory: <Factory className="h-5 w-5" />,
-  UserX: <UserX className="h-5 w-5" />,
-  Coins: <Coins className="h-5 w-5" />,
-  Handshake: <Handshake className="h-5 w-5" />,
-  TrendingUp: <TrendingUp className="h-5 w-5" />,
-  Bed: <Bed className="h-5 w-5" />,
+  Home: <Home className="h-4 w-4" />,
+  CheckCircle2: <CheckCircle2 className="h-4 w-4" />,
+  PlusCircle: <PlusCircle className="h-4 w-4" />,
+  Building2: <Building2 className="h-4 w-4" />,
+  Layers: <Layers className="h-4 w-4" />,
+  Store: <Store className="h-4 w-4" />,
+  Factory: <Factory className="h-4 w-4" />,
+  UserX: <UserX className="h-4 w-4" />,
+  Coins: <Coins className="h-4 w-4" />,
+  Handshake: <Handshake className="h-4 w-4" />,
+  TrendingUp: <TrendingUp className="h-4 w-4" />,
+  Bed: <Bed className="h-4 w-4" />,
 }
 
 export function PropertyCategories() {
@@ -334,26 +354,36 @@ export function PropertyCategories() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12">
-        <div className="flex items-center justify-center">
-          <div className="text-gray-500">Loading categories...</div>
+      <div className="mx-auto max-w-7xl px-4 py-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {[0, 1].map((col) => (
+            <div key={col}>
+              <div className="h-5 w-32 bg-gray-100 rounded animate-pulse mb-4" />
+              <div className="flex flex-wrap gap-2.5">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="h-[84px] w-[84px] bg-gray-100 rounded-xl animate-pulse" />
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     )
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-4 sm:py-6">
-      {/* Two Column Section - Beli & Sewa Properti side by side */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-        {/* Beli Properti Section - Left Column */}
+    <div className="mx-auto max-w-7xl px-4 py-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-14">
+        {/* Beli Properti */}
         <div>
-          <h2 className="mb-4 text-xl font-bold text-gray-900">Beli Properti</h2>
-          <div className="flex flex-wrap gap-3">
+          <h2 className="mb-3.5 text-base tracking-tight" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, color: '#1A1A2E' }}>
+            Beli Properti
+          </h2>
+          <div className="flex flex-wrap gap-2.5">
             {buyCategories.map((category: PropertyCategory) => (
               <CategoryCard
                 key={category.id}
-                icon={heroiconMap[category.icon] || <Home className="h-5 w-5" />}
+                icon={heroiconMap[category.icon] || <Home className="h-4 w-4" />}
                 label={category.name}
                 slug={category.slug}
                 section="buy"
@@ -365,16 +395,16 @@ export function PropertyCategories() {
           </div>
         </div>
 
-        {/* Sewa Properti Section - Right Column */}
+        {/* Sewa Properti */}
         <div>
-          <div className="flex items-center gap-2 mb-4">
-            <h2 className="text-xl font-bold text-gray-900">Sewa Properti</h2>
-          </div>
-          <div className="flex flex-wrap gap-3">
+          <h2 className="mb-3.5 text-base tracking-tight" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, color: '#1A1A2E' }}>
+            Sewa Properti
+          </h2>
+          <div className="flex flex-wrap gap-2.5">
             {rentCategories.map((category: PropertyCategory) => (
               <CategoryCard
                 key={category.id}
-                icon={heroiconMap[category.icon] || <Home className="h-5 w-5" />}
+                icon={heroiconMap[category.icon] || <Home className="h-4 w-4" />}
                 label={category.name}
                 slug={category.slug}
                 section="rent"

@@ -75,7 +75,20 @@ export function GoldenDealsCard({
   }
 
   return (
-    <div className="flex-shrink-0 w-[320px] bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow">
+    <div
+      className="flex-shrink-0 w-[320px] bg-white rounded-2xl overflow-hidden transition-all duration-200"
+      style={{ border: '1.5px solid #F0F0F0', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}
+      onMouseEnter={e => {
+        const el = e.currentTarget as HTMLElement
+        el.style.boxShadow = '0 8px 28px rgba(197,230,42,0.18), 0 2px 8px rgba(0,0,0,0.06)'
+        el.style.borderColor = '#C5E62A'
+      }}
+      onMouseLeave={e => {
+        const el = e.currentTarget as HTMLElement
+        el.style.boxShadow = '0 1px 4px rgba(0,0,0,0.05)'
+        el.style.borderColor = '#F0F0F0'
+      }}
+    >
       {/* Image Section */}
       <div className="relative h-[200px] group cursor-pointer">
         <Link href={`/property/${id}`} className="block h-full w-full">
@@ -94,7 +107,7 @@ export function GoldenDealsCard({
         </Link>
 
         {/* Views Counter Badge */}
-        <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-full flex items-center gap-1.5">
+        <div className="absolute top-3 left-3 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-full flex items-center gap-1.5" style={{ backgroundColor: 'rgba(26,26,46,0.75)', fontFamily: "'Outfit', sans-serif" }}>
           <Eye className="w-3.5 h-3.5" />
           <span>{formatViews(countClicked)}</span>
         </div>
@@ -164,22 +177,22 @@ export function GoldenDealsCard({
         <div className="p-4 cursor-pointer">
           {/* Type & Units */}
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-sm text-gray-600">{type}</span>
+            <span className="text-sm" style={{ fontFamily: "'Outfit', sans-serif", color: '#6B7280' }}>{type}</span>
             {typeExtra && (
               <>
-                <span className="text-gray-300">•</span>
-                <span className="text-sm text-gray-600">{typeExtra}</span>
+                <span style={{ color: '#D1D5DB' }}>•</span>
+                <span className="text-sm" style={{ fontFamily: "'Outfit', sans-serif", color: '#6B7280' }}>{typeExtra}</span>
               </>
             )}
           </div>
 
           {/* Price */}
           <div className="mb-1">
-            <p className="text-lg font-bold text-gray-900">{priceRange}</p>
+            <p className="text-xl font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#1A1A2E', letterSpacing: '-0.02em' }}>{priceRange}</p>
           </div>
 
           {/* Installment */}
-          <p className="text-sm text-amber-600 font-medium mb-3">{installment}</p>
+          <p className="text-sm mb-3" style={{ fontFamily: "'Outfit', sans-serif", color: '#3B9EF5', fontWeight: 500 }}>{installment}</p>
 
           {/* Developer & Property Name */}
           <div className="flex items-start gap-2 mb-2">
@@ -197,48 +210,52 @@ export function GoldenDealsCard({
                   objectFit="cover"
                 />
               ) : null}
-              <div className={`avatar-fallback w-full h-full bg-amber-600 flex items-center justify-center ${developerLogo ? 'hidden' : ''}`}>
-                <span className="text-white font-bold text-sm">
+              <div className={`avatar-fallback w-full h-full flex items-center justify-center ${developerLogo ? 'hidden' : ''}`} style={{ backgroundColor: '#3B9EF5' }}>
+                <span className="text-white font-bold text-sm" style={{ fontFamily: "'Outfit', sans-serif" }}>
                   {developer?.charAt(0)?.toUpperCase() || 'D'}
                 </span>
               </div>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-gray-900 text-sm truncate">{propertyName}</p>
-              <p className="text-xs text-gray-500">by {developer}</p>
+              <p className="text-sm truncate" style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 600, color: '#1A1A2E' }}>{propertyName}</p>
+              <p className="text-xs" style={{ fontFamily: "'Outfit', sans-serif", color: '#9CA3AF' }}>by {developer}</p>
             </div>
           </div>
 
           {/* Location */}
           <div className="flex items-start gap-1 mb-3">
-            <MapPin className="w-3 h-3 text-gray-400 mt-0.5 flex-shrink-0" />
-            <p className="text-xs text-gray-600">{location}</p>
+            <MapPin className="w-3 h-3 mt-0.5 flex-shrink-0" style={{ color: '#3B9EF5' }} />
+            <p className="text-xs" style={{ fontFamily: "'Outfit', sans-serif", color: '#6B7280' }}>{location}</p>
           </div>
 
           {/* Specs */}
-          <div className="flex items-center gap-3 text-xs text-gray-600 mb-2">
-            <span>{bedrooms} KT</span>
-            <span>LT {landSize}</span>
-            <span>LB {buildingSize}</span>
-            {shm && <span>SHM</span>}
+          <div className="flex items-center gap-3 text-xs mb-2" style={{ fontFamily: "'Outfit', sans-serif", color: '#374151' }}>
+            <span><span className="font-semibold">{bedrooms}</span> KT</span>
+            <span className="text-gray-300">·</span>
+            <span>LT <span className="font-semibold">{landSize}</span></span>
+            <span className="text-gray-300">·</span>
+            <span>LB <span className="font-semibold">{buildingSize}</span></span>
+            {shm && <><span className="text-gray-300">·</span><span>SHM</span></>}
           </div>
 
           {/* Updated At */}
-          <p className="text-xs text-gray-400 mb-4">{updatedAt}</p>
+          <p className="text-xs mb-4" style={{ fontFamily: "'Outfit', sans-serif", color: '#9CA3AF' }}>{updatedAt}</p>
         </div>
       </Link>
 
-      {/* Buttons - Keep Brosur & Chat */}
+      {/* Buttons */}
       <div className="px-4 pb-4 flex gap-2">
         <Button
           variant="outline"
           size="sm"
-          className="flex-1 text-amber-600 border-amber-600 hover:bg-amber-50 bg-white h-9 text-xs font-semibold"
+          className="flex-1 h-9 text-xs cursor-pointer transition-colors"
+          style={{ borderColor: '#3B9EF5', color: '#3B9EF5', backgroundColor: 'transparent', fontFamily: "'Outfit', sans-serif", fontWeight: 600 }}
         >
           <FileText className="w-3.5 h-3.5 mr-1.5" />
           Brosur
         </Button>
-        <Button size="sm" className="flex-1 bg-amber-600 hover:bg-amber-700 h-9 text-xs font-semibold text-white">
+        <Button size="sm" className="flex-1 h-9 text-xs cursor-pointer transition-all active:scale-[0.98]"
+          style={{ backgroundColor: '#C5E62A', color: '#1A1A2E', fontFamily: "'Outfit', sans-serif", fontWeight: 700, boxShadow: '0 2px 10px rgba(197,230,42,0.3)' }}>
           <MessageCircle className="w-3.5 h-3.5 mr-1.5" />
           Chat
         </Button>

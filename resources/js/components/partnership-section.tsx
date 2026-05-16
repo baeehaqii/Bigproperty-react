@@ -1,8 +1,7 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useRef } from "react"
 import { ChevronDown, ChevronUp } from "lucide-react"
-import { OptimizedImage } from "./optimized-image"
 
 // Dummy partner logos (placeholder URLs)
 const partnerLogosRow1 = [
@@ -129,16 +128,14 @@ function LogoMarquee({ logos, direction = "right" }: { logos: typeof partnerLogo
                 {duplicatedLogos.map((partner, index) => (
                     <div
                         key={`${partner.name}-${index}`}
-                        className="flex-shrink-0 bg-white rounded-lg px-6 py-3 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+                        className="flex-shrink-0 bg-white rounded-lg px-3 py-1.5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex items-center justify-center min-w-[100px]"
                     >
-                        <OptimizedImage
+                        <img
                             src={partner.logo}
-                            alt={`Partner ${partner.name}`}
-                            height={40}
-                            blur={false}
-                            containerClassName="h-10 w-auto"
-                            className="h-10 w-auto"
-                            objectFit="contain"
+                            alt={`Logo ${partner.name}`}
+                            className="h-5 md:h-6 w-auto object-contain max-w-[80px]"
+                            loading="lazy"
+                            decoding="async"
                         />
                     </div>
                 ))}
@@ -170,7 +167,7 @@ function CategoryDropdown({ category }: { category: typeof propertyCategories[0]
                         <a
                             key={link.name}
                             href={link.href}
-                            className="block text-sm text-gray-600 hover:text-[#ECEC5C] hover:underline transition-colors"
+                            className="block text-sm text-gray-600 hover:text-[#C5E62A] hover:underline transition-colors"
                         >
                             {link.name}
                         </a>
@@ -195,7 +192,7 @@ export function PartnershipSection() {
                     </p>
                     <a
                         href="/404"
-                        className="inline-flex items-center px-6 py-3 bg-[#ECEC5C] hover:bg-[#d4d44a] text-gray-900 font-semibold rounded-full transition-colors shadow-md hover:shadow-lg"
+                        className="inline-flex items-center px-6 py-3 bg-[#C5E62A] hover:bg-[#d4d44a] text-gray-900 font-semibold rounded-full transition-colors shadow-md hover:shadow-lg"
                     >
                         Hubungi Kami Untuk Kolaborasi
                     </a>

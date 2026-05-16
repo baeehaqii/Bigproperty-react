@@ -5,8 +5,8 @@ export default function AppLogo() {
         <>
             <div className="flex aspect-square size-8 items-center justify-center rounded-md text-sidebar-primary-foreground">
                 <img
-                    src="https://storage.googleapis.com/bigproperty_image/website_assets/logo-bigproperty.png"
-                    alt="Big Property Logo"
+                    src="/logo-carihunian-warna.svg"
+                    alt="CariHunian Logo"
                     className="size-10 object-contain"
                 />
             </div>

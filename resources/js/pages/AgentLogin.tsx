@@ -24,7 +24,7 @@ export default function AgentLogin() {
         {
             name: "Sarina Dwi",
             role: "Top Agent 2024",
-            text: "BigProperty membantu kami mendapatkan rumah idaman dengan proses yang mudah dan cepat. Dashboard agent sangat memudahkan pekerjaan!",
+            text: "CariHunian membantu kami mendapatkan rumah idaman dengan proses yang mudah dan cepat. Dashboard agent sangat memudahkan pekerjaan!",
             initial: "S"
         },
         {
@@ -48,7 +48,7 @@ export default function AgentLogin() {
         return () => clearInterval(timer)
     }, [])
 
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing, errors, setError, clearErrors } = useForm({
         email: "",
         password: "",
         remember: false,
@@ -56,12 +56,31 @@ export default function AgentLogin() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
-        post("/agent/login")
+
+        let hasError = false
+        clearErrors()
+
+        if (!data.email) {
+            setError("email", "Email wajib diisi")
+            hasError = true
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+            setError("email", "Format email tidak valid")
+            hasError = true
+        }
+
+        if (!data.password) {
+            setError("password", "Password wajib diisi")
+            hasError = true
+        }
+
+        if (!hasError) {
+            post("/agent/login")
+        }
     }
 
     return (
         <>
-            <Head title="Login Agent - BigProperty">
+            <Head title="Login Agent - CariHunian">
                 <link rel="preconnect" href="https://fonts.bunny.net" />
                 <link
                     href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700"
@@ -76,9 +95,9 @@ export default function AgentLogin() {
                         {/* Logo */}
                         <Link href="/" className="inline-block mb-6">
                             <img
-                                src="https://storage.googleapis.com/bigproperty_image/website_assets/logo-bigproperty.png"
-                                alt="BigProperty"
-                                className="h-10"
+                                src="/logo-carihunian-warna.svg"
+                                alt="CariHunian"
+                                style={{ height: '60px', width: 'auto', objectFit: 'contain' }}
                                 onError={(e) => {
                                     e.currentTarget.src = '/placeholder.svg'
                                 }}
@@ -157,7 +176,7 @@ export default function AgentLogin() {
                             <Button
                                 type="submit"
                                 disabled={processing}
-                                className="h-[52px] w-full rounded-full bg-[#ECEC5C] text-gray-900 font-semibold hover:bg-[#d9d94f] transition-colors"
+                                className="h-[52px] w-full rounded-full bg-[#C5E62A] text-gray-900 font-semibold hover:bg-[#d9d94f] transition-colors"
                             >
                                 {processing ? "Signing In..." : "Sign In"}
                             </Button>
@@ -240,7 +259,7 @@ export default function AgentLogin() {
                                         <button
                                             key={index}
                                             onClick={() => setCurrentSlide(index)}
-                                            className={`h-2.5 rounded-full transition-all duration-300 ${currentSlide === index ? "bg-[#ECEC5C] w-8" : "bg-gray-200 w-2.5"
+                                            className={`h-2.5 rounded-full transition-all duration-300 ${currentSlide === index ? "bg-[#C5E62A] w-8" : "bg-gray-200 w-2.5"
                                                 }`}
                                             aria-label={`Go to slide ${index + 1}`}
                                         />

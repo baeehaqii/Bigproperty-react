@@ -106,6 +106,12 @@ Route::prefix('agent')->name('agent.')->group(function () {
         Route::post('/register', [AgentAuthController::class, 'register']);
         Route::get('/login', [AgentAuthController::class, 'showLoginForm'])->name('login');
         Route::post('/login', [AgentAuthController::class, 'login']);
+
+        // Password Reset via OTP
+        Route::get('/forgot-password', [AgentAuthController::class, 'showForgotPasswordForm'])->name('forgot-password');
+        Route::post('/forgot-password/send-otp', [AgentAuthController::class, 'sendOtp'])->name('forgot-password.send-otp');
+        Route::post('/forgot-password/verify-otp', [AgentAuthController::class, 'verifyOtp'])->name('forgot-password.verify-otp');
+        Route::post('/forgot-password/reset', [AgentAuthController::class, 'resetPassword'])->name('forgot-password.reset');
     });
 
     // Agent authenticated routes - hanya yang sudah login sebagai agent

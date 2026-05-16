@@ -105,7 +105,7 @@ export function ImageLightbox({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button className="bg-[#ECEC5C] hover:bg-[#ECEC5C]/90 text-gray-900 font-medium">
+            <Button className="bg-[#C5E62A] hover:bg-[#C5E62A]/90 text-gray-900 font-medium">
               <MessageCircle className="w-4 h-4 mr-2" />
               Chat
             </Button>
@@ -166,7 +166,7 @@ export function ImageLightbox({
                 onClick={() => onIndexChange(index)}
                 className={`flex-shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-lg overflow-hidden border-2 transition-all ${
                   index === currentIndex
-                    ? "border-[#ECEC5C] ring-2 ring-[#ECEC5C]/30"
+                    ? "border-[#C5E62A] ring-2 ring-[#C5E62A]/30"
                     : "border-transparent hover:border-gray-300"
                 }`}
               >

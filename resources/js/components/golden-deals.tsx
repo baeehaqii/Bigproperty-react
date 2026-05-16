@@ -136,7 +136,7 @@ export function GoldenDeals() {
           backgroundImage: `url('${bannerImage}')`,
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-[#ECEC5C]/90 via-[#d4d44a]/90 to-[#c4a747]/90 rounded-3xl" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#C5E62A]/90 via-[#d4d44a]/90 to-[#c4a747]/90 rounded-3xl" />
       </div>
 
       <div className="relative max-w-7xl mx-auto pt-12 pb-8">
@@ -144,30 +144,31 @@ export function GoldenDeals() {
           <div className="relative flex items-center gap-3">
             <div>
               <h2
-                className="text-5xl font-black leading-none mb-0"
+                className="text-5xl leading-none mb-0"
                 style={{
-                  color: "#fbbf24",
-                  textShadow: "3px 3px 0px rgba(139, 92, 246, 0.6), -1px -1px 0px rgba(255, 255, 255, 0.3)",
-                  WebkitTextStroke: "2px #7c3aed",
+                  fontFamily: "'Bricolage Grotesque', sans-serif",
+                  fontWeight: 800,
+                  color: '#C5E62A',
+                  letterSpacing: '-0.03em',
                 }}
               >
                 {goldenDeals.event.name.split(' ')[0] || 'GOLDEN'}
               </h2>
               <h2
-                className="text-5xl font-black leading-none"
+                className="text-5xl leading-none"
                 style={{
-                  background: "linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #fbbf24 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  textShadow: "2px 2px 4px rgba(0, 0, 0, 0.3)",
-                  filter: "drop-shadow(2px 2px 0px #7c3aed)",
+                  fontFamily: "'Bricolage Grotesque', sans-serif",
+                  fontWeight: 800,
+                  color: '#1A1A2E',
+                  letterSpacing: '-0.03em',
                 }}
               >
                 {goldenDeals.event.name.split(' ')[1] || 'DEALS'}
               </h2>
             </div>
           </div>
-          <Button className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold px-6 rounded-full">
+          <Button className="cursor-pointer rounded-xl font-bold px-6 transition-all active:scale-[0.98]"
+            style={{ backgroundColor: '#C5E62A', color: '#1A1A2E', fontFamily: "'Outfit', sans-serif", fontWeight: 700 }}>
             LIHAT SEMUA
           </Button>
         </div>
@@ -181,10 +182,13 @@ export function GoldenDeals() {
         <div className="relative group">
           <button
             onClick={() => scroll("left")}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer"
+            style={{ backgroundColor: '#fff', border: '1.5px solid #E5E7EB', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#C5E62A'; (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 16px rgba(197,230,42,0.25)' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E5E7EB'; (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)' }}
             aria-label="Scroll left"
           >
-            <ChevronLeft className="w-6 h-6 text-gray-700" />
+            <ChevronLeft className="w-5 h-5" style={{ color: '#1A1A2E' }} />
           </button>
 
           <div
@@ -220,10 +224,13 @@ export function GoldenDeals() {
 
           <button
             onClick={() => scroll("right")}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer"
+            style={{ backgroundColor: '#fff', border: '1.5px solid #E5E7EB', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#C5E62A'; (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 16px rgba(197,230,42,0.25)' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E5E7EB'; (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)' }}
             aria-label="Scroll right"
           >
-            <ChevronRight className="w-6 h-6 text-gray-700" />
+            <ChevronRight className="w-5 h-5" style={{ color: '#1A1A2E' }} />
           </button>
         </div>
       </div>

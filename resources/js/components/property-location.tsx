@@ -100,7 +100,7 @@ export function PropertyLocation({ location, propertyName }: PropertyLocationPro
                 onClick={() => setActiveTab(category)}
                 className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors rounded-t-lg whitespace-nowrap ${
                   activeTab === category
-                    ? "border-[#ECEC5C] text-gray-900 bg-[#ECEC5C]/10"
+                    ? "border-[#C5E62A] text-gray-900 bg-[#C5E62A]/10"
                     : "border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                 }`}
               >

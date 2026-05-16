@@ -109,11 +109,11 @@ export function PopularProperties() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Hunian Populer</h2>
-          <p className="text-gray-600">Properti yang paling banyak dilihat pembeli</p>
+          <h2 className="text-2xl mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, color: '#1A1A2E', letterSpacing: '-0.02em' }}>Hunian Populer</h2>
+          <p className="text-sm" style={{ fontFamily: "'Outfit', sans-serif", color: '#6B7280' }}>Properti yang paling banyak dilihat pembeli</p>
         </div>
-        <a href="/beli" className="text-[#ECEC5C] font-medium text-sm whitespace-nowrap hover:underline">
-          Lihat Semua
+        <a href="/beli" className="text-sm font-bold whitespace-nowrap transition-colors" style={{ fontFamily: "'Outfit', sans-serif", color: '#3B9EF5' }}>
+          Lihat Semua →
         </a>
       </div>
 
@@ -122,10 +122,13 @@ export function PopularProperties() {
         {/* Left Arrow */}
         <button
           onClick={() => scroll("left")}
-          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-50"
+          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer"
+          style={{ backgroundColor: '#fff', border: '1.5px solid #E5E7EB', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#C5E62A'; (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 16px rgba(197,230,42,0.25)' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E5E7EB'; (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)' }}
           aria-label="Scroll left"
         >
-          <ChevronLeft className="w-6 h-6 text-gray-600" />
+          <ChevronLeft className="w-5 h-5" style={{ color: '#1A1A2E' }} />
         </button>
 
         {/* Cards Container */}
@@ -138,10 +141,13 @@ export function PopularProperties() {
         {/* Right Arrow */}
         <button
           onClick={() => scroll("right")}
-          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-50"
+          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer"
+          style={{ backgroundColor: '#fff', border: '1.5px solid #E5E7EB', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#C5E62A'; (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 16px rgba(197,230,42,0.25)' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E5E7EB'; (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)' }}
           aria-label="Scroll right"
         >
-          <ChevronRight className="w-6 h-6 text-gray-600" />
+          <ChevronRight className="w-5 h-5" style={{ color: '#1A1A2E' }} />
         </button>
       </div>
     </section>
