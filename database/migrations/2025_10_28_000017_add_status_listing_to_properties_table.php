@@ -11,7 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('properties', function (Blueprint $table) {
-            $table->string('status_listing')->default('active')->after('is_verified');
+            $table->string('status_listing')->default('active');
             // Status: active, sold, cancelled
         });
     }
